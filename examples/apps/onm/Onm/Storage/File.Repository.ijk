@@ -1,0 +1,93 @@
+// ==============================================================================
+// Unit: Onm.Storage.File.Repository
+// Application: onm — Object Notation Management
+// Language: ijkLang (ijkL)
+// Standard: ISO C11 Alignment, Clean Code (AGENTS.md)
+// Responsibility: Atomic disk reads and writes via onm.data and onm.data.tmp,
+//                 ensuring file integrity and UTF-8 encoding.
+// ==============================================================================
+
+import ijkL.Text;
+import ijkL.IO.File;
+import Onm.Core.Json.Model;
+import Onm.Core.Json.Parser;
+import Onm.Core.Json.Serializer;
+
+unit Onm.Storage.File.Repository {
+
+    const string DATA_FILE = "onm.data";
+    const string TEMP_FILE = "onm.data.tmp";
+
+    public loadRootNode(): JsonNode {
+        bool needs_init = false;
+        if (!ijkL.IO.File.exists(DATA_FILE)) {
+            needs_init = true;
+        } else {
+            string existing_content = ijkL.IO.File.readAllText(DATA_FILE);
+            string trimmed = ijkL.Text.trim(existing_content);
+            if (ijkL.Text.length(trimmed) == 0) {
+                needs_init = true;
+            }
+        }
+
+        if (needs_init) {
+            ijkL.IO.File.writeAllText(DATA_FILE, "{\n}\n");
+        }
+
+        string content = ijkL.IO.File.readAllText(DATA_FILE);
+        string trimmed_content = ijkL.Text.trim(content);
+        if (ijkL.Text.length(trimmed_content) == 0) {
+            return createNode();
+        }
+
+        JsonParser parser = createParser(content);
+        JsonNode root = parseJsonObject(parser);
+        if (parser.has_error || root == null) {
+            writeln("Error reading '", DATA_FILE, "': ", parser.error_message);
+            free(parser);
+            return null;
+        }
+        skipWhitespace(parser);
+        if (parser.index < parser.length) {
+            writeln("Error reading '", DATA_FILE, "': Extraneous characters after root JSON object.");
+            freeNode(root);
+            free(parser);
+            return null;
+        }
+        free(parser);
+        return root;
+    }
+
+    public saveRootNode(JsonNode root): bool {
+        string json_text = serializeNode(root, 0, true);
+        if (ijkL.IO.File.exists(TEMP_FILE)) {
+            ijkL.IO.File.delete(TEMP_FILE);
+        }
+        bool write_ok = ijkL.IO.File.writeAllText(TEMP_FILE, json_text);
+        if (!write_ok) {
+            bool direct_write_ok = ijkL.IO.File.writeAllText(DATA_FILE, json_text);
+            if (!direct_write_ok) {
+                writeln("Error: Failed to write to persistence file '", DATA_FILE, "'.");
+                return false;
+            }
+            return true;
+        }
+        bool rename_ok = ijkL.IO.File.rename(TEMP_FILE, DATA_FILE);
+        if (!rename_ok) {
+            if (ijkL.IO.File.exists(DATA_FILE)) {
+                ijkL.IO.File.delete(DATA_FILE);
+                rename_ok = ijkL.IO.File.rename(TEMP_FILE, DATA_FILE);
+            }
+            if (!rename_ok) {
+                bool direct_ok = ijkL.IO.File.writeAllText(DATA_FILE, json_text);
+                ijkL.IO.File.delete(TEMP_FILE);
+                if (!direct_ok) {
+                    writeln("Error: Failed to atomically replace '", DATA_FILE, "'.");
+                    return false;
+                }
+                return true;
+            }
+        }
+        return true;
+    }
+}

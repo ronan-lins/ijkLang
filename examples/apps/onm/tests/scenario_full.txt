@@ -1,0 +1,17 @@
+add node user
+open user
+add key name "Maria Silva"
+add key email "maria@example.com"
+add node settings
+open settings
+add key theme "dark"
+close
+list keys
+list nodes
+ren key email contact
+update contact "maria.silva@corp.com"
+show node .
+show node . recursive
+close
+show node . recursive
+exit

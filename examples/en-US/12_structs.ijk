@@ -1,0 +1,36 @@
+// ==============================================================================
+// Example 12: Structs and Heterogeneous Data Records
+// Demonstration of 'struct' type definition, instantiation, and member access (.)
+// ==============================================================================
+
+program StructsApp {
+    // Structured data type definition
+    type Student = struct {
+        string name;
+        int student_id;
+        real project_grade;
+        bool approved;
+    };
+
+    // Procedure to display Student record fields
+    private displayStudent(Student s) {
+        writeln("--- Student Details ---");
+        writeln("Name: ", s.name);
+        writeln("Student ID: ", s.student_id);
+        writeln("Project Grade: ", s.project_grade);
+        writeln("Approval Status: ", s.approved);
+    }
+
+    // Mandatory entry point for the application
+    private main(): int {
+        // Instantiation and field assignments
+        Student pupil;
+        pupil.name = "Mariana Silva";
+        pupil.student_id = 202601;
+        pupil.project_grade = 9.5;
+        pupil.approved = true;
+
+        displayStudent(pupil);
+        return 0;
+    }
+}

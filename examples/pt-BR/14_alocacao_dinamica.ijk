@@ -1,0 +1,38 @@
+// ==============================================================================
+// Exemplo 14: Alocação e Desalocação Dinâmica de Memória
+// Demonstração dos verbos imperativos 'reserve' (alocação) e 'libere' (desalocação)
+// ==============================================================================
+
+programa AlocacaoDinamicaApp {
+    tipo Nodo = registro {
+        inteiro chave;
+        ponteiro Nodo proximo;
+    };
+
+    // Ponto de entrada obrigatório da aplicação
+    privado principal(): inteiro {
+        // Alocação dinâmica de um nó na memória heap
+        ponteiro Nodo primeiro = reserve($Nodo);
+
+        se (primeiro != nulo) {
+            @primeiro.chave = 42;
+            @primeiro.proximo = nulo;
+            escrevaln("No alocado com sucesso na memoria. Chave = ", @primeiro.chave);
+        }
+
+        // Alocação dinâmica de um segundo nó encadeado
+        ponteiro Nodo segundo = reserve($Nodo);
+        se (segundo != nulo) {
+            @segundo.chave = 84;
+            @segundo.proximo = nulo;
+            @primeiro.proximo = segundo;
+            escrevaln("Segundo no encadeado com sucesso. Chave = ", @segundo.chave);
+        }
+
+        // Liberação explícita da memória alocada
+        libere(segundo);
+        libere(primeiro);
+        escrevaln("Memoria dos nos desalocada com comando 'libere'.");
+        retorne 0;
+    }
+}

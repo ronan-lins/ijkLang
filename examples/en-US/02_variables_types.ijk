@@ -1,0 +1,30 @@
+// ==============================================================================
+// Example 02: Variables, Data Types, and Constants
+// Presentation of primitive types: int, real, float, char, string, bool
+// ==============================================================================
+
+program VariablesTypesApp {
+    // Mathematical constant declaration
+    const PI = 3.14159;
+
+    // Unit-level variable declarations with constant initialization
+    int age = 21;
+    real account_balance = 1500.75;      // Exact base-10 decimal (no rounding error)
+    float acceleration = 9.81f;          // IEEE 754 binary floating point
+    char initial = 'A';
+    string major = "Computer Science";
+    bool enrolled = true;
+
+    // Mandatory entry point for the application
+    private main(): int {
+        writeln("--- Student Registration Record ---");
+        writeln("Major: ", major);
+        writeln("Initial: ", initial);
+        writeln("Age: ", age, " years old");
+        writeln("Account balance: $ ", account_balance);
+        writeln("Gravity acceleration: ", acceleration, " m/s2");
+        writeln("Active status: ", enrolled);
+        writeln("Used constant PI: ", PI);
+        return 0;
+    }
+}

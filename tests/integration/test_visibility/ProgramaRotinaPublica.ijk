@@ -1,0 +1,9 @@
+programa ProgramaRotinaPublica {
+    publico somar(inteiro a, inteiro b): inteiro {
+        retorne a + b;
+    }
+
+    privado principal(): inteiro {
+        retorne somar(1, 2);
+    }
+}

@@ -1,0 +1,7 @@
+importe ModuloA;
+
+programa PrincipalApp {
+    privado principal(): inteiro {
+        retorne iniciarA(4);
+    }
+}

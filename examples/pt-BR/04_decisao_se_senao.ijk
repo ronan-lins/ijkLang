@@ -1,0 +1,35 @@
+// ==============================================================================
+// Exemplo 04: Estruturas de Decisão Condicional (Se / Senao)
+// Demonstração de operadores relacionais, lógicos (e, ou, nao) e blocos
+// ==============================================================================
+
+programa DecisaoSeSenaoApp {
+    // Ponto de entrada obrigatório da aplicação
+    privado principal(): inteiro {
+        real nota_trabalho = 8.5;
+        real nota_prova = 6.0;
+        real media_final = (nota_trabalho + nota_prova) / 2.0;
+        inteiro presenca_percentual = 80;
+
+        escrevaln("Media calculada: ", media_final);
+        escrevaln("Frequencia: ", presenca_percentual, "%");
+
+        // Decisão condicional composta com operador lógico 'e'
+        se (media_final >= 7.0 e presenca_percentual >= 75) {
+            escrevaln("Situacao: Aprovado por merito direto.");
+        } senao {
+            se (media_final >= 5.0 e presenca_percentual >= 75) {
+                escrevaln("Situacao: Em exame final.");
+            } senao {
+                escrevaln("Situacao: Reprovado.");
+            }
+        }
+
+        // Comparação de igualdade tolerante (=) e estrita (==)
+        se (media_final = 7.25) {
+            escrevaln("Nota exatamente coincidente com o valor de teste.");
+        }
+
+        retorne 0;
+    }
+}

@@ -1,0 +1,67 @@
+// ==============================================================================
+// Unit: Onm.Cli.Input.Tokenizer
+// Application: onm — Object Notation Management
+// Language: ijkLang (ijkL)
+// Standard: ISO C11 Alignment, Clean Code (AGENTS.md)
+// Responsibility: CLI command-line tokenizer handling whitespace and double quotes,
+//                 and interactive prompts for missing required arguments.
+// ==============================================================================
+
+import ijkL.Text;
+import ijkL.Collections;
+import ijkL.IO.Console;
+
+unit Onm.Cli.Input.Tokenizer {
+
+    public tokenizeLine(string line): List {
+        List tokens = ijkL.Collections.createList(4);
+        int total_len = ijkL.Text.length(line);
+        int idx = 0;
+
+        while (idx < total_len) {
+            while (idx < total_len) {
+                char ch = ijkL.Text.get(line, idx);
+                if (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r') {
+                    idx = idx + 1;
+                } else {
+                    break;
+                }
+            }
+            if (idx >= total_len) {
+                break;
+            }
+
+            char c = ijkL.Text.get(line, idx);
+            if (c == '"') {
+                idx = idx + 1;
+                int start_pos = idx;
+                while (idx < total_len && ijkL.Text.get(line, idx) != '"') {
+                    idx = idx + 1;
+                }
+                string token_text = ijkL.Text.substring(line, start_pos, idx - start_pos);
+                ijkL.Collections.add(tokens, token_text);
+                if (idx < total_len && ijkL.Text.get(line, idx) == '"') {
+                    idx = idx + 1;
+                }
+            } else {
+                int start_pos = idx;
+                while (idx < total_len) {
+                    char ch = ijkL.Text.get(line, idx);
+                    if (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r') {
+                        break;
+                    }
+                    idx = idx + 1;
+                }
+                string token_text = ijkL.Text.substring(line, start_pos, idx - start_pos);
+                ijkL.Collections.add(tokens, token_text);
+            }
+        }
+        return tokens;
+    }
+
+    public promptRequired(string message): string {
+        write(message);
+        string input_line = ijkL.IO.Console.readLine();
+        return ijkL.Text.trim(input_line);
+    }
+}

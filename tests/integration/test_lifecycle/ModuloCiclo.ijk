@@ -1,0 +1,15 @@
+unidade ModuloCiclo {
+    inteiro estado = 10;
+
+    privado inicializar() {
+        estado = estado + 5;
+    }
+
+    publico getValor(): inteiro {
+        retorne estado;
+    }
+
+    privado finalizar() {
+        estado = 0;
+    }
+}

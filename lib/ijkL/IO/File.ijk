@@ -1,0 +1,80 @@
+// ==============================================================================
+// ijkLang (ijkL) Standard Framework - File System Operations
+// Canonical Unit: ijkL.IO.File (Aliases: ijkL.ES.Arquivo)
+// ==============================================================================
+
+unit ijkL.IO.File {
+
+    // --------------------------------------------------------------------------
+    // Public File Manipulation Functions
+    // --------------------------------------------------------------------------
+
+    public exists(string file_path): bool {
+        asm {
+            r1 := [ra, 0];
+            in 0x0100, r0;
+            free_frame;
+            return r0;
+        }
+    }
+
+    public readAllText(string file_path): string {
+        asm {
+            r1 := [ra, 0];
+            in 0x0101, r0;
+            free_frame;
+            return r0;
+        }
+    }
+
+    public writeAllText(string file_path, string content): bool {
+        asm {
+            r1 := [ra, 0];
+            r2 := [ra, 8];
+            out 0x0102, r2;
+            in 0x0102, r0;
+            free_frame;
+            return r0;
+        }
+    }
+
+    public appendText(string file_path, string content): bool {
+        asm {
+            r1 := [ra, 0];
+            r2 := [ra, 8];
+            out 0x0103, r2;
+            in 0x0103, r0;
+            free_frame;
+            return r0;
+        }
+    }
+
+    public delete(string file_path): bool {
+        asm {
+            r1 := [ra, 0];
+            in 0x0104, r0;
+            free_frame;
+            return r0;
+        }
+    }
+
+    public rename(string source_path, string destination_path): bool {
+        asm {
+            r1 := [ra, 0];
+            r2 := [ra, 8];
+            in 0x0105, r0;
+            free_frame;
+            return r0;
+        }
+    }
+
+    public copy(string source_path, string destination_path): bool {
+        asm {
+            r1 := [ra, 0];
+            r2 := [ra, 8];
+            in 0x0106, r0;
+            free_frame;
+            return r0;
+        }
+    }
+}

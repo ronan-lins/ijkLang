@@ -1,0 +1,379 @@
+// ==============================================================================
+// ijkLang (ijkL) Standard Framework - Dynamic Data Structures
+// Canonical Unit: ijkL.Collections (Aliases: ijkL.Colecoes)
+// ==============================================================================
+
+import ijkL.Text;
+import ijkL.Memory;
+
+unit ijkL.Collections {
+
+    // ==========================================================================
+    // 1. Dynamic List (ijkL.Collections.List)
+    // ==========================================================================
+
+    type List = pointer struct {
+        int capacity;
+        int count;
+        pointer items;
+    };
+
+    public createList(int initial_capacity): List {
+        if (initial_capacity <= 0) {
+            initial_capacity = 4;
+        }
+        List new_list = alloc($List);
+        new_list.capacity = initial_capacity;
+        new_list.count = 0;
+        new_list.items = alloc($pointer * initial_capacity);
+        return new_list;
+    }
+
+    public add(List target_list, pointer item_value) {
+        if (target_list.count >= target_list.capacity) {
+            int expanded_capacity = target_list.capacity * 2;
+            if (expanded_capacity <= 0) {
+                expanded_capacity = 4;
+            }
+            pointer expanded_items = alloc($pointer * expanded_capacity);
+            if (target_list.count > 0) {
+                ijkL.Memory.copy(expanded_items, target_list.items, target_list.count * $pointer);
+            }
+            free(target_list.items);
+            target_list.items = expanded_items;
+            target_list.capacity = expanded_capacity;
+        }
+        target_list.items[target_list.count] = item_value;
+        target_list.count = target_list.count + 1;
+    }
+
+    public get(List target_list, int element_index): pointer {
+        if (element_index < 0 || element_index >= target_list.count) {
+            return null;
+        }
+        return target_list.items[element_index];
+    }
+
+    public set(List target_list, int element_index, pointer item_value): bool {
+        if (element_index < 0 || element_index >= target_list.count) {
+            return false;
+        }
+        target_list.items[element_index] = item_value;
+        return true;
+    }
+
+    public removeAt(List target_list, int element_index): pointer {
+        if (element_index < 0 || element_index >= target_list.count) {
+            return null;
+        }
+        pointer removed_item = target_list.items[element_index];
+        int current_index = element_index;
+        while (current_index < target_list.count - 1) {
+            target_list.items[current_index] = target_list.items[current_index + 1];
+            current_index = current_index + 1;
+        }
+        target_list.count = target_list.count - 1;
+        return removed_item;
+    }
+
+    public size(List target_list): int {
+        return target_list.count;
+    }
+
+    public length(List target_list): int {
+        return target_list.count;
+    }
+
+    public clear(List target_list) {
+        target_list.count = 0;
+    }
+
+    public destroyList(List target_list) {
+        if (target_list.items != null) {
+            free(target_list.items);
+            target_list.items = null;
+        }
+        free(target_list);
+    }
+
+    // ==========================================================================
+    // 2. LIFO Stack (ijkL.Collections.Stack)
+    // ==========================================================================
+
+    type Stack = pointer struct {
+        int capacity;
+        int count;
+        pointer items;
+    };
+
+    public createStack(int initial_capacity): Stack {
+        if (initial_capacity <= 0) {
+            initial_capacity = 4;
+        }
+        Stack new_stack = alloc($Stack);
+        new_stack.capacity = initial_capacity;
+        new_stack.count = 0;
+        new_stack.items = alloc($pointer * initial_capacity);
+        return new_stack;
+    }
+
+    public push(Stack target_stack, pointer item_value) {
+        if (target_stack.count >= target_stack.capacity) {
+            int expanded_capacity = target_stack.capacity * 2;
+            if (expanded_capacity <= 0) {
+                expanded_capacity = 4;
+            }
+            pointer expanded_items = alloc($pointer * expanded_capacity);
+            if (target_stack.count > 0) {
+                ijkL.Memory.copy(expanded_items, target_stack.items, target_stack.count * $pointer);
+            }
+            free(target_stack.items);
+            target_stack.items = expanded_items;
+            target_stack.capacity = expanded_capacity;
+        }
+        target_stack.items[target_stack.count] = item_value;
+        target_stack.count = target_stack.count + 1;
+    }
+
+    public pop(Stack target_stack): pointer {
+        if (target_stack.count <= 0) {
+            return null;
+        }
+        target_stack.count = target_stack.count - 1;
+        return target_stack.items[target_stack.count];
+    }
+
+    public peek(Stack target_stack): pointer {
+        if (target_stack.count <= 0) {
+            return null;
+        }
+        return target_stack.items[target_stack.count - 1];
+    }
+
+    public isEmpty(Stack target_stack): bool {
+        return target_stack.count == 0;
+    }
+
+    public size(Stack target_stack): int {
+        return target_stack.count;
+    }
+
+    public clear(Stack target_stack) {
+        target_stack.count = 0;
+    }
+
+    public destroyStack(Stack target_stack) {
+        if (target_stack.items != null) {
+            free(target_stack.items);
+            target_stack.items = null;
+        }
+        free(target_stack);
+    }
+
+    // ==========================================================================
+    // 3. FIFO Queue (ijkL.Collections.Queue)
+    // ==========================================================================
+
+    type Queue = pointer struct {
+        int capacity;
+        int count;
+        int head;
+        int tail;
+        pointer items;
+    };
+
+    public createQueue(int initial_capacity): Queue {
+        if (initial_capacity <= 0) {
+            initial_capacity = 4;
+        }
+        Queue new_queue = alloc($Queue);
+        new_queue.capacity = initial_capacity;
+        new_queue.count = 0;
+        new_queue.head = 0;
+        new_queue.tail = 0;
+        new_queue.items = alloc($pointer * initial_capacity);
+        return new_queue;
+    }
+
+    public enqueue(Queue target_queue, pointer item_value) {
+        if (target_queue.count >= target_queue.capacity) {
+            int expanded_capacity = target_queue.capacity * 2;
+            if (expanded_capacity <= 0) {
+                expanded_capacity = 4;
+            }
+            pointer expanded_items = alloc($pointer * expanded_capacity);
+            int current_index = 0;
+            while (current_index < target_queue.count) {
+                int source_index = (target_queue.head + current_index) mod target_queue.capacity;
+                expanded_items[current_index] = target_queue.items[source_index];
+                current_index = current_index + 1;
+            }
+            free(target_queue.items);
+            target_queue.items = expanded_items;
+            target_queue.head = 0;
+            target_queue.tail = target_queue.count;
+            target_queue.capacity = expanded_capacity;
+        }
+        target_queue.items[target_queue.tail] = item_value;
+        target_queue.tail = (target_queue.tail + 1) mod target_queue.capacity;
+        target_queue.count = target_queue.count + 1;
+    }
+
+    public dequeue(Queue target_queue): pointer {
+        if (target_queue.count <= 0) {
+            return null;
+        }
+        pointer item_value = target_queue.items[target_queue.head];
+        target_queue.head = (target_queue.head + 1) mod target_queue.capacity;
+        target_queue.count = target_queue.count - 1;
+        return item_value;
+    }
+
+    public peek(Queue target_queue): pointer {
+        if (target_queue.count <= 0) {
+            return null;
+        }
+        return target_queue.items[target_queue.head];
+    }
+
+    public isEmpty(Queue target_queue): bool {
+        return target_queue.count == 0;
+    }
+
+    public size(Queue target_queue): int {
+        return target_queue.count;
+    }
+
+    public clear(Queue target_queue) {
+        target_queue.count = 0;
+        target_queue.head = 0;
+        target_queue.tail = 0;
+    }
+
+    public destroyQueue(Queue target_queue) {
+        if (target_queue.items != null) {
+            free(target_queue.items);
+            target_queue.items = null;
+        }
+        free(target_queue);
+    }
+
+    // ==========================================================================
+    // 4. Associative Hash Map (ijkL.Collections.Map)
+    // ==========================================================================
+
+    type MapEntry = pointer struct {
+        string key;
+        pointer value;
+        MapEntry next;
+    };
+
+    type Map = pointer struct {
+        int capacity;
+        int count;
+        pointer buckets;
+    };
+
+    public createMap(int initial_capacity): Map {
+        if (initial_capacity <= 0) {
+            initial_capacity = 16;
+        }
+        Map new_map = alloc($Map);
+        new_map.capacity = initial_capacity;
+        new_map.count = 0;
+        new_map.buckets = alloc($pointer * initial_capacity);
+        ijkL.Memory.fill(new_map.buckets, 0, initial_capacity * $pointer);
+        return new_map;
+    }
+
+    private hashString(string key_string, int bucket_count): int {
+        int hash_value = 5381;
+        int key_length = ijkL.Text.length(key_string);
+        int char_index = 0;
+        while (char_index < key_length) {
+            char current_char = ijkL.Text.get(key_string, char_index);
+            hash_value = ((hash_value * 33) + current_char);
+            char_index = char_index + 1;
+        }
+        if (hash_value < 0) {
+            hash_value = 0 - hash_value;
+        }
+        return hash_value mod bucket_count;
+    }
+
+    public put(Map target_map, string entry_key, pointer entry_value) {
+        int bucket_index = hashString(entry_key, target_map.capacity);
+        MapEntry current_entry = target_map.buckets[bucket_index];
+        while (current_entry != null) {
+            if (ijkL.Text.compare(current_entry.key, entry_key) == 0) {
+                current_entry.value = entry_value;
+                return;
+            }
+            current_entry = current_entry.next;
+        }
+
+        MapEntry new_entry = alloc($MapEntry);
+        new_entry.key = entry_key;
+        new_entry.value = entry_value;
+        new_entry.next = target_map.buckets[bucket_index];
+        target_map.buckets[bucket_index] = new_entry;
+        target_map.count = target_map.count + 1;
+    }
+
+    public get(Map target_map, string entry_key): pointer {
+        int bucket_index = hashString(entry_key, target_map.capacity);
+        MapEntry current_entry = target_map.buckets[bucket_index];
+        while (current_entry != null) {
+            if (ijkL.Text.compare(current_entry.key, entry_key) == 0) {
+                return current_entry.value;
+            }
+            current_entry = current_entry.next;
+        }
+        return null;
+    }
+
+    public containsKey(Map target_map, string entry_key): bool {
+        return get(target_map, entry_key) != null;
+    }
+
+    public remove(Map target_map, string entry_key): bool {
+        int bucket_index = hashString(entry_key, target_map.capacity);
+        MapEntry current_entry = target_map.buckets[bucket_index];
+        MapEntry previous_entry = null;
+
+        while (current_entry != null) {
+            if (ijkL.Text.compare(current_entry.key, entry_key) == 0) {
+                if (previous_entry == null) {
+                    target_map.buckets[bucket_index] = current_entry.next;
+                } else {
+                    previous_entry.next = current_entry.next;
+                }
+                free(current_entry);
+                target_map.count = target_map.count - 1;
+                return true;
+            }
+            previous_entry = current_entry;
+            current_entry = current_entry.next;
+        }
+        return false;
+    }
+
+    public size(Map target_map): int {
+        return target_map.count;
+    }
+
+    public destroyMap(Map target_map) {
+        int bucket_index = 0;
+        while (bucket_index < target_map.capacity) {
+            MapEntry current_entry = target_map.buckets[bucket_index];
+            while (current_entry != null) {
+                MapEntry next_entry = current_entry.next;
+                free(current_entry);
+                current_entry = next_entry;
+            }
+            bucket_index = bucket_index + 1;
+        }
+        free(target_map.buckets);
+        free(target_map);
+    }
+}

@@ -1,0 +1,60 @@
+// ==============================================================================
+// ijkLang (ijkL) Standard Framework - Memory Management & DMA Block Transfers
+// Canonical Unit: ijkL.Memory (Aliases: ijkL.Memoria, ijkL.Memoire)
+// Hardware: Compatible with Digilent Basys 3 FPGA (Artix-7 XC7A35T) DMA Controller
+// ==============================================================================
+
+unit ijkL.Memory {
+
+    public copy(pointer destination, pointer source, int count): pointer {
+        if (count > 0) {
+            asm __builtin_mem_copy {
+                r0 := [ra, 8];
+                out 0x0020, r0;
+                r0 := [ra, 0];
+                out 0x0021, r0;
+                r0 := [ra, 16];
+                out 0x0022, r0;
+                r0 := 1;
+                out 0x0023, r0;
+            }
+        }
+        return destination;
+    }
+
+    public fill(pointer destination, int byte_value, int count): pointer {
+        if (count > 0) {
+            asm __builtin_mem_fill {
+                r0 := [ra, 8];
+                out 0x0020, r0;
+                r0 := [ra, 0];
+                out 0x0021, r0;
+                r0 := [ra, 16];
+                out 0x0022, r0;
+                r0 := 2;
+                out 0x0023, r0;
+            }
+        }
+        return destination;
+    }
+
+    public compare(pointer buffer_a, pointer buffer_b, int count): int {
+        if (count <= 0) {
+            return 0;
+        }
+        int cmp_result = 0;
+        asm __builtin_mem_cmp {
+            r0 := [ra, 0];
+            out 0x0020, r0;
+            r0 := [ra, 8];
+            out 0x0021, r0;
+            r0 := [ra, 16];
+            out 0x0022, r0;
+            r0 := 3;
+            out 0x0023, r0;
+            in 0x0023, r0;
+            [ra, 24] := r0;
+        }
+        return cmp_result;
+    }
+}

@@ -1,0 +1,175 @@
+; ==============================================================================
+; ijkLang (ijkL) - Dictionnaire de Vocabulaire: Français (France)
+; ==============================================================================
+
+[complementary_alphabet]
+; Mappage des caractères accentués vers leurs lettres de base
+a = à â ä
+e = é è ê ë
+i = î ï
+o = ô ö
+u = ù û ü
+c = ç
+
+[reserved_words]
+; Contrôle de flux et décision
+KW_IF         = si
+KW_ELSE       = sinon
+KW_SWITCH     = selon
+KW_CASE       = cas
+KW_DEFAULT    = defaut
+
+; Boucles et répétition
+KW_WHILE      = tantque
+KW_FOR        = pour
+KW_FROM       = de
+KW_TO         = a
+KW_STEP       = pas
+KW_REPEAT     = repeter
+KW_BREAK      = interrompre
+KW_RETURN     = retourner
+
+; Gestion de mémoire et E/S
+KW_ALLOC      = allouer
+KW_FREE       = liberer
+KW_READ       = lire
+KW_WRITE      = ecrire
+KW_WRITELN    = ecrireln
+
+; Types de données et structures
+KW_INT        = entier
+KW_REAL       = reel
+KW_FLOAT      = flottant
+KW_CHAR       = caractere
+KW_STRING     = texte
+KW_BOOL       = booleen
+KW_ARRAY      = tableau
+KW_STRUCT     = structure
+KW_POINTER    = pointeur
+KW_REF        = ref reference
+KW_CONST      = constante
+KW_TYPE       = type
+
+; Littéraux booléens et nul
+KW_TRUE       = vrai
+KW_FALSE      = faux
+KW_NULL       = nul
+
+; Opérateurs textuels
+KW_AND        = et
+KW_OR         = ou
+KW_NOT        = non
+KW_DIV        = div
+KW_MOD        = mod
+
+; Modularisation et Visibilité
+KW_UNIT       = unite
+KW_PROGRAM    = programme
+KW_IMPORT     = importer
+KW_PUBLIC     = public
+KW_PRIVATE    = prive
+KW_OF         = de
+KW_MAIN       = principal
+KW_INITIALIZE = initialiser
+KW_FINALIZE   = finaliser
+KW_ASM        = asm
+
+[framework_units]
+; Mappage des unites du framework standard
+ijkL.Conversion     = ijkL.Convert
+ijkL.Texte          = ijkL.Text
+ijkL.Collections    = ijkL.Collections
+ijkL.IO.Console     = ijkL.IO.Console
+ijkL.ES.Console     = ijkL.IO.Console
+ijkL.IO.Path        = ijkL.IO.Path
+ijkL.ES.Chemin      = ijkL.IO.Path
+ijkL.IO.Folder      = ijkL.IO.Folder
+ijkL.ES.Dossier     = ijkL.IO.Folder
+ijkL.IO.File        = ijkL.IO.File
+ijkL.ES.Fichier     = ijkL.IO.File
+ijkL.Memory         = ijkL.Memory
+ijkL.Memoire        = ijkL.Memory
+ijkL.Math           = ijkL.Math
+ijkL.Mathematiques  = ijkL.Math
+
+[framework_members]
+; Mappage des membres du framework standard
+versEntier          = toInt
+versReel            = toReal
+versFlottant        = toFloat
+versTexte           = toString
+versBooleen         = toBool
+longueur            = length
+comparer            = compare
+concatener          = concat
+sousTexte           = substring
+obtenir             = get
+changer             = change
+creerListe          = createList
+ajouter             = add
+taille              = size
+effacer             = clear
+detruireListe       = destroyList
+ecrire              = write
+ecrireLigne         = writeLine
+lireLigne           = readLine
+lireTouche          = readKey
+lireEntier          = readInt
+lireReel            = readReal
+effacerEcran        = clear
+separateur          = separator
+combiner            = combine
+obtenirNomFichier   = getFileName
+obtenirNomDossier   = getDirectoryName
+obtenirExtension    = getExtension
+aExtension          = hasExtension
+changerExtension    = changeExtension
+existe              = exists
+creer               = create
+supprimer           = delete
+obtenirDossierActuel = getCurrent
+definirDossierActuel = setCurrent
+lireToutTexte       = readAllText
+ecrireToutTexte     = writeAllText
+ajouterTexte        = appendText
+renommer            = rename
+copier              = copy
+remplir             = fill
+creerPile           = createStack
+empiler             = push
+depiler             = pop
+sommet              = peek
+estVide             = isEmpty
+detruirePile        = destroyStack
+creerFile           = createQueue
+enfiler             = enqueue
+defiler             = dequeue
+detruireFile        = destroyQueue
+creerCarte          = createMap
+inserer             = put
+contientCle         = containsKey
+detruireCarte       = destroyMap
+definir             = set
+supprimerA          = removeAt
+supprimer           = remove
+egal                = equals
+indiceDe            = indexOf
+contient            = contains
+commencePar         = startsWith
+terminePar          = endsWith
+rogner              = trim
+absolu              = abs
+minimum             = min
+maximum             = max
+borner              = clamp
+puissance           = power
+racine              = sqrt
+signe               = sign
+absoluReel          = absReal
+minimumReel         = minReal
+maximumReel         = maxReal
+bornerReel          = clampReal
+puissanceReel       = powerReal
+signeReel           = signReal
+
+

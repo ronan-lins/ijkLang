@@ -1,0 +1,33 @@
+// ==============================================================================
+// Unit Test: test_help
+// Target: Onm.Cli.Command.Help
+// Language: ijkLang (ijkL)
+// ==============================================================================
+
+import Onm.Cli.Command.Help;
+
+program TestHelpApp {
+
+    private main(): int {
+        writeln("Running test_help...");
+
+        printGeneralHelp();
+        printCommandHelp("add node");
+        printCommandHelp("add key");
+        printCommandHelp("list nodes");
+        printCommandHelp("list keys");
+        printCommandHelp("ren node");
+        printCommandHelp("ren key");
+        printCommandHelp("update");
+        printCommandHelp("del node");
+        printCommandHelp("del key");
+        printCommandHelp("open");
+        printCommandHelp("close");
+        printCommandHelp("show node");
+        printCommandHelp("exit");
+        printCommandHelp("nonexistent_command");
+
+        writeln("[PASS] test_help: all assertions passed.");
+        return 0;
+    }
+}

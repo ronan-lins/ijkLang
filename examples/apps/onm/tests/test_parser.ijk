@@ -1,0 +1,124 @@
+// ==============================================================================
+// Unit Test: test_parser
+// Target: Onm.Core.Json.Parser
+// Language: ijkLang (ijkL)
+// ==============================================================================
+
+import ijkL.Text;
+import Onm.Core.Json.Model;
+import Onm.Core.Json.Parser;
+
+program TestParserApp {
+
+    private main(): int {
+        writeln("Running test_parser...");
+
+        // 1. Valid JSON object
+        string valid_json = "{\n  \"name\": \"Ana\",\n  \"profile\": {\n    \"role\": \"admin\"\n  }\n}";
+        JsonParser parser1 = createParser(valid_json);
+        JsonNode root1 = parseJsonObject(parser1);
+        if (parser1.has_error || root1 == null) {
+            writeln("[FAIL] Valid JSON failed to parse: ", parser1.error_message);
+            free(parser1);
+            return 1;
+        }
+        JsonProperty p_name = findProperty(root1, "name");
+        if (p_name == null || p_name.is_node || !ijkL.Text.equals(p_name.key_value, "Ana")) {
+            writeln("[FAIL] Expected property 'name' with value 'Ana'.");
+            freeNode(root1);
+            free(parser1);
+            return 1;
+        }
+        JsonProperty p_profile = findProperty(root1, "profile");
+        if (p_profile == null || !p_profile.is_node) {
+            writeln("[FAIL] Expected child node 'profile'.");
+            freeNode(root1);
+            free(parser1);
+            return 1;
+        }
+        JsonNode profile_node = p_profile.node_value;
+        JsonProperty p_role = findProperty(profile_node, "role");
+        if (p_role == null || p_role.is_node || !ijkL.Text.equals(p_role.key_value, "admin")) {
+            writeln("[FAIL] Expected nested key 'role' with value 'admin'.");
+            freeNode(root1);
+            free(parser1);
+            return 1;
+        }
+        freeNode(root1);
+        free(parser1);
+
+        // 2. Reject number value
+        string num_json = "{\"age\": 25}";
+        JsonParser parser2 = createParser(num_json);
+        JsonNode root2 = parseJsonObject(parser2);
+        if (!parser2.has_error) {
+            writeln("[FAIL] Parser accepted number value.");
+            if (root2 != null) { freeNode(root2); }
+            free(parser2);
+            return 1;
+        }
+        if (root2 != null) { freeNode(root2); }
+        free(parser2);
+
+        // 3. Reject boolean value
+        string bool_json = "{\"active\": true}";
+        JsonParser parser3 = createParser(bool_json);
+        JsonNode root3 = parseJsonObject(parser3);
+        if (!parser3.has_error) {
+            writeln("[FAIL] Parser accepted boolean value.");
+            if (root3 != null) { freeNode(root3); }
+            free(parser3);
+            return 1;
+        }
+        if (root3 != null) { freeNode(root3); }
+        free(parser3);
+
+        // 4. Reject array value
+        string arr_json = "{\"list\": [\"a\"]}";
+        JsonParser parser4 = createParser(arr_json);
+        JsonNode root4 = parseJsonObject(parser4);
+        if (!parser4.has_error) {
+            writeln("[FAIL] Parser accepted array value.");
+            if (root4 != null) { freeNode(root4); }
+            free(parser4);
+            return 1;
+        }
+        if (root4 != null) { freeNode(root4); }
+        free(parser4);
+
+        // 5. Reject duplicate property name
+        string dup_json = "{\"key\": \"first\", \"key\": \"second\"}";
+        JsonParser parser5 = createParser(dup_json);
+        JsonNode root5 = parseJsonObject(parser5);
+        if (!parser5.has_error) {
+            writeln("[FAIL] Parser accepted duplicate key.");
+            if (root5 != null) { freeNode(root5); }
+            free(parser5);
+            return 1;
+        }
+        if (root5 != null) { freeNode(root5); }
+        free(parser5);
+
+        // 6. Escape sequences
+        string esc_json = "{\"text\": \"Line1\\nLine2\\t\\\"Quoted\\\"\"}";
+        JsonParser parser6 = createParser(esc_json);
+        JsonNode root6 = parseJsonObject(parser6);
+        if (parser6.has_error || root6 == null) {
+            writeln("[FAIL] Parser failed on escaped string: ", parser6.error_message);
+            free(parser6);
+            return 1;
+        }
+        JsonProperty p_text = findProperty(root6, "text");
+        if (p_text == null || p_text.is_node) {
+            writeln("[FAIL] Expected property 'text' with escaped string.");
+            freeNode(root6);
+            free(parser6);
+            return 1;
+        }
+        freeNode(root6);
+        free(parser6);
+
+        writeln("[PASS] test_parser: all assertions passed.");
+        return 0;
+    }
+}

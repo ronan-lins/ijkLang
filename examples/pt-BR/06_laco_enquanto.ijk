@@ -1,0 +1,24 @@
+// ==============================================================================
+// Exemplo 06: Laço de Repetição com Pré-Teste (Enquanto)
+// Demonstração de laço condicional e cálculo de acumulador / fatorial
+// ==============================================================================
+
+programa LacoEnquantoApp {
+    // Ponto de entrada obrigatório da aplicação
+    privado principal(): inteiro {
+        inteiro numero_alvo = 5;
+        inteiro contador = 1;
+        inteiro fatorial = 1;
+
+        escrevaln("Calculando o fatorial de ", numero_alvo, " usando o laco 'enquanto':");
+
+        enquanto (contador <= numero_alvo) {
+            fatorial = fatorial * contador;
+            escrevaln("Passo ", contador, ": valor parcial = ", fatorial);
+            contador = contador + 1;
+        }
+
+        escrevaln("Resultado final: ", numero_alvo, "! = ", fatorial);
+        retorne 0;
+    }
+}

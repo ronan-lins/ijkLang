@@ -1,0 +1,18 @@
+// ==============================================================================
+// Exemplo 01: Olá Mundo e Procedimentos
+// Demonstração da estrutura mínima de programa e saída formatada no ijkLang
+// ==============================================================================
+
+programa OlaMundoApp {
+    // Declaração de procedimento privado
+    privado saudacao(texto destinatario) {
+        escrevaln("Ola, ", destinatario, "! Bem-vindo ao ijkLang (ijkL).");
+    }
+
+    // Ponto de entrada obrigatório da aplicação
+    privado principal(): inteiro {
+        saudacao("Estudante");
+        escrevaln("Ambiente educacional pronto para execucao.");
+        retorne 0;
+    }
+}

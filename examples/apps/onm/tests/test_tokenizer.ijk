@@ -1,0 +1,85 @@
+// ==============================================================================
+// Unit Test: test_tokenizer
+// Target: Onm.Cli.Input.Tokenizer
+// Language: ijkLang (ijkL)
+// ==============================================================================
+
+import ijkL.Text;
+import ijkL.Collections;
+import Onm.Cli.Input.Tokenizer;
+
+program TestTokenizerApp {
+
+    private main(): int {
+        writeln("Running test_tokenizer...");
+
+        // 1. Plain words
+        List tokens1 = tokenizeLine("add node course");
+        if (tokens1.count != 3) {
+            writeln("[FAIL] Expected 3 tokens, got ", tokens1.count);
+            ijkL.Collections.destroyList(tokens1);
+            return 1;
+        }
+        string t1_0 = ijkL.Collections.get(tokens1, 0);
+        string t1_1 = ijkL.Collections.get(tokens1, 1);
+        string t1_2 = ijkL.Collections.get(tokens1, 2);
+        if (!ijkL.Text.equals(t1_0, "add") || !ijkL.Text.equals(t1_1, "node") || !ijkL.Text.equals(t1_2, "course")) {
+            writeln("[FAIL] Token values incorrect for plain words.");
+            ijkL.Collections.destroyList(tokens1);
+            return 1;
+        }
+        ijkL.Collections.destroyList(tokens1);
+
+        // 2. Double-quoted string containing spaces
+        List tokens2 = tokenizeLine("add node \"personal information\"");
+        if (tokens2.count != 3) {
+            writeln("[FAIL] Expected 3 tokens with quoted argument, got ", tokens2.count);
+            ijkL.Collections.destroyList(tokens2);
+            return 1;
+        }
+        string t2_2 = ijkL.Collections.get(tokens2, 2);
+        if (!ijkL.Text.equals(t2_2, "personal information")) {
+            writeln("[FAIL] Quoted argument not extracted properly. Got: '", t2_2, "'");
+            ijkL.Collections.destroyList(tokens2);
+            return 1;
+        }
+        ijkL.Collections.destroyList(tokens2);
+
+        // 3. Leading, trailing, and multiple spaces and tabs
+        List tokens3 = tokenizeLine("  update   key_1   \"value with spaces\"  ");
+        if (tokens3.count != 3) {
+            writeln("[FAIL] Expected 3 tokens with extra whitespace, got ", tokens3.count);
+            ijkL.Collections.destroyList(tokens3);
+            return 1;
+        }
+        string t3_0 = ijkL.Collections.get(tokens3, 0);
+        string t3_1 = ijkL.Collections.get(tokens3, 1);
+        string t3_2 = ijkL.Collections.get(tokens3, 2);
+        if (!ijkL.Text.equals(t3_0, "update") || !ijkL.Text.equals(t3_1, "key_1") || !ijkL.Text.equals(t3_2, "value with spaces")) {
+            writeln("[FAIL] Tokens mismatch with extra whitespace.");
+            ijkL.Collections.destroyList(tokens3);
+            return 1;
+        }
+        ijkL.Collections.destroyList(tokens3);
+
+        // 4. Empty or whitespace-only lines
+        List tokens4 = tokenizeLine("");
+        if (tokens4.count != 0) {
+            writeln("[FAIL] Empty line must produce 0 tokens.");
+            ijkL.Collections.destroyList(tokens4);
+            return 1;
+        }
+        ijkL.Collections.destroyList(tokens4);
+
+        List tokens5 = tokenizeLine("   \t  \r  ");
+        if (tokens5.count != 0) {
+            writeln("[FAIL] Whitespace-only line must produce 0 tokens.");
+            ijkL.Collections.destroyList(tokens5);
+            return 1;
+        }
+        ijkL.Collections.destroyList(tokens5);
+
+        writeln("[PASS] test_tokenizer: all assertions passed.");
+        return 0;
+    }
+}

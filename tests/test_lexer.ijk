@@ -1,0 +1,56 @@
+// ==============================================================================
+// Teste Abrangente do Analisador Léxico (Atividade 2.1)
+// Validação de vocabulário, normalização acentual, operadores e tipos numéricos
+// ==============================================================================
+
+programa TesteLexicoApp {
+    privado principal(): inteiro {
+        // 1. Identificadores com caracteres acentuados (case-sensitive)
+        inteiro média = 10;
+        média = 20;
+        inteiro pontuação = 100;
+        inteiro número_alunos = 45;
+
+        // 2. Literais numéricos: inteiro decimal, hexadecimal, real e flutuante
+        inteiro valor_dec = 42;
+        inteiro valor_hex = 0x2A;
+        real taxa_juros = 12.75;
+        real expoente_real = 1.25e-3;
+        flutuante aceleracao = 9.81f;
+
+        // 3. Literais caractere (1 char) e texto (0 ou > 1 char)
+        caracter letra_a = 'a';
+        caracter letra_b = "b";
+        texto mensagem = "ijkLang - Linguagem Educacional";
+        texto vazio = "";
+
+        // 4. Operadores de memória e ponteiros
+        ponteiro p = nulo;
+        inteiro tam = $inteiro;
+        inteiro endereco = &média;
+        inteiro conteudo = @p;
+
+        // 5. Operadores relacionais e de atribuição
+        se (taxa_juros = 12.75) {
+            // Atribuição alternativa Pascal
+            média := 10;
+        } senao {
+            // Igualdade estrita
+            se (aceleracao == 9.81f) {
+                retorne 0;
+            }
+        }
+
+        // 6. Palavras reservadas acentuadas
+        lógico condicao = verdadeiro;
+        enquanto (condicao != falso) {
+            aborte;
+        }
+
+        /* Comentário de bloco
+           multilinha com caracteres especiais: @, $, &, :=, <=, >=, <>
+        */
+        escrevaln("Fim dos testes léxicos!");
+        retorne 0;
+    }
+}

@@ -1,0 +1,77 @@
+// ==============================================================================
+// Unit: Onm.Core.Json.Serializer
+// Application: onm — Object Notation Management
+// Language: ijkLang (ijkL)
+// Standard: ISO C11 Alignment, Clean Code (AGENTS.md)
+// Responsibility: UTF-8 JSON formatting with 2-space indentation and support
+//                 for non-recursive (shallow with {}) and recursive modes.
+// ==============================================================================
+
+import ijkL.Text;
+import Onm.Core.Json.Model;
+
+unit Onm.Core.Json.Serializer {
+
+    public generateIndent(int level): string {
+        string indentation = "";
+        int i = 0;
+        while (i < level) {
+            indentation = ijkL.Text.concat(indentation, "  ");
+            i = i + 1;
+        }
+        return indentation;
+    }
+
+    public serializeNode(JsonNode node, int indent_level, bool recursive): string {
+        if (node.count == 0) {
+            if (indent_level == 0) {
+                return "{\n}\n";
+            }
+            return "{}";
+        }
+
+        string result = "{\n";
+        string property_indent = generateIndent(indent_level + 1);
+        JsonProperty current = node.first_property;
+
+        while (current != null) {
+            result = ijkL.Text.concat(result, property_indent);
+            result = ijkL.Text.concat(result, "\"");
+            result = ijkL.Text.concat(result, current.name);
+            result = ijkL.Text.concat(result, "\": ");
+
+            if (current.is_node) {
+                if (recursive) {
+                    JsonNode child = current.node_value;
+                    if (child.count == 0) {
+                        result = ijkL.Text.concat(result, "{}");
+                    } else {
+                        string child_json = serializeNode(child, indent_level + 1, true);
+                        result = ijkL.Text.concat(result, child_json);
+                    }
+                } else {
+                    result = ijkL.Text.concat(result, "{}");
+                }
+            } else {
+                result = ijkL.Text.concat(result, "\"");
+                result = ijkL.Text.concat(result, current.key_value);
+                result = ijkL.Text.concat(result, "\"");
+            }
+
+            if (current.next_property != null) {
+                result = ijkL.Text.concat(result, ",\n");
+            } else {
+                result = ijkL.Text.concat(result, "\n");
+            }
+            current = current.next_property;
+        }
+
+        string closing_indent = generateIndent(indent_level);
+        result = ijkL.Text.concat(result, closing_indent);
+        result = ijkL.Text.concat(result, "}");
+        if (indent_level == 0) {
+            result = ijkL.Text.concat(result, "\n");
+        }
+        return result;
+    }
+}

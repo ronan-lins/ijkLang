@@ -1,0 +1,7 @@
+importe Geometria.Calculos.Perimetro;
+
+programa PrincipalApp {
+    privado principal(): inteiro {
+        retorne calcularPerimetro(5, 4);
+    }
+}

@@ -1,0 +1,14 @@
+// English lexical test
+program TestEnglishApp {
+    private main(): int {
+        int counter = 10;
+        string msg = "Hello from ijkLang";
+        bool active = true;
+
+        if (counter == 10) {
+            writeln(msg);
+            return 0;
+        }
+        return 0;
+    }
+}

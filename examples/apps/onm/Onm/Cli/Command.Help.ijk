@@ -1,0 +1,87 @@
+// ==============================================================================
+// Unit: Onm.Cli.Command.Help
+// Application: onm — Object Notation Management
+// Language: ijkLang (ijkL)
+// Standard: ISO C11 Alignment, Clean Code (AGENTS.md)
+// Responsibility: Presentation of general and command-specific help texts.
+// ==============================================================================
+
+import ijkL.Text;
+
+unit Onm.Cli.Command.Help {
+
+    public printGeneralHelp() {
+        writeln("Available commands in onm:");
+        writeln("  add node <name>               Create an empty child node.");
+        writeln("  add key <name> [value]        Create a key with an optional string value.");
+        writeln("  list nodes                    List the names of immediate child nodes.");
+        writeln("  list keys                     List the names and values of keys.");
+        writeln("  ren node <name> <new_name>    Rename a child node.");
+        writeln("  ren key <name> <new_name>     Rename a key.");
+        writeln("  update <key> <new_value>      Change the value of an existing key.");
+        writeln("  del node <name>               Physically delete a node and its contents.");
+        writeln("  del key <name>                Physically delete a key.");
+        writeln("  open <name>                   Enter a child node.");
+        writeln("  close                         Return to the parent node.");
+        writeln("  show node <name> [recursive]  Display a child node's contents as JSON.");
+        writeln("  show node . [recursive]       Display the current node's contents as JSON.");
+        writeln("  help [command]                Display help for a specific command.");
+        writeln("  exit                          End the interactive session.");
+    }
+
+    public printCommandHelp(string command_name) {
+        if (ijkL.Text.equals(command_name, "add") || ijkL.Text.equals(command_name, "add node")) {
+            writeln("Syntax: add node <name>");
+            writeln("Creates a new empty node inside the current node.");
+            writeln("Example: add node \"personal information\"");
+        } else if (ijkL.Text.equals(command_name, "add key")) {
+            writeln("Syntax: add key <name> [value]");
+            writeln("Creates a new key with an optional string value. If omitted, default is \"\".");
+            writeln("Example: add key name \"Ana Silva\"");
+        } else if (ijkL.Text.equals(command_name, "list") || ijkL.Text.equals(command_name, "list nodes")) {
+            writeln("Syntax: list nodes");
+            writeln("Displays the names of all immediate child nodes in the current node.");
+        } else if (ijkL.Text.equals(command_name, "list keys")) {
+            writeln("Syntax: list keys");
+            writeln("Displays all keys and their corresponding string values in the current node.");
+        } else if (ijkL.Text.equals(command_name, "ren") || ijkL.Text.equals(command_name, "ren node")) {
+            writeln("Syntax: ren node <name> <new_name>");
+            writeln("Renames an immediate child node while preserving its contents.");
+            writeln("Example: ren node old_course new_course");
+        } else if (ijkL.Text.equals(command_name, "ren key")) {
+            writeln("Syntax: ren key <name> <new_name>");
+            writeln("Renames a key in the current node while preserving its value.");
+            writeln("Example: ren key name full_name");
+        } else if (ijkL.Text.equals(command_name, "update")) {
+            writeln("Syntax: update <key> <new_value>");
+            writeln("Updates the string value of an existing key.");
+            writeln("Example: update name \"Ana Maria Silva\"");
+        } else if (ijkL.Text.equals(command_name, "del") || ijkL.Text.equals(command_name, "del node")) {
+            writeln("Syntax: del node <name>");
+            writeln("Physically deletes a child node and all its contents without confirmation.");
+        } else if (ijkL.Text.equals(command_name, "del key")) {
+            writeln("Syntax: del key <name>");
+            writeln("Physically deletes a key from the current node.");
+        } else if (ijkL.Text.equals(command_name, "open")) {
+            writeln("Syntax: open <name>");
+            writeln("Enters a child node, moving navigation one level deeper.");
+            writeln("Example: open course");
+        } else if (ijkL.Text.equals(command_name, "close")) {
+            writeln("Syntax: close");
+            writeln("Navigates back to the parent node. If already at root, displays a notice.");
+        } else if (ijkL.Text.equals(command_name, "show") || ijkL.Text.equals(command_name, "show node")) {
+            writeln("Syntax: show node <name> [recursive]");
+            writeln("Displays a node formatted as JSON. Use '.' for the current node.");
+            writeln("Without 'recursive', child nodes are represented as {}.");
+            writeln("With 'recursive', the full tree is displayed.");
+            writeln("Example: show node . recursive");
+        } else if (ijkL.Text.equals(command_name, "exit")) {
+            writeln("Syntax: exit");
+            writeln("Exits the onm interactive management session.");
+        } else {
+            writeln("No specific help available for '", command_name, "'.");
+            printGeneralHelp();
+        }
+    }
+
+}

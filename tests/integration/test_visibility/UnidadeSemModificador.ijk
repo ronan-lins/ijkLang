@@ -1,0 +1,6 @@
+unidade UnidadeSemModificador {
+    // Erro sintático: rotinas em unidade exigem mandatoriamente 'publico' ou 'privado'
+    minhaRotina(): inteiro {
+        retorne 1;
+    }
+}

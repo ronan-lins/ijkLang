@@ -1,0 +1,8 @@
+programa PrincipalApp {
+    privado principal(inteiro quantidade, arranjo[] de texto args): inteiro {
+        se (quantidade == 2) {
+            retorne 42;
+        }
+        retorne 10;
+    }
+}

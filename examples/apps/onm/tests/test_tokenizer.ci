@@ -1,0 +1,3576 @@
+// ==============================================================================
+// ijkLang (ijkL) - Linear Intermediate Code (.ci)
+// Generated automatically by ijkLang Compiler
+// ==============================================================================
+
+    jump #TestTokenizerApp.main;
+
+
+#TestTokenizerApp.main_impl:
+#main_impl:
+    alloc_frame 160;
+    r0 := "Running test_tokenizer...";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "add node course";
+    push r0;
+    call #Onm.Cli.Input.Tokenizer.tokenizeLine$string;
+    [ra, 0] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 96] := r0;
+    r1 := 3;
+    r0 := [ra, 96];
+    r0 := r0 <> r1;
+    jump_if r0, #se_verdadeiro_1;
+    jump #se_fim_2;
+#se_verdadeiro_1:
+    r0 := "[FAIL] Expected 3 tokens, got ";
+    out 0x0001, r0;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := [ra, 0];
+    push r0;
+    call #ijkL.Collections.destroyList$type_List;
+    r0 := 1;
+    free_frame;
+    return r0;
+#se_fim_2:
+    r0 := [ra, 0];
+    push r0;
+    r0 := 0;
+    push r0;
+    call #ijkL.Collections.get$type_List_int;
+    [ra, 8] := r0;
+    r0 := [ra, 0];
+    push r0;
+    r0 := 1;
+    push r0;
+    call #ijkL.Collections.get$type_List_int;
+    [ra, 16] := r0;
+    r0 := [ra, 0];
+    push r0;
+    r0 := 2;
+    push r0;
+    call #ijkL.Collections.get$type_List_int;
+    [ra, 24] := r0;
+    r0 := [ra, 8];
+    push r0;
+    r0 := "add";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    r0 := not r0;
+    [ra, 96] := r0;
+    r0 := [ra, 16];
+    push r0;
+    r0 := "node";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    r1 := r0;
+    r1 := not r1;
+    r0 := [ra, 96];
+    r0 := r0 or r1;
+    [ra, 96] := r0;
+    r0 := [ra, 24];
+    push r0;
+    r0 := "course";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    r1 := r0;
+    r1 := not r1;
+    r0 := [ra, 96];
+    r0 := r0 or r1;
+    jump_if r0, #se_verdadeiro_3;
+    jump #se_fim_4;
+#se_verdadeiro_3:
+    r0 := "[FAIL] Token values incorrect for plain words.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := [ra, 0];
+    push r0;
+    call #ijkL.Collections.destroyList$type_List;
+    r0 := 1;
+    free_frame;
+    return r0;
+#se_fim_4:
+    r0 := [ra, 0];
+    push r0;
+    call #ijkL.Collections.destroyList$type_List;
+    r0 := "add node \"personal information\"";
+    push r0;
+    call #Onm.Cli.Input.Tokenizer.tokenizeLine$string;
+    [ra, 32] := r0;
+    r0 := [ra, 32];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 96] := r0;
+    r1 := 3;
+    r0 := [ra, 96];
+    r0 := r0 <> r1;
+    jump_if r0, #se_verdadeiro_5;
+    jump #se_fim_6;
+#se_verdadeiro_5:
+    r0 := "[FAIL] Expected 3 tokens with quoted argument, got ";
+    out 0x0001, r0;
+    r0 := [ra, 32];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := [ra, 32];
+    push r0;
+    call #ijkL.Collections.destroyList$type_List;
+    r0 := 1;
+    free_frame;
+    return r0;
+#se_fim_6:
+    r0 := [ra, 32];
+    push r0;
+    r0 := 2;
+    push r0;
+    call #ijkL.Collections.get$type_List_int;
+    [ra, 40] := r0;
+    r0 := [ra, 40];
+    push r0;
+    r0 := "personal information";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    r0 := not r0;
+    jump_if r0, #se_verdadeiro_7;
+    jump #se_fim_8;
+#se_verdadeiro_7:
+    r0 := "[FAIL] Quoted argument not extracted properly. Got: '";
+    out 0x0001, r0;
+    r0 := [ra, 40];
+    out 0x0001, r0;
+    r0 := "'";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := [ra, 32];
+    push r0;
+    call #ijkL.Collections.destroyList$type_List;
+    r0 := 1;
+    free_frame;
+    return r0;
+#se_fim_8:
+    r0 := [ra, 32];
+    push r0;
+    call #ijkL.Collections.destroyList$type_List;
+    r0 := "  update   key_1   \"value with spaces\"  ";
+    push r0;
+    call #Onm.Cli.Input.Tokenizer.tokenizeLine$string;
+    [ra, 48] := r0;
+    r0 := [ra, 48];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 96] := r0;
+    r1 := 3;
+    r0 := [ra, 96];
+    r0 := r0 <> r1;
+    jump_if r0, #se_verdadeiro_9;
+    jump #se_fim_10;
+#se_verdadeiro_9:
+    r0 := "[FAIL] Expected 3 tokens with extra whitespace, got ";
+    out 0x0001, r0;
+    r0 := [ra, 48];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := [ra, 48];
+    push r0;
+    call #ijkL.Collections.destroyList$type_List;
+    r0 := 1;
+    free_frame;
+    return r0;
+#se_fim_10:
+    r0 := [ra, 48];
+    push r0;
+    r0 := 0;
+    push r0;
+    call #ijkL.Collections.get$type_List_int;
+    [ra, 56] := r0;
+    r0 := [ra, 48];
+    push r0;
+    r0 := 1;
+    push r0;
+    call #ijkL.Collections.get$type_List_int;
+    [ra, 64] := r0;
+    r0 := [ra, 48];
+    push r0;
+    r0 := 2;
+    push r0;
+    call #ijkL.Collections.get$type_List_int;
+    [ra, 72] := r0;
+    r0 := [ra, 56];
+    push r0;
+    r0 := "update";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    r0 := not r0;
+    [ra, 96] := r0;
+    r0 := [ra, 64];
+    push r0;
+    r0 := "key_1";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    r1 := r0;
+    r1 := not r1;
+    r0 := [ra, 96];
+    r0 := r0 or r1;
+    [ra, 96] := r0;
+    r0 := [ra, 72];
+    push r0;
+    r0 := "value with spaces";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    r1 := r0;
+    r1 := not r1;
+    r0 := [ra, 96];
+    r0 := r0 or r1;
+    jump_if r0, #se_verdadeiro_11;
+    jump #se_fim_12;
+#se_verdadeiro_11:
+    r0 := "[FAIL] Tokens mismatch with extra whitespace.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := [ra, 48];
+    push r0;
+    call #ijkL.Collections.destroyList$type_List;
+    r0 := 1;
+    free_frame;
+    return r0;
+#se_fim_12:
+    r0 := [ra, 48];
+    push r0;
+    call #ijkL.Collections.destroyList$type_List;
+    r0 := "";
+    push r0;
+    call #Onm.Cli.Input.Tokenizer.tokenizeLine$string;
+    [ra, 80] := r0;
+    r0 := [ra, 80];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 96] := r0;
+    r1 := 0;
+    r0 := [ra, 96];
+    r0 := r0 <> r1;
+    jump_if r0, #se_verdadeiro_13;
+    jump #se_fim_14;
+#se_verdadeiro_13:
+    r0 := "[FAIL] Empty line must produce 0 tokens.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := [ra, 80];
+    push r0;
+    call #ijkL.Collections.destroyList$type_List;
+    r0 := 1;
+    free_frame;
+    return r0;
+#se_fim_14:
+    r0 := [ra, 80];
+    push r0;
+    call #ijkL.Collections.destroyList$type_List;
+    r0 := "   \t  \r  ";
+    push r0;
+    call #Onm.Cli.Input.Tokenizer.tokenizeLine$string;
+    [ra, 88] := r0;
+    r0 := [ra, 88];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 96] := r0;
+    r1 := 0;
+    r0 := [ra, 96];
+    r0 := r0 <> r1;
+    jump_if r0, #se_verdadeiro_15;
+    jump #se_fim_16;
+#se_verdadeiro_15:
+    r0 := "[FAIL] Whitespace-only line must produce 0 tokens.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := [ra, 88];
+    push r0;
+    call #ijkL.Collections.destroyList$type_List;
+    r0 := 1;
+    free_frame;
+    return r0;
+#se_fim_16:
+    r0 := [ra, 88];
+    push r0;
+    call #ijkL.Collections.destroyList$type_List;
+    r0 := "[PASS] test_tokenizer: all assertions passed.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := 0;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+// --- Module: ijkL.Text ---
+
+#ijkL.Text.create$int:
+#create$int:
+#ijkL.Text.create:
+#create:
+#__builtin_str_create:
+    alloc_frame 72;
+    r1 := [ra, 0];
+    r4 := r1 <= 0;
+    jump_if r4, #ijkL_Text_create_zero;
+    r0 := r1 + 1;
+    r0 := alloc(r0);
+    [ra, 8] := r0;
+    r2 := 32;
+    out 0x0020, r2;
+    out 0x0021, r0;
+    out 0x0022, r1;
+    r2 := 2;
+    out 0x0023, r2;
+    r2 := 0;
+    byte [r0, r1] := r2;
+    free_frame;
+    return r0;
+#ijkL_Text_create_zero:
+    r0 := alloc(1);
+    r2 := 0;
+    byte [r0, 0] := r2;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Text.get$string_int:
+#get$string_int:
+#ijkL.Text.get:
+#get:
+    alloc_frame 80;
+    r1 := [ra, 0];
+    r2 := [ra, 8];
+    r4 := r1 = 0;
+    jump_if r4, #ijkL_Text_get_oob;
+    r4 := r2 < 0;
+    jump_if r4, #ijkL_Text_get_oob;
+    r3 := 0;
+#ijkL_Text_get_find_len:
+    r0 := byte [r1, r3];
+    r4 := r0 = 0;
+    jump_if r4, #ijkL_Text_get_oob;
+    r4 := r3 = r2;
+    jump_if r4, #ijkL_Text_get_found;
+    r3 := r3 + 1;
+    jump #ijkL_Text_get_find_len;
+#ijkL_Text_get_found:
+    free_frame;
+    return r0;
+#ijkL_Text_get_oob:
+    r0 := 0;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Text.change$string_int_char:
+#change$string_int_char:
+#ijkL.Text.change:
+#change:
+    alloc_frame 88;
+    r1 := [ra, 0];
+    r2 := [ra, 8];
+    r3 := [ra, 16];
+    r0 := 0;
+#ijkL_Text_change_len_loop:
+    r4 := byte [r1, r0];
+    r4 := r4 = 0;
+    jump_if r4, #ijkL_Text_change_len_done;
+    r0 := r0 + 1;
+    jump #ijkL_Text_change_len_loop;
+#ijkL_Text_change_len_done:
+    [ra, 24] := r0;
+    r0 := r0 + 1;
+    r0 := alloc(r0);
+    [ra, 32] := r0;
+    r4 := 0;
+#ijkL_Text_change_copy_loop:
+    r0 := [ra, 24];
+    r0 := r4 < r0;
+    r0 := not r0;
+    jump_if r0, #ijkL_Text_change_copy_end;
+    r0 := r4 = r2;
+    jump_if r0, #ijkL_Text_change_copy_replace;
+    r1 := [ra, 0];
+    r0 := byte [r1, r4];
+    jump #ijkL_Text_change_copy_store;
+#ijkL_Text_change_copy_replace:
+    r0 := [ra, 16];
+#ijkL_Text_change_copy_store:
+    r1 := [ra, 32];
+    byte [r1, r4] := r0;
+    r4 := r4 + 1;
+    jump #ijkL_Text_change_copy_loop;
+#ijkL_Text_change_copy_end:
+    r1 := [ra, 32];
+    r0 := 0;
+    byte [r1, r4] := r0;
+    r0 := [ra, 32];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Text.length$string:
+#length$string:
+#ijkL.Text.length:
+#length:
+#__builtin_str_len:
+    alloc_frame 72;
+    r1 := [ra, 0];
+    r0 := 0;
+    r4 := r1 = 0;
+    jump_if r4, #ijkL_Text_length_end;
+#ijkL_Text_length_loop:
+    r2 := byte [r1, r0];
+    r3 := r2 = 0;
+    jump_if r3, #ijkL_Text_length_end;
+    r0 := r0 + 1;
+    jump #ijkL_Text_length_loop;
+#ijkL_Text_length_end:
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Text.compare$string_string:
+#compare$string_string:
+#ijkL.Text.compare:
+#compare:
+    alloc_frame 80;
+    r1 := [ra, 0];
+    r2 := [ra, 8];
+    r4 := r1 = r2;
+    jump_if r4, #ijkL_Text_compare_same;
+    r4 := r1 = 0;
+    jump_if r4, #ijkL_Text_compare_first_null;
+    r4 := r2 = 0;
+    jump_if r4, #ijkL_Text_compare_second_null;
+    r3 := 0;
+#ijkL_Text_compare_loop:
+    r0 := byte [r1, r3];
+    r4 := byte [r2, r3];
+    r0 := r0 - r4;
+    jump_if r0, #ijkL_Text_compare_diff;
+    r4 := byte [r1, r3];
+    r4 := r4 = 0;
+    jump_if r4, #ijkL_Text_compare_same;
+    r3 := r3 + 1;
+    jump #ijkL_Text_compare_loop;
+#ijkL_Text_compare_first_null:
+    r0 := -1;
+    free_frame;
+    return r0;
+#ijkL_Text_compare_second_null:
+    r0 := 1;
+    free_frame;
+    return r0;
+#ijkL_Text_compare_diff:
+    free_frame;
+    return r0;
+#ijkL_Text_compare_same:
+    r0 := 0;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Text.concat$string_string:
+#concat$string_string:
+#ijkL.Text.concat:
+#concat:
+    alloc_frame 80;
+    r0 := [ra, 0];
+    push r0;
+    call #ijkL.Text.length$string;
+    [ra, 16] := r0;
+    r0 := [ra, 8];
+    push r0;
+    call #ijkL.Text.length$string;
+    [ra, 24] := r0;
+    r1 := [ra, 16];
+    r0 := r1 + r0;
+    r0 := r0 + 1;
+    r0 := alloc(r0);
+    [ra, 32] := r0;
+    r4 := [ra, 16];
+    r3 := r4 = 0;
+    jump_if r3, #ijkL_Text_concat_second_seg;
+    r0 := [ra, 0];
+    out 0x0020, r0;
+    r0 := [ra, 32];
+    out 0x0021, r0;
+    r0 := [ra, 16];
+    out 0x0022, r0;
+    r0 := 1;
+    out 0x0023, r0;
+#ijkL_Text_concat_second_seg:
+    r4 := [ra, 24];
+    r3 := r4 = 0;
+    jump_if r3, #ijkL_Text_concat_term;
+    r0 := [ra, 8];
+    out 0x0020, r0;
+    r1 := [ra, 32];
+    r2 := [ra, 16];
+    r0 := r1 + r2;
+    out 0x0021, r0;
+    r0 := [ra, 24];
+    out 0x0022, r0;
+    r0 := 1;
+    out 0x0023, r0;
+#ijkL_Text_concat_term:
+    r1 := [ra, 16];
+    r2 := [ra, 24];
+    r1 := r1 + r2;
+    r2 := [ra, 32];
+    r0 := 0;
+    byte [r2, r1] := r0;
+    r0 := [ra, 32];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Text.substring$string_int_int:
+#substring$string_int_int:
+#ijkL.Text.substring:
+#substring:
+    alloc_frame 88;
+    r1 := [ra, 0];
+    r4 := r1 = 0;
+    jump_if r4, #ijkL_Text_sub_empty;
+    r2 := [ra, 8];
+    r3 := [ra, 16];
+    r4 := r2 < 0;
+    jump_if r4, #ijkL_Text_sub_clamp_start;
+    jump #ijkL_Text_sub_check_len;
+#ijkL_Text_sub_clamp_start:
+    r2 := 0;
+#ijkL_Text_sub_check_len:
+    r4 := r3 <= 0;
+    jump_if r4, #ijkL_Text_sub_empty;
+    r0 := 0;
+#ijkL_Text_sub_skip_loop:
+    r4 := r0 = r2;
+    jump_if r4, #ijkL_Text_sub_start_reached;
+    r4 := byte [r1, r0];
+    r4 := r4 = 0;
+    jump_if r4, #ijkL_Text_sub_empty;
+    r0 := r0 + 1;
+    jump #ijkL_Text_sub_skip_loop;
+#ijkL_Text_sub_start_reached:
+    r4 := 0;
+#ijkL_Text_sub_count_avail:
+    r0 := r4 = r3;
+    jump_if r0, #ijkL_Text_sub_alloc;
+    r0 := r2 + r4;
+    r0 := byte [r1, r0];
+    r0 := r0 = 0;
+    jump_if r0, #ijkL_Text_sub_alloc;
+    r4 := r4 + 1;
+    jump #ijkL_Text_sub_count_avail;
+#ijkL_Text_sub_alloc:
+    [ra, 24] := r4;
+    r0 := r4 + 1;
+    r0 := alloc(r0);
+    [ra, 32] := r0;
+    r4 := [ra, 24];
+    r3 := r4 = 0;
+    jump_if r3, #ijkL_Text_sub_term;
+    r1 := [ra, 0];
+    r2 := [ra, 8];
+    r0 := r1 + r2;
+    out 0x0020, r0;
+    r0 := [ra, 32];
+    out 0x0021, r0;
+    r0 := [ra, 24];
+    out 0x0022, r0;
+    r0 := 1;
+    out 0x0023, r0;
+#ijkL_Text_sub_term:
+    r1 := [ra, 32];
+    r2 := [ra, 24];
+    r0 := 0;
+    byte [r1, r2] := r0;
+    r0 := [ra, 32];
+    free_frame;
+    return r0;
+#ijkL_Text_sub_empty:
+    r0 := alloc(1);
+    r4 := 0;
+    byte [r0, 0] := r4;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Text.equals$string_string:
+#equals$string_string:
+#ijkL.Text.equals:
+#equals:
+    alloc_frame 80;
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 8];
+    push r0;
+    call #ijkL.Text.compare$string_string;
+    [ra, 16] := r0;
+    r1 := 0;
+    r0 := [ra, 16];
+    r0 := r0 = r1;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Text.indexOf$string_string:
+#indexOf$string_string:
+#ijkL.Text.indexOf:
+#indexOf:
+    alloc_frame 120;
+    r0 := [ra, 0];
+    push r0;
+    call #ijkL.Text.length$string;
+    [ra, 16] := r0;
+    r0 := [ra, 8];
+    push r0;
+    call #ijkL.Text.length$string;
+    [ra, 24] := r0;
+    r0 := [ra, 24];
+    [ra, 56] := r0;
+    r1 := 0;
+    r0 := [ra, 56];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_17;
+    jump #se_fim_18;
+#se_verdadeiro_17:
+    r0 := 0;
+    free_frame;
+    return r0;
+#se_fim_18:
+    r0 := [ra, 24];
+    [ra, 56] := r0;
+    r1 := [ra, 16];
+    r0 := [ra, 56];
+    r0 := r0 > r1;
+    jump_if r0, #se_verdadeiro_19;
+    jump #se_fim_20;
+#se_verdadeiro_19:
+    r0 := 1;
+    r0 := -r0;
+    free_frame;
+    return r0;
+#se_fim_20:
+    r0 := [ra, 16];
+    [ra, 56] := r0;
+    r1 := [ra, 24];
+    r0 := [ra, 56];
+    r0 := r0 - r1;
+    [ra, 32] := r0;
+    r0 := 0;
+    [ra, 40] := r0;
+#enquanto_inicio_21:
+    r0 := [ra, 40];
+    [ra, 56] := r0;
+    r1 := [ra, 32];
+    r0 := [ra, 56];
+    r0 := r0 <= r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_22;
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 40];
+    push r0;
+    r0 := [ra, 24];
+    push r0;
+    call #ijkL.Text.substring$string_int_int;
+    [ra, 48] := r0;
+    r0 := [ra, 48];
+    push r0;
+    r0 := [ra, 8];
+    push r0;
+    call #ijkL.Text.compare$string_string;
+    [ra, 56] := r0;
+    r1 := 0;
+    r0 := [ra, 56];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_23;
+    jump #se_fim_24;
+#se_verdadeiro_23:
+    r0 := [ra, 40];
+    free_frame;
+    return r0;
+#se_fim_24:
+    r0 := [ra, 40];
+    [ra, 56] := r0;
+    r1 := 1;
+    r0 := [ra, 56];
+    r0 := r0 + r1;
+    [ra, 40] := r0;
+    jump #enquanto_inicio_21;
+#enquanto_fim_22:
+    r0 := 1;
+    r0 := -r0;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Text.contains$string_string:
+#contains$string_string:
+#ijkL.Text.contains:
+#contains:
+    alloc_frame 80;
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 8];
+    push r0;
+    call #ijkL.Text.indexOf$string_string;
+    [ra, 16] := r0;
+    r1 := 0;
+    r0 := [ra, 16];
+    r0 := r0 >= r1;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Text.startsWith$string_string:
+#startsWith$string_string:
+#ijkL.Text.startsWith:
+#startsWith:
+    alloc_frame 104;
+    r0 := [ra, 8];
+    push r0;
+    call #ijkL.Text.length$string;
+    [ra, 16] := r0;
+    r0 := [ra, 16];
+    [ra, 40] := r0;
+    r1 := 0;
+    r0 := [ra, 40];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_25;
+    jump #se_fim_26;
+#se_verdadeiro_25:
+    r0 := true;
+    free_frame;
+    return r0;
+#se_fim_26:
+    r0 := [ra, 0];
+    push r0;
+    call #ijkL.Text.length$string;
+    [ra, 24] := r0;
+    r0 := [ra, 16];
+    [ra, 40] := r0;
+    r1 := [ra, 24];
+    r0 := [ra, 40];
+    r0 := r0 > r1;
+    jump_if r0, #se_verdadeiro_27;
+    jump #se_fim_28;
+#se_verdadeiro_27:
+    r0 := false;
+    free_frame;
+    return r0;
+#se_fim_28:
+    r0 := [ra, 0];
+    push r0;
+    r0 := 0;
+    push r0;
+    r0 := [ra, 16];
+    push r0;
+    call #ijkL.Text.substring$string_int_int;
+    [ra, 32] := r0;
+    r0 := [ra, 32];
+    push r0;
+    r0 := [ra, 8];
+    push r0;
+    call #ijkL.Text.compare$string_string;
+    [ra, 40] := r0;
+    r1 := 0;
+    r0 := [ra, 40];
+    r0 := r0 = r1;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Text.endsWith$string_string:
+#endsWith$string_string:
+#ijkL.Text.endsWith:
+#endsWith:
+    alloc_frame 104;
+    r0 := [ra, 8];
+    push r0;
+    call #ijkL.Text.length$string;
+    [ra, 16] := r0;
+    r0 := [ra, 16];
+    [ra, 40] := r0;
+    r1 := 0;
+    r0 := [ra, 40];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_29;
+    jump #se_fim_30;
+#se_verdadeiro_29:
+    r0 := true;
+    free_frame;
+    return r0;
+#se_fim_30:
+    r0 := [ra, 0];
+    push r0;
+    call #ijkL.Text.length$string;
+    [ra, 24] := r0;
+    r0 := [ra, 16];
+    [ra, 40] := r0;
+    r1 := [ra, 24];
+    r0 := [ra, 40];
+    r0 := r0 > r1;
+    jump_if r0, #se_verdadeiro_31;
+    jump #se_fim_32;
+#se_verdadeiro_31:
+    r0 := false;
+    free_frame;
+    return r0;
+#se_fim_32:
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 24];
+    [ra, 40] := r0;
+    r1 := [ra, 16];
+    r0 := [ra, 40];
+    r0 := r0 - r1;
+    push r0;
+    r0 := [ra, 16];
+    push r0;
+    call #ijkL.Text.substring$string_int_int;
+    [ra, 32] := r0;
+    r0 := [ra, 32];
+    push r0;
+    r0 := [ra, 8];
+    push r0;
+    call #ijkL.Text.compare$string_string;
+    [ra, 40] := r0;
+    r1 := 0;
+    r0 := [ra, 40];
+    r0 := r0 = r1;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Text.trim$string:
+#trim$string:
+#ijkL.Text.trim:
+#trim:
+    alloc_frame 120;
+    r0 := [ra, 0];
+    push r0;
+    call #ijkL.Text.length$string;
+    [ra, 8] := r0;
+    r0 := [ra, 8];
+    [ra, 56] := r0;
+    r1 := 0;
+    r0 := [ra, 56];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_33;
+    jump #se_fim_34;
+#se_verdadeiro_33:
+    r0 := "";
+    free_frame;
+    return r0;
+#se_fim_34:
+    r0 := 0;
+    [ra, 16] := r0;
+#enquanto_inicio_35:
+    r0 := [ra, 16];
+    [ra, 56] := r0;
+    r1 := [ra, 8];
+    r0 := [ra, 56];
+    r0 := r0 < r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_36;
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 16];
+    push r0;
+    call #ijkL.Text.get$string_int;
+    [ra, 24] := r0;
+    r0 := [ra, 24];
+    [ra, 56] := r0;
+    r1 := ' ';
+    r0 := [ra, 56];
+    r0 := r0 <> r1;
+    [ra, 56] := r0;
+    r0 := [ra, 24];
+    [ra, 64] := r0;
+    r1 := '\t';
+    r0 := [ra, 64];
+    r1 := r0 <> r1;
+    r0 := [ra, 56];
+    r0 := r0 and r1;
+    [ra, 56] := r0;
+    r0 := [ra, 24];
+    [ra, 64] := r0;
+    r1 := '\n';
+    r0 := [ra, 64];
+    r1 := r0 <> r1;
+    r0 := [ra, 56];
+    r0 := r0 and r1;
+    [ra, 56] := r0;
+    r0 := [ra, 24];
+    [ra, 64] := r0;
+    r1 := '\r';
+    r0 := [ra, 64];
+    r1 := r0 <> r1;
+    r0 := [ra, 56];
+    r0 := r0 and r1;
+    jump_if r0, #se_verdadeiro_37;
+    jump #se_fim_38;
+#se_verdadeiro_37:
+    jump #enquanto_fim_36;
+#se_fim_38:
+    r0 := [ra, 16];
+    [ra, 56] := r0;
+    r1 := 1;
+    r0 := [ra, 56];
+    r0 := r0 + r1;
+    [ra, 16] := r0;
+    jump #enquanto_inicio_35;
+#enquanto_fim_36:
+    r0 := [ra, 16];
+    [ra, 56] := r0;
+    r1 := [ra, 8];
+    r0 := [ra, 56];
+    r0 := r0 >= r1;
+    jump_if r0, #se_verdadeiro_39;
+    jump #se_fim_40;
+#se_verdadeiro_39:
+    r0 := "";
+    free_frame;
+    return r0;
+#se_fim_40:
+    r0 := [ra, 8];
+    [ra, 56] := r0;
+    r1 := 1;
+    r0 := [ra, 56];
+    r0 := r0 - r1;
+    [ra, 32] := r0;
+#enquanto_inicio_41:
+    r0 := [ra, 32];
+    [ra, 56] := r0;
+    r1 := [ra, 16];
+    r0 := [ra, 56];
+    r0 := r0 >= r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_42;
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 32];
+    push r0;
+    call #ijkL.Text.get$string_int;
+    [ra, 40] := r0;
+    r0 := [ra, 40];
+    [ra, 56] := r0;
+    r1 := ' ';
+    r0 := [ra, 56];
+    r0 := r0 <> r1;
+    [ra, 56] := r0;
+    r0 := [ra, 40];
+    [ra, 64] := r0;
+    r1 := '\t';
+    r0 := [ra, 64];
+    r1 := r0 <> r1;
+    r0 := [ra, 56];
+    r0 := r0 and r1;
+    [ra, 56] := r0;
+    r0 := [ra, 40];
+    [ra, 64] := r0;
+    r1 := '\n';
+    r0 := [ra, 64];
+    r1 := r0 <> r1;
+    r0 := [ra, 56];
+    r0 := r0 and r1;
+    [ra, 56] := r0;
+    r0 := [ra, 40];
+    [ra, 64] := r0;
+    r1 := '\r';
+    r0 := [ra, 64];
+    r1 := r0 <> r1;
+    r0 := [ra, 56];
+    r0 := r0 and r1;
+    jump_if r0, #se_verdadeiro_43;
+    jump #se_fim_44;
+#se_verdadeiro_43:
+    jump #enquanto_fim_42;
+#se_fim_44:
+    r0 := [ra, 32];
+    [ra, 56] := r0;
+    r1 := 1;
+    r0 := [ra, 56];
+    r0 := r0 - r1;
+    [ra, 32] := r0;
+    jump #enquanto_inicio_41;
+#enquanto_fim_42:
+    r0 := [ra, 32];
+    [ra, 56] := r0;
+    r1 := [ra, 16];
+    r0 := [ra, 56];
+    r0 := r0 - r1;
+    [ra, 56] := r0;
+    r1 := 1;
+    r0 := [ra, 56];
+    r0 := r0 + r1;
+    [ra, 48] := r0;
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 16];
+    push r0;
+    r0 := [ra, 48];
+    push r0;
+    call #ijkL.Text.substring$string_int_int;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+// --- Module: ijkL.Collections ---
+
+#ijkL.Collections.createList$int:
+#createList$int:
+#ijkL.Collections.createList:
+#createList:
+    alloc_frame 80;
+    r0 := [ra, 0];
+    [ra, 16] := r0;
+    r1 := 0;
+    r0 := [ra, 16];
+    r0 := r0 <= r1;
+    jump_if r0, #se_verdadeiro_45;
+    jump #se_fim_46;
+#se_verdadeiro_45:
+    r0 := 4;
+    [ra, 0] := r0;
+#se_fim_46:
+    r0 := 24;
+    r0 := alloc(r0);
+    [ra, 8] := r0;
+    r0 := [ra, 0];
+    [ra, 16] := r0;
+    r1 := [ra, 8];
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := 0;
+    [ra, 16] := r0;
+    r1 := [ra, 8];
+    r1 := r1 + 8;
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := 8;
+    [ra, 16] := r0;
+    r1 := [ra, 0];
+    r0 := [ra, 16];
+    r0 := r0 * r1;
+    r0 := alloc(r0);
+    [ra, 16] := r0;
+    r1 := [ra, 8];
+    r1 := r1 + 16;
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := [ra, 8];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.add$type_List_ptr_unknown:
+#add$type_List_ptr_unknown:
+#ijkL.Collections.add:
+#add:
+    alloc_frame 96;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r1 := [r1, 0];
+    r0 := [ra, 32];
+    r0 := r0 >= r1;
+    jump_if r0, #se_verdadeiro_47;
+    jump #se_fim_48;
+#se_verdadeiro_47:
+    r0 := [ra, 0];
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r1 := 2;
+    r0 := [ra, 32];
+    r0 := r0 * r1;
+    [ra, 16] := r0;
+    r0 := [ra, 16];
+    [ra, 32] := r0;
+    r1 := 0;
+    r0 := [ra, 32];
+    r0 := r0 <= r1;
+    jump_if r0, #se_verdadeiro_49;
+    jump #se_fim_50;
+#se_verdadeiro_49:
+    r0 := 4;
+    [ra, 16] := r0;
+#se_fim_50:
+    r0 := 8;
+    [ra, 32] := r0;
+    r1 := [ra, 16];
+    r0 := [ra, 32];
+    r0 := r0 * r1;
+    r0 := alloc(r0);
+    [ra, 24] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r1 := 0;
+    r0 := [ra, 32];
+    r0 := r0 > r1;
+    jump_if r0, #se_verdadeiro_51;
+    jump #se_fim_52;
+#se_verdadeiro_51:
+    r0 := [ra, 24];
+    push r0;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    push r0;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r1 := 8;
+    r0 := [ra, 32];
+    r0 := r0 * r1;
+    push r0;
+    call #ijkL.Memory.copy$ptr_unknown_ptr_unknown_int;
+#se_fim_52:
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    free(r0);
+    r0 := [ra, 24];
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r0 := [ra, 32];
+    [r1, 0] := r0;
+    r0 := [ra, 16];
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r0 := [ra, 32];
+    [r1, 0] := r0;
+#se_fim_48:
+    r0 := [ra, 8];
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r1 := [r1, 0];
+    [ra, 40] := r1;
+    r3 := [ra, 0];
+    r3 := r3 + 8;
+    r3 := [r3, 0];
+    r1 := [ra, 40];
+    r3 := r3 * 8;
+    r1 := r1 + r3;
+    r0 := [ra, 32];
+    [r1, 0] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r1 := 1;
+    r0 := [ra, 32];
+    r0 := r0 + r1;
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r0 := [ra, 32];
+    [r1, 0] := r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.get$type_List_int:
+#get$type_List_int:
+    alloc_frame 80;
+    r0 := [ra, 8];
+    [ra, 16] := r0;
+    r1 := 0;
+    r0 := [ra, 16];
+    r0 := r0 < r1;
+    [ra, 16] := r0;
+    r0 := [ra, 8];
+    [ra, 24] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r1 := [r1, 0];
+    r0 := [ra, 24];
+    r1 := r0 >= r1;
+    r0 := [ra, 16];
+    r0 := r0 or r1;
+    jump_if r0, #se_verdadeiro_53;
+    jump #se_fim_54;
+#se_verdadeiro_53:
+    r0 := null;
+    free_frame;
+    return r0;
+#se_fim_54:
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 16] := r0;
+    r3 := [ra, 8];
+    r0 := [ra, 16];
+    r3 := r3 * 8;
+    r0 := r0 + r3;
+    r0 := [r0, 0];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.set$type_List_int_ptr_unknown:
+#set$type_List_int_ptr_unknown:
+#ijkL.Collections.set:
+#set:
+    alloc_frame 88;
+    r0 := [ra, 8];
+    [ra, 24] := r0;
+    r1 := 0;
+    r0 := [ra, 24];
+    r0 := r0 < r1;
+    [ra, 24] := r0;
+    r0 := [ra, 8];
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r1 := [r1, 0];
+    r0 := [ra, 32];
+    r1 := r0 >= r1;
+    r0 := [ra, 24];
+    r0 := r0 or r1;
+    jump_if r0, #se_verdadeiro_55;
+    jump #se_fim_56;
+#se_verdadeiro_55:
+    r0 := false;
+    free_frame;
+    return r0;
+#se_fim_56:
+    r0 := [ra, 16];
+    [ra, 24] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r1 := [r1, 0];
+    [ra, 32] := r1;
+    r3 := [ra, 8];
+    r1 := [ra, 32];
+    r3 := r3 * 8;
+    r1 := r1 + r3;
+    r0 := [ra, 24];
+    [r1, 0] := r0;
+    r0 := true;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.removeAt$type_List_int:
+#removeAt$type_List_int:
+#ijkL.Collections.removeAt:
+#removeAt:
+    alloc_frame 96;
+    r0 := [ra, 8];
+    [ra, 32] := r0;
+    r1 := 0;
+    r0 := [ra, 32];
+    r0 := r0 < r1;
+    [ra, 32] := r0;
+    r0 := [ra, 8];
+    [ra, 40] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r1 := [r1, 0];
+    r0 := [ra, 40];
+    r1 := r0 >= r1;
+    r0 := [ra, 32];
+    r0 := r0 or r1;
+    jump_if r0, #se_verdadeiro_57;
+    jump #se_fim_58;
+#se_verdadeiro_57:
+    r0 := null;
+    free_frame;
+    return r0;
+#se_fim_58:
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r3 := [ra, 8];
+    r0 := [ra, 32];
+    r3 := r3 * 8;
+    r0 := r0 + r3;
+    r0 := [r0, 0];
+    [ra, 16] := r0;
+    r0 := [ra, 8];
+    [ra, 24] := r0;
+#enquanto_inicio_59:
+    r0 := [ra, 24];
+    [ra, 32] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 40] := r0;
+    r1 := 1;
+    r0 := [ra, 40];
+    r1 := r0 - r1;
+    r0 := [ra, 32];
+    r0 := r0 < r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_60;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r0 := [ra, 24];
+    [ra, 40] := r0;
+    r1 := 1;
+    r0 := [ra, 40];
+    r3 := r0 + r1;
+    r0 := [ra, 32];
+    r3 := r3 * 8;
+    r0 := r0 + r3;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r1 := [r1, 0];
+    [ra, 40] := r1;
+    r3 := [ra, 24];
+    r1 := [ra, 40];
+    r3 := r3 * 8;
+    r1 := r1 + r3;
+    r0 := [ra, 32];
+    [r1, 0] := r0;
+    r0 := [ra, 24];
+    [ra, 32] := r0;
+    r1 := 1;
+    r0 := [ra, 32];
+    r0 := r0 + r1;
+    [ra, 24] := r0;
+    jump #enquanto_inicio_59;
+#enquanto_fim_60:
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r1 := 1;
+    r0 := [ra, 32];
+    r0 := r0 - r1;
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r0 := [ra, 32];
+    [r1, 0] := r0;
+    r0 := [ra, 16];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.size$type_List:
+#size$type_List:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.length$type_List:
+#length$type_List:
+#ijkL.Collections.length:
+#length:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.clear$type_List:
+#clear$type_List:
+    alloc_frame 72;
+    r0 := 0;
+    [ra, 8] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r0 := [ra, 8];
+    [r1, 0] := r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.destroyList$type_List:
+#destroyList$type_List:
+#ijkL.Collections.destroyList:
+#destroyList:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 8] := r0;
+    r1 := null;
+    r0 := [ra, 8];
+    r0 := r0 <> r1;
+    jump_if r0, #se_verdadeiro_61;
+    jump #se_fim_62;
+#se_verdadeiro_61:
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    free(r0);
+    r0 := null;
+    [ra, 8] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r0 := [ra, 8];
+    [r1, 0] := r0;
+#se_fim_62:
+    r0 := [ra, 0];
+    free(r0);
+    free_frame;
+    return;
+
+#ijkL.Collections.createStack$int:
+#createStack$int:
+#ijkL.Collections.createStack:
+#createStack:
+    alloc_frame 80;
+    r0 := [ra, 0];
+    [ra, 16] := r0;
+    r1 := 0;
+    r0 := [ra, 16];
+    r0 := r0 <= r1;
+    jump_if r0, #se_verdadeiro_63;
+    jump #se_fim_64;
+#se_verdadeiro_63:
+    r0 := 4;
+    [ra, 0] := r0;
+#se_fim_64:
+    r0 := 24;
+    r0 := alloc(r0);
+    [ra, 8] := r0;
+    r0 := [ra, 0];
+    [ra, 16] := r0;
+    r1 := [ra, 8];
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := 0;
+    [ra, 16] := r0;
+    r1 := [ra, 8];
+    r1 := r1 + 8;
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := 8;
+    [ra, 16] := r0;
+    r1 := [ra, 0];
+    r0 := [ra, 16];
+    r0 := r0 * r1;
+    r0 := alloc(r0);
+    [ra, 16] := r0;
+    r1 := [ra, 8];
+    r1 := r1 + 16;
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := [ra, 8];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.push$type_Stack_ptr_unknown:
+#push$type_Stack_ptr_unknown:
+#ijkL.Collections.push:
+#push:
+    alloc_frame 96;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r1 := [r1, 0];
+    r0 := [ra, 32];
+    r0 := r0 >= r1;
+    jump_if r0, #se_verdadeiro_65;
+    jump #se_fim_66;
+#se_verdadeiro_65:
+    r0 := [ra, 0];
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r1 := 2;
+    r0 := [ra, 32];
+    r0 := r0 * r1;
+    [ra, 16] := r0;
+    r0 := [ra, 16];
+    [ra, 32] := r0;
+    r1 := 0;
+    r0 := [ra, 32];
+    r0 := r0 <= r1;
+    jump_if r0, #se_verdadeiro_67;
+    jump #se_fim_68;
+#se_verdadeiro_67:
+    r0 := 4;
+    [ra, 16] := r0;
+#se_fim_68:
+    r0 := 8;
+    [ra, 32] := r0;
+    r1 := [ra, 16];
+    r0 := [ra, 32];
+    r0 := r0 * r1;
+    r0 := alloc(r0);
+    [ra, 24] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r1 := 0;
+    r0 := [ra, 32];
+    r0 := r0 > r1;
+    jump_if r0, #se_verdadeiro_69;
+    jump #se_fim_70;
+#se_verdadeiro_69:
+    r0 := [ra, 24];
+    push r0;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    push r0;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r1 := 8;
+    r0 := [ra, 32];
+    r0 := r0 * r1;
+    push r0;
+    call #ijkL.Memory.copy$ptr_unknown_ptr_unknown_int;
+#se_fim_70:
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    free(r0);
+    r0 := [ra, 24];
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r0 := [ra, 32];
+    [r1, 0] := r0;
+    r0 := [ra, 16];
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r0 := [ra, 32];
+    [r1, 0] := r0;
+#se_fim_66:
+    r0 := [ra, 8];
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r1 := [r1, 0];
+    [ra, 40] := r1;
+    r3 := [ra, 0];
+    r3 := r3 + 8;
+    r3 := [r3, 0];
+    r1 := [ra, 40];
+    r3 := r3 * 8;
+    r1 := r1 + r3;
+    r0 := [ra, 32];
+    [r1, 0] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r1 := 1;
+    r0 := [ra, 32];
+    r0 := r0 + r1;
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r0 := [ra, 32];
+    [r1, 0] := r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.pop$type_Stack:
+#pop$type_Stack:
+#ijkL.Collections.pop:
+#pop:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 8] := r0;
+    r1 := 0;
+    r0 := [ra, 8];
+    r0 := r0 <= r1;
+    jump_if r0, #se_verdadeiro_71;
+    jump #se_fim_72;
+#se_verdadeiro_71:
+    r0 := null;
+    free_frame;
+    return r0;
+#se_fim_72:
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 8] := r0;
+    r1 := 1;
+    r0 := [ra, 8];
+    r0 := r0 - r1;
+    [ra, 8] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r0 := [ra, 8];
+    [r1, 0] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 8] := r0;
+    r3 := [ra, 0];
+    r3 := r3 + 8;
+    r3 := [r3, 0];
+    r0 := [ra, 8];
+    r3 := r3 * 8;
+    r0 := r0 + r3;
+    r0 := [r0, 0];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.peek$type_Stack:
+#peek$type_Stack:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 8] := r0;
+    r1 := 0;
+    r0 := [ra, 8];
+    r0 := r0 <= r1;
+    jump_if r0, #se_verdadeiro_73;
+    jump #se_fim_74;
+#se_verdadeiro_73:
+    r0 := null;
+    free_frame;
+    return r0;
+#se_fim_74:
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 8] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 16] := r0;
+    r1 := 1;
+    r0 := [ra, 16];
+    r3 := r0 - r1;
+    r0 := [ra, 8];
+    r3 := r3 * 8;
+    r0 := r0 + r3;
+    r0 := [r0, 0];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.isEmpty$type_Stack:
+#isEmpty$type_Stack:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 8] := r0;
+    r1 := 0;
+    r0 := [ra, 8];
+    r0 := r0 = r1;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.size$type_Stack:
+#size$type_Stack:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.clear$type_Stack:
+#clear$type_Stack:
+    alloc_frame 72;
+    r0 := 0;
+    [ra, 8] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r0 := [ra, 8];
+    [r1, 0] := r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.destroyStack$type_Stack:
+#destroyStack$type_Stack:
+#ijkL.Collections.destroyStack:
+#destroyStack:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 8] := r0;
+    r1 := null;
+    r0 := [ra, 8];
+    r0 := r0 <> r1;
+    jump_if r0, #se_verdadeiro_75;
+    jump #se_fim_76;
+#se_verdadeiro_75:
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    free(r0);
+    r0 := null;
+    [ra, 8] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r0 := [ra, 8];
+    [r1, 0] := r0;
+#se_fim_76:
+    r0 := [ra, 0];
+    free(r0);
+    free_frame;
+    return;
+
+#ijkL.Collections.createQueue$int:
+#createQueue$int:
+#ijkL.Collections.createQueue:
+#createQueue:
+    alloc_frame 80;
+    r0 := [ra, 0];
+    [ra, 16] := r0;
+    r1 := 0;
+    r0 := [ra, 16];
+    r0 := r0 <= r1;
+    jump_if r0, #se_verdadeiro_77;
+    jump #se_fim_78;
+#se_verdadeiro_77:
+    r0 := 4;
+    [ra, 0] := r0;
+#se_fim_78:
+    r0 := 40;
+    r0 := alloc(r0);
+    [ra, 8] := r0;
+    r0 := [ra, 0];
+    [ra, 16] := r0;
+    r1 := [ra, 8];
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := 0;
+    [ra, 16] := r0;
+    r1 := [ra, 8];
+    r1 := r1 + 8;
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := 0;
+    [ra, 16] := r0;
+    r1 := [ra, 8];
+    r1 := r1 + 16;
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := 0;
+    [ra, 16] := r0;
+    r1 := [ra, 8];
+    r1 := r1 + 24;
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := 8;
+    [ra, 16] := r0;
+    r1 := [ra, 0];
+    r0 := [ra, 16];
+    r0 := r0 * r1;
+    r0 := alloc(r0);
+    [ra, 16] := r0;
+    r1 := [ra, 8];
+    r1 := r1 + 32;
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := [ra, 8];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.enqueue$type_Queue_ptr_unknown:
+#enqueue$type_Queue_ptr_unknown:
+#ijkL.Collections.enqueue:
+#enqueue:
+    alloc_frame 112;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 48] := r0;
+    r1 := [ra, 0];
+    r1 := [r1, 0];
+    r0 := [ra, 48];
+    r0 := r0 >= r1;
+    jump_if r0, #se_verdadeiro_79;
+    jump #se_fim_80;
+#se_verdadeiro_79:
+    r0 := [ra, 0];
+    r0 := [r0, 0];
+    [ra, 48] := r0;
+    r1 := 2;
+    r0 := [ra, 48];
+    r0 := r0 * r1;
+    [ra, 16] := r0;
+    r0 := [ra, 16];
+    [ra, 48] := r0;
+    r1 := 0;
+    r0 := [ra, 48];
+    r0 := r0 <= r1;
+    jump_if r0, #se_verdadeiro_81;
+    jump #se_fim_82;
+#se_verdadeiro_81:
+    r0 := 4;
+    [ra, 16] := r0;
+#se_fim_82:
+    r0 := 8;
+    [ra, 48] := r0;
+    r1 := [ra, 16];
+    r0 := [ra, 48];
+    r0 := r0 * r1;
+    r0 := alloc(r0);
+    [ra, 24] := r0;
+    r0 := 0;
+    [ra, 32] := r0;
+#enquanto_inicio_83:
+    r0 := [ra, 32];
+    [ra, 48] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r1 := [r1, 0];
+    r0 := [ra, 48];
+    r0 := r0 < r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_84;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 48] := r0;
+    r1 := [ra, 32];
+    r0 := [ra, 48];
+    r0 := r0 + r1;
+    [ra, 48] := r0;
+    r1 := [ra, 0];
+    r1 := [r1, 0];
+    r0 := [ra, 48];
+    r0 := r0 mod r1;
+    [ra, 40] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 32;
+    r0 := [r0, 0];
+    [ra, 48] := r0;
+    r3 := [ra, 40];
+    r0 := [ra, 48];
+    r3 := r3 * 8;
+    r0 := r0 + r3;
+    r0 := [r0, 0];
+    [ra, 48] := r0;
+    r1 := [ra, 24];
+    [ra, 56] := r1;
+    r3 := [ra, 32];
+    r1 := [ra, 56];
+    r3 := r3 * 8;
+    r1 := r1 + r3;
+    r0 := [ra, 48];
+    [r1, 0] := r0;
+    r0 := [ra, 32];
+    [ra, 48] := r0;
+    r1 := 1;
+    r0 := [ra, 48];
+    r0 := r0 + r1;
+    [ra, 32] := r0;
+    jump #enquanto_inicio_83;
+#enquanto_fim_84:
+    r0 := [ra, 0];
+    r0 := r0 + 32;
+    r0 := [r0, 0];
+    free(r0);
+    r0 := [ra, 24];
+    [ra, 48] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 32;
+    r0 := [ra, 48];
+    [r1, 0] := r0;
+    r0 := 0;
+    [ra, 48] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r0 := [ra, 48];
+    [r1, 0] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 48] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 24;
+    r0 := [ra, 48];
+    [r1, 0] := r0;
+    r0 := [ra, 16];
+    [ra, 48] := r0;
+    r1 := [ra, 0];
+    r0 := [ra, 48];
+    [r1, 0] := r0;
+#se_fim_80:
+    r0 := [ra, 8];
+    [ra, 48] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 32;
+    r1 := [r1, 0];
+    [ra, 56] := r1;
+    r3 := [ra, 0];
+    r3 := r3 + 24;
+    r3 := [r3, 0];
+    r1 := [ra, 56];
+    r3 := r3 * 8;
+    r1 := r1 + r3;
+    r0 := [ra, 48];
+    [r1, 0] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 24;
+    r0 := [r0, 0];
+    [ra, 48] := r0;
+    r1 := 1;
+    r0 := [ra, 48];
+    r0 := r0 + r1;
+    [ra, 48] := r0;
+    r1 := [ra, 0];
+    r1 := [r1, 0];
+    r0 := [ra, 48];
+    r0 := r0 mod r1;
+    [ra, 48] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 24;
+    r0 := [ra, 48];
+    [r1, 0] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 48] := r0;
+    r1 := 1;
+    r0 := [ra, 48];
+    r0 := r0 + r1;
+    [ra, 48] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r0 := [ra, 48];
+    [r1, 0] := r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.dequeue$type_Queue:
+#dequeue$type_Queue:
+#ijkL.Collections.dequeue:
+#dequeue:
+    alloc_frame 80;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 16] := r0;
+    r1 := 0;
+    r0 := [ra, 16];
+    r0 := r0 <= r1;
+    jump_if r0, #se_verdadeiro_85;
+    jump #se_fim_86;
+#se_verdadeiro_85:
+    r0 := null;
+    free_frame;
+    return r0;
+#se_fim_86:
+    r0 := [ra, 0];
+    r0 := r0 + 32;
+    r0 := [r0, 0];
+    [ra, 16] := r0;
+    r3 := [ra, 0];
+    r3 := r3 + 16;
+    r3 := [r3, 0];
+    r0 := [ra, 16];
+    r3 := r3 * 8;
+    r0 := r0 + r3;
+    r0 := [r0, 0];
+    [ra, 8] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 16] := r0;
+    r1 := 1;
+    r0 := [ra, 16];
+    r0 := r0 + r1;
+    [ra, 16] := r0;
+    r1 := [ra, 0];
+    r1 := [r1, 0];
+    r0 := [ra, 16];
+    r0 := r0 mod r1;
+    [ra, 16] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 16] := r0;
+    r1 := 1;
+    r0 := [ra, 16];
+    r0 := r0 - r1;
+    [ra, 16] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := [ra, 8];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.peek$type_Queue:
+#peek$type_Queue:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 8] := r0;
+    r1 := 0;
+    r0 := [ra, 8];
+    r0 := r0 <= r1;
+    jump_if r0, #se_verdadeiro_87;
+    jump #se_fim_88;
+#se_verdadeiro_87:
+    r0 := null;
+    free_frame;
+    return r0;
+#se_fim_88:
+    r0 := [ra, 0];
+    r0 := r0 + 32;
+    r0 := [r0, 0];
+    [ra, 8] := r0;
+    r3 := [ra, 0];
+    r3 := r3 + 16;
+    r3 := [r3, 0];
+    r0 := [ra, 8];
+    r3 := r3 * 8;
+    r0 := r0 + r3;
+    r0 := [r0, 0];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.isEmpty$type_Queue:
+#isEmpty$type_Queue:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 8] := r0;
+    r1 := 0;
+    r0 := [ra, 8];
+    r0 := r0 = r1;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.size$type_Queue:
+#size$type_Queue:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.clear$type_Queue:
+#clear$type_Queue:
+    alloc_frame 72;
+    r0 := 0;
+    [ra, 8] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r0 := [ra, 8];
+    [r1, 0] := r0;
+    r0 := 0;
+    [ra, 8] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r0 := [ra, 8];
+    [r1, 0] := r0;
+    r0 := 0;
+    [ra, 8] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 24;
+    r0 := [ra, 8];
+    [r1, 0] := r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.destroyQueue$type_Queue:
+#destroyQueue$type_Queue:
+#ijkL.Collections.destroyQueue:
+#destroyQueue:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    r0 := r0 + 32;
+    r0 := [r0, 0];
+    [ra, 8] := r0;
+    r1 := null;
+    r0 := [ra, 8];
+    r0 := r0 <> r1;
+    jump_if r0, #se_verdadeiro_89;
+    jump #se_fim_90;
+#se_verdadeiro_89:
+    r0 := [ra, 0];
+    r0 := r0 + 32;
+    r0 := [r0, 0];
+    free(r0);
+    r0 := null;
+    [ra, 8] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 32;
+    r0 := [ra, 8];
+    [r1, 0] := r0;
+#se_fim_90:
+    r0 := [ra, 0];
+    free(r0);
+    free_frame;
+    return;
+
+#ijkL.Collections.createMap$int:
+#createMap$int:
+#ijkL.Collections.createMap:
+#createMap:
+    alloc_frame 80;
+    r0 := [ra, 0];
+    [ra, 16] := r0;
+    r1 := 0;
+    r0 := [ra, 16];
+    r0 := r0 <= r1;
+    jump_if r0, #se_verdadeiro_91;
+    jump #se_fim_92;
+#se_verdadeiro_91:
+    r0 := 16;
+    [ra, 0] := r0;
+#se_fim_92:
+    r0 := 24;
+    r0 := alloc(r0);
+    [ra, 8] := r0;
+    r0 := [ra, 0];
+    [ra, 16] := r0;
+    r1 := [ra, 8];
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := 0;
+    [ra, 16] := r0;
+    r1 := [ra, 8];
+    r1 := r1 + 8;
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := 8;
+    [ra, 16] := r0;
+    r1 := [ra, 0];
+    r0 := [ra, 16];
+    r0 := r0 * r1;
+    r0 := alloc(r0);
+    [ra, 16] := r0;
+    r1 := [ra, 8];
+    r1 := r1 + 16;
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := [ra, 8];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    push r0;
+    r0 := 0;
+    push r0;
+    r0 := [ra, 0];
+    [ra, 16] := r0;
+    r1 := 8;
+    r0 := [ra, 16];
+    r0 := r0 * r1;
+    push r0;
+    call #ijkL.Memory.fill$ptr_unknown_int_int;
+    r0 := [ra, 8];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.hashString$string_int:
+#hashString$string_int:
+#ijkL.Collections.hashString:
+#hashString:
+    alloc_frame 112;
+    r0 := 5381;
+    [ra, 16] := r0;
+    r0 := [ra, 0];
+    push r0;
+    call #ijkL.Text.length$string;
+    [ra, 24] := r0;
+    r0 := 0;
+    [ra, 32] := r0;
+#enquanto_inicio_93:
+    r0 := [ra, 32];
+    [ra, 48] := r0;
+    r1 := [ra, 24];
+    r0 := [ra, 48];
+    r0 := r0 < r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_94;
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 32];
+    push r0;
+    call #ijkL.Text.get$string_int;
+    [ra, 40] := r0;
+    r0 := [ra, 16];
+    [ra, 48] := r0;
+    r1 := 33;
+    r0 := [ra, 48];
+    r0 := r0 * r1;
+    [ra, 48] := r0;
+    r1 := [ra, 40];
+    r0 := [ra, 48];
+    r0 := r0 + r1;
+    [ra, 16] := r0;
+    r0 := [ra, 32];
+    [ra, 48] := r0;
+    r1 := 1;
+    r0 := [ra, 48];
+    r0 := r0 + r1;
+    [ra, 32] := r0;
+    jump #enquanto_inicio_93;
+#enquanto_fim_94:
+    r0 := [ra, 16];
+    [ra, 48] := r0;
+    r1 := 0;
+    r0 := [ra, 48];
+    r0 := r0 < r1;
+    jump_if r0, #se_verdadeiro_95;
+    jump #se_fim_96;
+#se_verdadeiro_95:
+    r0 := 0;
+    [ra, 48] := r0;
+    r1 := [ra, 16];
+    r0 := [ra, 48];
+    r0 := r0 - r1;
+    [ra, 16] := r0;
+#se_fim_96:
+    r0 := [ra, 16];
+    [ra, 48] := r0;
+    r1 := [ra, 8];
+    r0 := [ra, 48];
+    r0 := r0 mod r1;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.put$type_Map_string_ptr_unknown:
+#put$type_Map_string_ptr_unknown:
+#ijkL.Collections.put:
+#put:
+    alloc_frame 112;
+    r0 := [ra, 8];
+    push r0;
+    r0 := [ra, 0];
+    r0 := [r0, 0];
+    push r0;
+    call #ijkL.Collections.hashString$string_int;
+    [ra, 24] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 48] := r0;
+    r3 := [ra, 24];
+    r0 := [ra, 48];
+    r3 := r3 * 8;
+    r0 := r0 + r3;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+#enquanto_inicio_97:
+    r0 := [ra, 32];
+    [ra, 48] := r0;
+    r1 := null;
+    r0 := [ra, 48];
+    r0 := r0 <> r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_98;
+    r0 := [ra, 32];
+    r0 := [r0, 0];
+    push r0;
+    r0 := [ra, 8];
+    push r0;
+    call #ijkL.Text.compare$string_string;
+    [ra, 48] := r0;
+    r1 := 0;
+    r0 := [ra, 48];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_99;
+    jump #se_fim_100;
+#se_verdadeiro_99:
+    r0 := [ra, 16];
+    [ra, 48] := r0;
+    r1 := [ra, 32];
+    r1 := r1 + 8;
+    r0 := [ra, 48];
+    [r1, 0] := r0;
+    free_frame;
+    return;
+#se_fim_100:
+    r0 := [ra, 32];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    jump #enquanto_inicio_97;
+#enquanto_fim_98:
+    r0 := 24;
+    r0 := alloc(r0);
+    [ra, 40] := r0;
+    r0 := [ra, 8];
+    [ra, 48] := r0;
+    r1 := [ra, 40];
+    r0 := [ra, 48];
+    [r1, 0] := r0;
+    r0 := [ra, 16];
+    [ra, 48] := r0;
+    r1 := [ra, 40];
+    r1 := r1 + 8;
+    r0 := [ra, 48];
+    [r1, 0] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 48] := r0;
+    r3 := [ra, 24];
+    r0 := [ra, 48];
+    r3 := r3 * 8;
+    r0 := r0 + r3;
+    r0 := [r0, 0];
+    [ra, 48] := r0;
+    r1 := [ra, 40];
+    r1 := r1 + 16;
+    r0 := [ra, 48];
+    [r1, 0] := r0;
+    r0 := [ra, 40];
+    [ra, 48] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r1 := [r1, 0];
+    [ra, 56] := r1;
+    r3 := [ra, 24];
+    r1 := [ra, 56];
+    r3 := r3 * 8;
+    r1 := r1 + r3;
+    r0 := [ra, 48];
+    [r1, 0] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 48] := r0;
+    r1 := 1;
+    r0 := [ra, 48];
+    r0 := r0 + r1;
+    [ra, 48] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r0 := [ra, 48];
+    [r1, 0] := r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.get$type_Map_string:
+#get$type_Map_string:
+    alloc_frame 96;
+    r0 := [ra, 8];
+    push r0;
+    r0 := [ra, 0];
+    r0 := [r0, 0];
+    push r0;
+    call #ijkL.Collections.hashString$string_int;
+    [ra, 16] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r3 := [ra, 16];
+    r0 := [ra, 32];
+    r3 := r3 * 8;
+    r0 := r0 + r3;
+    r0 := [r0, 0];
+    [ra, 24] := r0;
+#enquanto_inicio_101:
+    r0 := [ra, 24];
+    [ra, 32] := r0;
+    r1 := null;
+    r0 := [ra, 32];
+    r0 := r0 <> r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_102;
+    r0 := [ra, 24];
+    r0 := [r0, 0];
+    push r0;
+    r0 := [ra, 8];
+    push r0;
+    call #ijkL.Text.compare$string_string;
+    [ra, 32] := r0;
+    r1 := 0;
+    r0 := [ra, 32];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_103;
+    jump #se_fim_104;
+#se_verdadeiro_103:
+    r0 := [ra, 24];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    free_frame;
+    return r0;
+#se_fim_104:
+    r0 := [ra, 24];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 24] := r0;
+    jump #enquanto_inicio_101;
+#enquanto_fim_102:
+    r0 := null;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.containsKey$type_Map_string:
+#containsKey$type_Map_string:
+#ijkL.Collections.containsKey:
+#containsKey:
+    alloc_frame 80;
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 8];
+    push r0;
+    call #ijkL.Collections.get$type_Map_string;
+    [ra, 16] := r0;
+    r1 := null;
+    r0 := [ra, 16];
+    r0 := r0 <> r1;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.remove$type_Map_string:
+#remove$type_Map_string:
+#ijkL.Collections.remove:
+#remove:
+    alloc_frame 104;
+    r0 := [ra, 8];
+    push r0;
+    r0 := [ra, 0];
+    r0 := [r0, 0];
+    push r0;
+    call #ijkL.Collections.hashString$string_int;
+    [ra, 16] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 40] := r0;
+    r3 := [ra, 16];
+    r0 := [ra, 40];
+    r3 := r3 * 8;
+    r0 := r0 + r3;
+    r0 := [r0, 0];
+    [ra, 24] := r0;
+    r0 := null;
+    [ra, 32] := r0;
+#enquanto_inicio_105:
+    r0 := [ra, 24];
+    [ra, 40] := r0;
+    r1 := null;
+    r0 := [ra, 40];
+    r0 := r0 <> r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_106;
+    r0 := [ra, 24];
+    r0 := [r0, 0];
+    push r0;
+    r0 := [ra, 8];
+    push r0;
+    call #ijkL.Text.compare$string_string;
+    [ra, 40] := r0;
+    r1 := 0;
+    r0 := [ra, 40];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_107;
+    jump #se_fim_108;
+#se_verdadeiro_107:
+    r0 := [ra, 32];
+    [ra, 40] := r0;
+    r1 := null;
+    r0 := [ra, 40];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_109;
+    r0 := [ra, 24];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 40] := r0;
+    r1 := [ra, 32];
+    r1 := r1 + 16;
+    r0 := [ra, 40];
+    [r1, 0] := r0;
+    jump #se_fim_110;
+#se_verdadeiro_109:
+    r0 := [ra, 24];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 40] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r1 := [r1, 0];
+    [ra, 48] := r1;
+    r3 := [ra, 16];
+    r1 := [ra, 48];
+    r3 := r3 * 8;
+    r1 := r1 + r3;
+    r0 := [ra, 40];
+    [r1, 0] := r0;
+#se_fim_110:
+    r0 := [ra, 24];
+    free(r0);
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 40] := r0;
+    r1 := 1;
+    r0 := [ra, 40];
+    r0 := r0 - r1;
+    [ra, 40] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r0 := [ra, 40];
+    [r1, 0] := r0;
+    r0 := true;
+    free_frame;
+    return r0;
+#se_fim_108:
+    r0 := [ra, 24];
+    [ra, 32] := r0;
+    r0 := [ra, 24];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 24] := r0;
+    jump #enquanto_inicio_105;
+#enquanto_fim_106:
+    r0 := false;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.size$type_Map:
+#size$type_Map:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.destroyMap$type_Map:
+#destroyMap$type_Map:
+#ijkL.Collections.destroyMap:
+#destroyMap:
+    alloc_frame 96;
+    r0 := 0;
+    [ra, 8] := r0;
+#enquanto_inicio_111:
+    r0 := [ra, 8];
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r1 := [r1, 0];
+    r0 := [ra, 32];
+    r0 := r0 < r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_112;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r3 := [ra, 8];
+    r0 := [ra, 32];
+    r3 := r3 * 8;
+    r0 := r0 + r3;
+    r0 := [r0, 0];
+    [ra, 16] := r0;
+#enquanto_inicio_113:
+    r0 := [ra, 16];
+    [ra, 32] := r0;
+    r1 := null;
+    r0 := [ra, 32];
+    r0 := r0 <> r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_114;
+    r0 := [ra, 16];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 24] := r0;
+    r0 := [ra, 16];
+    free(r0);
+    r0 := [ra, 24];
+    [ra, 16] := r0;
+    jump #enquanto_inicio_113;
+#enquanto_fim_114:
+    r0 := [ra, 8];
+    [ra, 32] := r0;
+    r1 := 1;
+    r0 := [ra, 32];
+    r0 := r0 + r1;
+    [ra, 8] := r0;
+    jump #enquanto_inicio_111;
+#enquanto_fim_112:
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    free(r0);
+    r0 := [ra, 0];
+    free(r0);
+    free_frame;
+    return;
+
+// --- Module: ijkL.Memory ---
+
+#ijkL.Memory.copy$ptr_unknown_ptr_unknown_int:
+#copy$ptr_unknown_ptr_unknown_int:
+#ijkL.Memory.copy:
+#copy:
+    alloc_frame 88;
+    r0 := [ra, 16];
+    [ra, 24] := r0;
+    r1 := 0;
+    r0 := [ra, 24];
+    r0 := r0 > r1;
+    jump_if r0, #se_verdadeiro_115;
+    jump #se_fim_116;
+#se_verdadeiro_115:
+    r0 := [ra, 8];
+    out 0x0020, r0;
+    r0 := [ra, 0];
+    out 0x0021, r0;
+    r0 := [ra, 16];
+    out 0x0022, r0;
+    r0 := 1;
+    out 0x0023, r0;
+#se_fim_116:
+    r0 := [ra, 0];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Memory.fill$ptr_unknown_int_int:
+#fill$ptr_unknown_int_int:
+#ijkL.Memory.fill:
+#fill:
+    alloc_frame 88;
+    r0 := [ra, 16];
+    [ra, 24] := r0;
+    r1 := 0;
+    r0 := [ra, 24];
+    r0 := r0 > r1;
+    jump_if r0, #se_verdadeiro_117;
+    jump #se_fim_118;
+#se_verdadeiro_117:
+    r0 := [ra, 8];
+    out 0x0020, r0;
+    r0 := [ra, 0];
+    out 0x0021, r0;
+    r0 := [ra, 16];
+    out 0x0022, r0;
+    r0 := 2;
+    out 0x0023, r0;
+#se_fim_118:
+    r0 := [ra, 0];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Memory.compare$ptr_unknown_ptr_unknown_int:
+#compare$ptr_unknown_ptr_unknown_int:
+#ijkL.Memory.compare:
+#compare:
+    alloc_frame 96;
+    r0 := [ra, 16];
+    [ra, 32] := r0;
+    r1 := 0;
+    r0 := [ra, 32];
+    r0 := r0 <= r1;
+    jump_if r0, #se_verdadeiro_119;
+    jump #se_fim_120;
+#se_verdadeiro_119:
+    r0 := 0;
+    free_frame;
+    return r0;
+#se_fim_120:
+    r0 := 0;
+    [ra, 24] := r0;
+    r0 := [ra, 0];
+    out 0x0020, r0;
+    r0 := [ra, 8];
+    out 0x0021, r0;
+    r0 := [ra, 16];
+    out 0x0022, r0;
+    r0 := 3;
+    out 0x0023, r0;
+    in 0x0023, r0;
+    [ra, 24] := r0;
+    r0 := [ra, 24];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+// --- Module: Onm.Cli.Input.Tokenizer ---
+
+#Onm.Cli.Input.Tokenizer.tokenizeLine$string:
+#tokenizeLine$string:
+#Onm.Cli.Input.Tokenizer.tokenizeLine:
+#tokenizeLine:
+    alloc_frame 152;
+    r0 := 4;
+    push r0;
+    call #ijkL.Collections.createList$int;
+    [ra, 8] := r0;
+    r0 := [ra, 0];
+    push r0;
+    call #ijkL.Text.length$string;
+    [ra, 16] := r0;
+    r0 := 0;
+    [ra, 24] := r0;
+#enquanto_inicio_121:
+    r0 := [ra, 24];
+    [ra, 88] := r0;
+    r1 := [ra, 16];
+    r0 := [ra, 88];
+    r0 := r0 < r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_122;
+#enquanto_inicio_123:
+    r0 := [ra, 24];
+    [ra, 88] := r0;
+    r1 := [ra, 16];
+    r0 := [ra, 88];
+    r0 := r0 < r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_124;
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 24];
+    push r0;
+    call #ijkL.Text.get$string_int;
+    [ra, 32] := r0;
+    r0 := [ra, 32];
+    [ra, 88] := r0;
+    r1 := ' ';
+    r0 := [ra, 88];
+    r0 := r0 = r1;
+    [ra, 88] := r0;
+    r0 := [ra, 32];
+    [ra, 96] := r0;
+    r1 := '\t';
+    r0 := [ra, 96];
+    r1 := r0 = r1;
+    r0 := [ra, 88];
+    r0 := r0 or r1;
+    [ra, 88] := r0;
+    r0 := [ra, 32];
+    [ra, 96] := r0;
+    r1 := '\n';
+    r0 := [ra, 96];
+    r1 := r0 = r1;
+    r0 := [ra, 88];
+    r0 := r0 or r1;
+    [ra, 88] := r0;
+    r0 := [ra, 32];
+    [ra, 96] := r0;
+    r1 := '\r';
+    r0 := [ra, 96];
+    r1 := r0 = r1;
+    r0 := [ra, 88];
+    r0 := r0 or r1;
+    jump_if r0, #se_verdadeiro_125;
+    jump #enquanto_fim_124;
+    jump #se_fim_126;
+#se_verdadeiro_125:
+    r0 := [ra, 24];
+    [ra, 88] := r0;
+    r1 := 1;
+    r0 := [ra, 88];
+    r0 := r0 + r1;
+    [ra, 24] := r0;
+#se_fim_126:
+    jump #enquanto_inicio_123;
+#enquanto_fim_124:
+    r0 := [ra, 24];
+    [ra, 88] := r0;
+    r1 := [ra, 16];
+    r0 := [ra, 88];
+    r0 := r0 >= r1;
+    jump_if r0, #se_verdadeiro_127;
+    jump #se_fim_128;
+#se_verdadeiro_127:
+    jump #enquanto_fim_122;
+#se_fim_128:
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 24];
+    push r0;
+    call #ijkL.Text.get$string_int;
+    [ra, 40] := r0;
+    r0 := [ra, 40];
+    [ra, 88] := r0;
+    r1 := '"';
+    r0 := [ra, 88];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_129;
+    r0 := [ra, 24];
+    [ra, 64] := r0;
+#enquanto_inicio_131:
+    r0 := [ra, 24];
+    [ra, 88] := r0;
+    r1 := [ra, 16];
+    r0 := [ra, 88];
+    r0 := r0 < r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_132;
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 24];
+    push r0;
+    call #ijkL.Text.get$string_int;
+    [ra, 72] := r0;
+    r0 := [ra, 72];
+    [ra, 88] := r0;
+    r1 := ' ';
+    r0 := [ra, 88];
+    r0 := r0 = r1;
+    [ra, 88] := r0;
+    r0 := [ra, 72];
+    [ra, 96] := r0;
+    r1 := '\t';
+    r0 := [ra, 96];
+    r1 := r0 = r1;
+    r0 := [ra, 88];
+    r0 := r0 or r1;
+    [ra, 88] := r0;
+    r0 := [ra, 72];
+    [ra, 96] := r0;
+    r1 := '\n';
+    r0 := [ra, 96];
+    r1 := r0 = r1;
+    r0 := [ra, 88];
+    r0 := r0 or r1;
+    [ra, 88] := r0;
+    r0 := [ra, 72];
+    [ra, 96] := r0;
+    r1 := '\r';
+    r0 := [ra, 96];
+    r1 := r0 = r1;
+    r0 := [ra, 88];
+    r0 := r0 or r1;
+    jump_if r0, #se_verdadeiro_133;
+    jump #se_fim_134;
+#se_verdadeiro_133:
+    jump #enquanto_fim_132;
+#se_fim_134:
+    r0 := [ra, 24];
+    [ra, 88] := r0;
+    r1 := 1;
+    r0 := [ra, 88];
+    r0 := r0 + r1;
+    [ra, 24] := r0;
+    jump #enquanto_inicio_131;
+#enquanto_fim_132:
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 64];
+    push r0;
+    r0 := [ra, 24];
+    [ra, 88] := r0;
+    r1 := [ra, 64];
+    r0 := [ra, 88];
+    r0 := r0 - r1;
+    push r0;
+    call #ijkL.Text.substring$string_int_int;
+    [ra, 80] := r0;
+    r0 := [ra, 8];
+    push r0;
+    r0 := [ra, 80];
+    push r0;
+    call #ijkL.Collections.add$type_List_ptr_unknown;
+    jump #se_fim_130;
+#se_verdadeiro_129:
+    r0 := [ra, 24];
+    [ra, 88] := r0;
+    r1 := 1;
+    r0 := [ra, 88];
+    r0 := r0 + r1;
+    [ra, 24] := r0;
+    r0 := [ra, 24];
+    [ra, 48] := r0;
+#enquanto_inicio_135:
+    r0 := [ra, 24];
+    [ra, 88] := r0;
+    r1 := [ra, 16];
+    r0 := [ra, 88];
+    r0 := r0 < r1;
+    [ra, 88] := r0;
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 24];
+    push r0;
+    call #ijkL.Text.get$string_int;
+    [ra, 96] := r0;
+    r1 := '"';
+    r0 := [ra, 96];
+    r1 := r0 <> r1;
+    r0 := [ra, 88];
+    r0 := r0 and r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_136;
+    r0 := [ra, 24];
+    [ra, 88] := r0;
+    r1 := 1;
+    r0 := [ra, 88];
+    r0 := r0 + r1;
+    [ra, 24] := r0;
+    jump #enquanto_inicio_135;
+#enquanto_fim_136:
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 48];
+    push r0;
+    r0 := [ra, 24];
+    [ra, 88] := r0;
+    r1 := [ra, 48];
+    r0 := [ra, 88];
+    r0 := r0 - r1;
+    push r0;
+    call #ijkL.Text.substring$string_int_int;
+    [ra, 56] := r0;
+    r0 := [ra, 8];
+    push r0;
+    r0 := [ra, 56];
+    push r0;
+    call #ijkL.Collections.add$type_List_ptr_unknown;
+    r0 := [ra, 24];
+    [ra, 88] := r0;
+    r1 := [ra, 16];
+    r0 := [ra, 88];
+    r0 := r0 < r1;
+    [ra, 88] := r0;
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 24];
+    push r0;
+    call #ijkL.Text.get$string_int;
+    [ra, 96] := r0;
+    r1 := '"';
+    r0 := [ra, 96];
+    r1 := r0 = r1;
+    r0 := [ra, 88];
+    r0 := r0 and r1;
+    jump_if r0, #se_verdadeiro_137;
+    jump #se_fim_138;
+#se_verdadeiro_137:
+    r0 := [ra, 24];
+    [ra, 88] := r0;
+    r1 := 1;
+    r0 := [ra, 88];
+    r0 := r0 + r1;
+    [ra, 24] := r0;
+#se_fim_138:
+#se_fim_130:
+    jump #enquanto_inicio_121;
+#enquanto_fim_122:
+    r0 := [ra, 8];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#Onm.Cli.Input.Tokenizer.promptRequired$string:
+#promptRequired$string:
+#Onm.Cli.Input.Tokenizer.promptRequired:
+#promptRequired:
+    alloc_frame 80;
+    r0 := [ra, 0];
+    out 0x0001, r0;
+    call #ijkL.IO.Console.readLine$void;
+    [ra, 8] := r0;
+    r0 := [ra, 8];
+    push r0;
+    call #ijkL.Text.trim$string;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+// --- Module: ijkL.IO.Console ---
+
+#ijkL.IO.Console.write$string:
+#write$string:
+    alloc_frame 72;
+    r1 := [ra, 0];
+    out 0x0001, r1;
+    free_frame;
+    return;
+
+#ijkL.IO.Console.write$int:
+#write$int:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    push r0;
+    call #ijkL.Convert.toString$int;
+    out 0x0001, r0;
+    free_frame;
+    return;
+
+#ijkL.IO.Console.write$real:
+#write$real:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    push r0;
+    call #ijkL.Convert.toString$real;
+    out 0x0001, r0;
+    free_frame;
+    return;
+
+#ijkL.IO.Console.write$bool:
+#write$bool:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    push r0;
+    call #ijkL.Convert.toString$bool;
+    out 0x0001, r0;
+    free_frame;
+    return;
+
+#ijkL.IO.Console.write$char:
+#write$char:
+    alloc_frame 72;
+    r1 := [ra, 0];
+    out 0x0000, r1;
+    free_frame;
+    return;
+
+#ijkL.IO.Console.writeLine$void:
+#writeLine$void:
+    alloc_frame 64;
+    out 0x0000, '\n';
+    free_frame;
+    return;
+
+#ijkL.IO.Console.writeLine$string:
+#writeLine$string:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    out 0x0001, r0;
+    call #ijkL.IO.Console.writeLine$void;
+    free_frame;
+    return;
+
+#ijkL.IO.Console.writeLine$int:
+#writeLine$int:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    out 0x0001, r0;
+    call #ijkL.IO.Console.writeLine$void;
+    free_frame;
+    return;
+
+#ijkL.IO.Console.writeLine$real:
+#writeLine$real:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    out 0x0001, r0;
+    call #ijkL.IO.Console.writeLine$void;
+    free_frame;
+    return;
+
+#ijkL.IO.Console.writeLine$bool:
+#writeLine$bool:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    out 0x0001, r0;
+    call #ijkL.IO.Console.writeLine$void;
+    free_frame;
+    return;
+
+#ijkL.IO.Console.writeLine$char:
+#writeLine$char:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    out 0x0001, r0;
+    call #ijkL.IO.Console.writeLine$void;
+    free_frame;
+    return;
+
+#ijkL.IO.Console.readLine$void:
+#readLine$void:
+#ijkL.IO.Console.readLine:
+#readLine:
+    alloc_frame 64;
+    in 0x0004, r0;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.IO.Console.readKey$void:
+#readKey$void:
+#ijkL.IO.Console.readKey:
+#readKey:
+    alloc_frame 64;
+    in 0x0000, r0;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.IO.Console.readInt$void:
+#readInt$void:
+#ijkL.IO.Console.readInt:
+#readInt:
+    alloc_frame 72;
+    call #ijkL.IO.Console.readLine$void;
+    [ra, 0] := r0;
+    r0 := [ra, 0];
+    push r0;
+    call #ijkL.Convert.toInt$string;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.IO.Console.readReal$void:
+#readReal$void:
+#ijkL.IO.Console.readReal:
+#readReal:
+    alloc_frame 72;
+    call #ijkL.IO.Console.readLine$void;
+    [ra, 0] := r0;
+    r0 := [ra, 0];
+    push r0;
+    call #ijkL.Convert.toReal$string;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.IO.Console.clear$void:
+#clear$void:
+#ijkL.IO.Console.clear:
+#clear:
+    alloc_frame 64;
+    r0 := "\033[2J\033[H";
+    out 0x0001, r0;
+    free_frame;
+    return;
+
+// --- Module: ijkL.Convert ---
+
+#ijkL.Convert.toInt$string:
+#toInt$string:
+#__builtin_str_to_int:
+    alloc_frame 72;
+    r1 := [ra, 0];
+    r0 := 0;
+    r3 := 0;
+    r4 := 1;
+    [ra, 8] := r4;
+    r2 := byte [r1, r3];
+    r4 := r2 = '-';
+    jump_if r4, #ijkL_Convert_str_to_int_neg;
+    r4 := r2 = '+';
+    jump_if r4, #ijkL_Convert_str_to_int_pos;
+    jump #ijkL_Convert_str_to_int_loop;
+#ijkL_Convert_str_to_int_neg:
+    r4 := -1;
+    [ra, 8] := r4;
+    r3 := r3 + 1;
+    jump #ijkL_Convert_str_to_int_loop;
+#ijkL_Convert_str_to_int_pos:
+    r3 := r3 + 1;
+#ijkL_Convert_str_to_int_loop:
+    r2 := byte [r1, r3];
+    r4 := r2 < '0';
+    jump_if r4, #ijkL_Convert_str_to_int_done;
+    r4 := r2 > '9';
+    jump_if r4, #ijkL_Convert_str_to_int_done;
+    r2 := r2 - 48;
+    r0 := r0 * 10;
+    r0 := r0 + r2;
+    r3 := r3 + 1;
+    jump #ijkL_Convert_str_to_int_loop;
+#ijkL_Convert_str_to_int_done:
+    r4 := [ra, 8];
+    r0 := r0 * r4;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Convert.toInt$bool:
+#toInt$bool:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    jump_if r0, #se_verdadeiro_139;
+    jump #se_fim_140;
+#se_verdadeiro_139:
+    r0 := 1;
+    free_frame;
+    return r0;
+#se_fim_140:
+    r0 := 0;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Convert.toReal$string:
+#toReal$string:
+#__builtin_str_to_real:
+    alloc_frame 72;
+    r1 := [ra, 0];
+    r0 := 0;
+    r3 := 0;
+    r4 := 1;
+    [ra, 8] := r4;
+    r2 := byte [r1, r3];
+    r4 := r2 = '-';
+    jump_if r4, #ijkL_Convert_str_to_real_neg;
+    r4 := r2 = '+';
+    jump_if r4, #ijkL_Convert_str_to_real_pos;
+    jump #ijkL_Convert_str_to_real_int_loop;
+#ijkL_Convert_str_to_real_neg:
+    r4 := -1;
+    [ra, 8] := r4;
+    r3 := r3 + 1;
+    jump #ijkL_Convert_str_to_real_int_loop;
+#ijkL_Convert_str_to_real_pos:
+    r3 := r3 + 1;
+#ijkL_Convert_str_to_real_int_loop:
+    r2 := byte [r1, r3];
+    r4 := r2 < '0';
+    jump_if r4, #ijkL_Convert_str_to_real_check_dot;
+    r4 := r2 > '9';
+    jump_if r4, #ijkL_Convert_str_to_real_check_dot;
+    r2 := r2 - 48;
+    r0 := r0 * 10;
+    r0 := r0 + r2;
+    r3 := r3 + 1;
+    jump #ijkL_Convert_str_to_real_int_loop;
+#ijkL_Convert_str_to_real_check_dot:
+    r0 := r0 + 0.0;
+    [ra, 16] := r0;
+    r2 := byte [r1, r3];
+    r4 := r2 = '.';
+    jump_if r4, #ijkL_Convert_str_to_real_dot_found;
+    r4 := r2 = ',';
+    jump_if r4, #ijkL_Convert_str_to_real_dot_found;
+    jump #ijkL_Convert_str_to_real_finish;
+#ijkL_Convert_str_to_real_dot_found:
+    r3 := r3 + 1;
+    r0 := 0.0;
+    [ra, 32] := r0;
+    r0 := 1.0;
+    [ra, 24] := r0;
+#ijkL_Convert_str_to_real_frac_loop:
+    r2 := byte [r1, r3];
+    r4 := r2 < '0';
+    jump_if r4, #ijkL_Convert_str_to_real_add_frac;
+    r4 := r2 > '9';
+    jump_if r4, #ijkL_Convert_str_to_real_add_frac;
+    r2 := r2 - 48;
+    r2 := r2 + 0.0;
+    r0 := [ra, 24];
+    r0 := r0 * 10.0;
+    [ra, 24] := r0;
+    r2 := r2 / r0;
+    r0 := [ra, 32];
+    r0 := r0 + r2;
+    [ra, 32] := r0;
+    r3 := r3 + 1;
+    jump #ijkL_Convert_str_to_real_frac_loop;
+#ijkL_Convert_str_to_real_add_frac:
+    r1 := [ra, 16];
+    r0 := [ra, 32];
+    r0 := r1 + r0;
+    [ra, 16] := r0;
+#ijkL_Convert_str_to_real_finish:
+    r0 := [ra, 16];
+    r4 := [ra, 8];
+    r2 := r4 = -1;
+    jump_if r2, #ijkL_Convert_str_to_real_negate;
+    jump #ijkL_Convert_str_to_real_ret;
+#ijkL_Convert_str_to_real_negate:
+    r0 := -r0;
+#ijkL_Convert_str_to_real_ret:
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Convert.toReal$int:
+#toReal$int:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    [ra, 8] := r0;
+    r1 := 0.000000;
+    r0 := [ra, 8];
+    r0 := r0 + r1;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Convert.toFloat$string:
+#toFloat$string:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    push r0;
+    call #ijkL.Convert.toReal$string;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Convert.toFloat$int:
+#toFloat$int:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    [ra, 8] := r0;
+    r1 := 0.000000;
+    r0 := [ra, 8];
+    r0 := r0 + r1;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Convert.toString$int:
+#toString$int:
+#__builtin_int_to_str:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    r4 := r0 < 0;
+    jump_if r4, #ijkL_Convert_int_to_str_neg;
+    jump #ijkL_Convert_int_to_str_pos;
+#ijkL_Convert_int_to_str_neg:
+    r0 := -r0;
+    r4 := 1;
+    jump #ijkL_Convert_int_to_str_alloc;
+#ijkL_Convert_int_to_str_pos:
+    r4 := 0;
+#ijkL_Convert_int_to_str_alloc:
+    [ra, 8] := r4;
+    [ra, 16] := r0;
+    r0 := alloc(32);
+    [ra, 24] := r0;
+    r1 := [ra, 16];
+    r3 := 0;
+    r4 := r1 = 0;
+    jump_if r4, #ijkL_Convert_int_to_str_zero;
+#ijkL_Convert_int_to_str_digits:
+    r4 := r1 = 0;
+    jump_if r4, #ijkL_Convert_int_to_str_reverse;
+    r2 := r1 % 10;
+    r2 := r2 + 48;
+    r0 := [ra, 24];
+    byte [r0, r3] := r2;
+    r3 := r3 + 1;
+    r1 := r1 / 10;
+    jump #ijkL_Convert_int_to_str_digits;
+#ijkL_Convert_int_to_str_zero:
+    r2 := 48;
+    r0 := [ra, 24];
+    byte [r0, r3] := r2;
+    r3 := r3 + 1;
+    jump #ijkL_Convert_int_to_str_end_digits;
+#ijkL_Convert_int_to_str_reverse:
+    r4 := [ra, 8];
+    jump_if r4, #ijkL_Convert_int_to_str_add_minus;
+    jump #ijkL_Convert_int_to_str_end_digits;
+#ijkL_Convert_int_to_str_add_minus:
+    r2 := 45;
+    r0 := [ra, 24];
+    byte [r0, r3] := r2;
+    r3 := r3 + 1;
+#ijkL_Convert_int_to_str_end_digits:
+    r0 := [ra, 24];
+    r2 := 0;
+    byte [r0, r3] := r2;
+    r1 := 0;
+    r2 := r3 - 1;
+#ijkL_Convert_int_to_str_rev_loop:
+    r4 := r1 >= r2;
+    jump_if r4, #ijkL_Convert_int_to_str_done;
+    r0 := [ra, 24];
+    r3 := byte [r0, r1];
+    r4 := byte [r0, r2];
+    byte [r0, r1] := r4;
+    byte [r0, r2] := r3;
+    r1 := r1 + 1;
+    r2 := r2 - 1;
+    jump #ijkL_Convert_int_to_str_rev_loop;
+#ijkL_Convert_int_to_str_done:
+    r0 := [ra, 24];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Convert.toString$real:
+#toString$real:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    push r0;
+    call #__builtin_real_to_str;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Convert.toString$bool:
+#toString$bool:
+#__builtin_bool_to_str:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    jump_if r0, #se_verdadeiro_141;
+    jump #se_fim_142;
+#se_verdadeiro_141:
+    r0 := "verdadeiro";
+    free_frame;
+    return r0;
+#se_fim_142:
+    r0 := "falso";
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Convert.toString$char:
+#toString$char:
+#__builtin_char_to_str:
+    alloc_frame 72;
+    r1 := [ra, 0];
+    r0 := alloc(2);
+    byte [r0, 0] := r1;
+    r2 := 0;
+    byte [r0, 1] := r2;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Convert.toString$string:
+#toString$string:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Convert.toBool$string:
+#toBool$string:
+#__builtin_str_to_bool:
+    alloc_frame 72;
+    r1 := [ra, 0];
+    r2 := byte [r1, 0];
+    r3 := r2 = '1';
+    jump_if r3, #ijkL_Convert_str_to_bool_true;
+    r3 := r2 = 'v';
+    jump_if r3, #ijkL_Convert_str_to_bool_true;
+    r3 := r2 = 'V';
+    jump_if r3, #ijkL_Convert_str_to_bool_true;
+    r3 := r2 = 't';
+    jump_if r3, #ijkL_Convert_str_to_bool_true;
+    r3 := r2 = 'T';
+    jump_if r3, #ijkL_Convert_str_to_bool_true;
+    r0 := 0;
+    free_frame;
+    return r0;
+#ijkL_Convert_str_to_bool_true:
+    r0 := 1;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Convert.toBool$int:
+#toBool$int:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    [ra, 8] := r0;
+    r1 := 0;
+    r0 := [ra, 8];
+    r0 := r0 <> r1;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+// ==============================================================================
+// Bootstrap & Lifecycle Management Sequence
+// ==============================================================================
+#TestTokenizerApp.main:
+#main:
+    alloc_frame 80;
+    call #TestTokenizerApp.main_impl;
+    r1 := r0;
+    r0 := r1;
+    free_frame;
+    halt;

@@ -1,0 +1,72 @@
+// ==============================================================================
+// Unit Test: test_storage
+// Target: Onm.Storage.File.Repository
+// Language: ijkLang (ijkL)
+// ==============================================================================
+
+import ijkL.Text;
+import ijkL.IO.File;
+import Onm.Core.Json.Model;
+import Onm.Storage.File.Repository;
+
+program TestStorageApp {
+
+    private main(): int {
+        writeln("Running test_storage...");
+
+        // Ensure clean test environment
+        if (ijkL.IO.File.exists(DATA_FILE)) {
+            ijkL.IO.File.delete(DATA_FILE);
+        }
+        if (ijkL.IO.File.exists(TEMP_FILE)) {
+            ijkL.IO.File.delete(TEMP_FILE);
+        }
+
+        // 1. Initial load creates file
+        JsonNode root = loadRootNode();
+        if (root == null) {
+            writeln("[FAIL] loadRootNode returned null on clean environment.");
+            return 1;
+        }
+        if (root.count != 0) {
+            writeln("[FAIL] initial root node count must be 0.");
+            freeNode(root);
+            return 1;
+        }
+
+        // 2. Modify and save
+        addKeyProperty(root, "persisted_key", "persisted_value");
+        bool save_ok = saveRootNode(root);
+        if (!save_ok) {
+            writeln("[FAIL] saveRootNode failed.");
+            freeNode(root);
+            return 1;
+        }
+        freeNode(root);
+
+        // 3. Reload from disk and verify
+        JsonNode reloaded = loadRootNode();
+        if (reloaded == null) {
+            writeln("[FAIL] loadRootNode failed after save.");
+            return 1;
+        }
+        JsonProperty prop = findProperty(reloaded, "persisted_key");
+        if (prop == null || prop.is_node || !ijkL.Text.equals(prop.key_value, "persisted_value")) {
+            writeln("[FAIL] Reloaded property did not match expected value.");
+            freeNode(reloaded);
+            return 1;
+        }
+        freeNode(reloaded);
+
+        // Clean up
+        if (ijkL.IO.File.exists(DATA_FILE)) {
+            ijkL.IO.File.delete(DATA_FILE);
+        }
+        if (ijkL.IO.File.exists(TEMP_FILE)) {
+            ijkL.IO.File.delete(TEMP_FILE);
+        }
+
+        writeln("[PASS] test_storage: all assertions passed.");
+        return 0;
+    }
+}

@@ -1,0 +1,30 @@
+// ==============================================================================
+// Exemplo 02: Variáveis, Tipos de Dados e Constantes
+// Apresentação dos tipos primitivos: inteiro, real, flutuante, caracter, texto, logico
+// ==============================================================================
+
+programa VariaveisTiposApp {
+    // Declaração de constante matemática
+    constante PI = 3.14159;
+
+    // Declarações de variáveis no escopo da unidade com inicialização constante
+    inteiro idade = 21;
+    real saldo_conta = 1500.75;          // Decimal exato em base 10 (sem erro de arredondamento)
+    flutuante aceleracao = 9.81f;        // Ponto flutuante binário IEEE 754
+    caracter inicial = 'A';
+    texto curso = "Ciencia da Computacao";
+    logico matriculado = verdadeiro;
+
+    // Ponto de entrada obrigatório da aplicação
+    privado principal(): inteiro {
+        escrevaln("--- Ficha Cadastral do Estudante ---");
+        escrevaln("Curso: ", curso);
+        escrevaln("Inicial: ", inicial);
+        escrevaln("Idade: ", idade, " anos");
+        escrevaln("Saldo em conta: R$ ", saldo_conta);
+        escrevaln("Aceleracao da gravidade: ", aceleracao, " m/s2");
+        escrevaln("Status ativo: ", matriculado);
+        escrevaln("Constante PI utilizada: ", PI);
+        retorne 0;
+    }
+}

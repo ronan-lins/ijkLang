@@ -1,0 +1,8 @@
+// Teste de rejeição de comandos soltos no corpo de programa
+programa CorpoComComandoApp {
+    escrevaln("Comando invalido solto no corpo");
+
+    privado principal(): inteiro {
+        retorne 0;
+    }
+}

@@ -1,0 +1,283 @@
+// ==============================================================================
+// ijkLang (ijkL) Standard Framework - Type Conversion Utilities
+// Canonical Unit: ijkL.Convert (Aliases: ijkL.Conversao, ijkL.Conversion)
+// ==============================================================================
+
+unit ijkL.Convert {
+
+    // Overloads for converting to int (toInt / paraInteiro / versEntier)
+    public toInt(string value): int {
+        asm __builtin_str_to_int {
+            r1 := [ra, 0];
+            r0 := 0;
+            r3 := 0;
+            r4 := 1;
+            [ra, 8] := r4;
+            r2 := byte [r1, r3];
+            r4 := r2 = '-';
+            jump_if r4, #ijkL_Convert_str_to_int_neg;
+            r4 := r2 = '+';
+            jump_if r4, #ijkL_Convert_str_to_int_pos;
+            jump #ijkL_Convert_str_to_int_loop;
+#ijkL_Convert_str_to_int_neg:
+            r4 := -1;
+            [ra, 8] := r4;
+            r3 := r3 + 1;
+            jump #ijkL_Convert_str_to_int_loop;
+#ijkL_Convert_str_to_int_pos:
+            r3 := r3 + 1;
+#ijkL_Convert_str_to_int_loop:
+            r2 := byte [r1, r3];
+            r4 := r2 < '0';
+            jump_if r4, #ijkL_Convert_str_to_int_done;
+            r4 := r2 > '9';
+            jump_if r4, #ijkL_Convert_str_to_int_done;
+            r2 := r2 - 48;
+            r0 := r0 * 10;
+            r0 := r0 + r2;
+            r3 := r3 + 1;
+            jump #ijkL_Convert_str_to_int_loop;
+#ijkL_Convert_str_to_int_done:
+            r4 := [ra, 8];
+            r0 := r0 * r4;
+            free_frame;
+            return r0;
+        }
+    }
+
+    public toInt(bool value): int {
+        if (value) {
+            return 1;
+        }
+        return 0;
+    }
+
+    // Overloads for converting to real (toReal / paraReal / versReel)
+    public toReal(string value): real {
+        asm __builtin_str_to_real {
+            r1 := [ra, 0];
+            r0 := 0;
+            r3 := 0;
+            r4 := 1;
+            [ra, 8] := r4;
+            r2 := byte [r1, r3];
+            r4 := r2 = '-';
+            jump_if r4, #ijkL_Convert_str_to_real_neg;
+            r4 := r2 = '+';
+            jump_if r4, #ijkL_Convert_str_to_real_pos;
+            jump #ijkL_Convert_str_to_real_int_loop;
+#ijkL_Convert_str_to_real_neg:
+            r4 := -1;
+            [ra, 8] := r4;
+            r3 := r3 + 1;
+            jump #ijkL_Convert_str_to_real_int_loop;
+#ijkL_Convert_str_to_real_pos:
+            r3 := r3 + 1;
+#ijkL_Convert_str_to_real_int_loop:
+            r2 := byte [r1, r3];
+            r4 := r2 < '0';
+            jump_if r4, #ijkL_Convert_str_to_real_check_dot;
+            r4 := r2 > '9';
+            jump_if r4, #ijkL_Convert_str_to_real_check_dot;
+            r2 := r2 - 48;
+            r0 := r0 * 10;
+            r0 := r0 + r2;
+            r3 := r3 + 1;
+            jump #ijkL_Convert_str_to_real_int_loop;
+#ijkL_Convert_str_to_real_check_dot:
+            r0 := r0 + 0.0;
+            [ra, 16] := r0;
+            r2 := byte [r1, r3];
+            r4 := r2 = '.';
+            jump_if r4, #ijkL_Convert_str_to_real_dot_found;
+            r4 := r2 = ',';
+            jump_if r4, #ijkL_Convert_str_to_real_dot_found;
+            jump #ijkL_Convert_str_to_real_finish;
+#ijkL_Convert_str_to_real_dot_found:
+            r3 := r3 + 1;
+            r0 := 0.0;
+            [ra, 32] := r0;
+            r0 := 1.0;
+            [ra, 24] := r0;
+#ijkL_Convert_str_to_real_frac_loop:
+            r2 := byte [r1, r3];
+            r4 := r2 < '0';
+            jump_if r4, #ijkL_Convert_str_to_real_add_frac;
+            r4 := r2 > '9';
+            jump_if r4, #ijkL_Convert_str_to_real_add_frac;
+            r2 := r2 - 48;
+            r2 := r2 + 0.0;
+            r0 := [ra, 24];
+            r0 := r0 * 10.0;
+            [ra, 24] := r0;
+            r2 := r2 / r0;
+            r0 := [ra, 32];
+            r0 := r0 + r2;
+            [ra, 32] := r0;
+            r3 := r3 + 1;
+            jump #ijkL_Convert_str_to_real_frac_loop;
+#ijkL_Convert_str_to_real_add_frac:
+            r1 := [ra, 16];
+            r0 := [ra, 32];
+            r0 := r1 + r0;
+            [ra, 16] := r0;
+#ijkL_Convert_str_to_real_finish:
+            r0 := [ra, 16];
+            r4 := [ra, 8];
+            r2 := r4 = -1;
+            jump_if r2, #ijkL_Convert_str_to_real_negate;
+            jump #ijkL_Convert_str_to_real_ret;
+#ijkL_Convert_str_to_real_negate:
+            r0 := -r0;
+#ijkL_Convert_str_to_real_ret:
+            free_frame;
+            return r0;
+        }
+    }
+
+    public toReal(int value): real {
+        return value + 0.0;
+    }
+
+    // Overloads for converting to float (toFloat / paraFlutuante / versFlottant)
+    public toFloat(string value): float {
+        return toReal(value);
+    }
+
+    public toFloat(int value): float {
+        return value + 0.0;
+    }
+
+    // Overloads for converting to string (toString / paraTexto / versTexte)
+    public toString(int value): string {
+        asm __builtin_int_to_str {
+            r0 := [ra, 0];
+            r4 := r0 < 0;
+            jump_if r4, #ijkL_Convert_int_to_str_neg;
+            jump #ijkL_Convert_int_to_str_pos;
+#ijkL_Convert_int_to_str_neg:
+            r0 := -r0;
+            r4 := 1;
+            jump #ijkL_Convert_int_to_str_alloc;
+#ijkL_Convert_int_to_str_pos:
+            r4 := 0;
+#ijkL_Convert_int_to_str_alloc:
+            [ra, 8] := r4;
+            [ra, 16] := r0;
+            r0 := alloc(32);
+            [ra, 24] := r0;
+            r1 := [ra, 16];
+            r3 := 0;
+            r4 := r1 = 0;
+            jump_if r4, #ijkL_Convert_int_to_str_zero;
+#ijkL_Convert_int_to_str_digits:
+            r4 := r1 = 0;
+            jump_if r4, #ijkL_Convert_int_to_str_reverse;
+            r2 := r1 % 10;
+            r2 := r2 + 48;
+            r0 := [ra, 24];
+            byte [r0, r3] := r2;
+            r3 := r3 + 1;
+            r1 := r1 / 10;
+            jump #ijkL_Convert_int_to_str_digits;
+#ijkL_Convert_int_to_str_zero:
+            r2 := 48;
+            r0 := [ra, 24];
+            byte [r0, r3] := r2;
+            r3 := r3 + 1;
+            jump #ijkL_Convert_int_to_str_end_digits;
+#ijkL_Convert_int_to_str_reverse:
+            r4 := [ra, 8];
+            jump_if r4, #ijkL_Convert_int_to_str_add_minus;
+            jump #ijkL_Convert_int_to_str_end_digits;
+#ijkL_Convert_int_to_str_add_minus:
+            r2 := 45;
+            r0 := [ra, 24];
+            byte [r0, r3] := r2;
+            r3 := r3 + 1;
+#ijkL_Convert_int_to_str_end_digits:
+            r0 := [ra, 24];
+            r2 := 0;
+            byte [r0, r3] := r2;
+            r1 := 0;
+            r2 := r3 - 1;
+#ijkL_Convert_int_to_str_rev_loop:
+            r4 := r1 >= r2;
+            jump_if r4, #ijkL_Convert_int_to_str_done;
+            r0 := [ra, 24];
+            r3 := byte [r0, r1];
+            r4 := byte [r0, r2];
+            byte [r0, r1] := r4;
+            byte [r0, r2] := r3;
+            r1 := r1 + 1;
+            r2 := r2 - 1;
+            jump #ijkL_Convert_int_to_str_rev_loop;
+#ijkL_Convert_int_to_str_done:
+            r0 := [ra, 24];
+            free_frame;
+            return r0;
+        }
+    }
+
+    public toString(real value): string {
+        asm {
+            r0 := [ra, 0];
+            push r0;
+            call #__builtin_real_to_str;
+            free_frame;
+            return r0;
+        }
+    }
+
+    public toString(bool value): string {
+        if (value) {
+            return "verdadeiro";
+        }
+        return "falso";
+    }
+
+    public toString(char value): string {
+        asm __builtin_char_to_str {
+            r1 := [ra, 0];
+            r0 := alloc(2);
+            byte [r0, 0] := r1;
+            r2 := 0;
+            byte [r0, 1] := r2;
+            free_frame;
+            return r0;
+        }
+    }
+
+    public toString(string value): string {
+        return value;
+    }
+
+    // Overloads for converting to bool (toBool / paraLogico / versBooleen)
+    public toBool(string value): bool {
+        asm __builtin_str_to_bool {
+            r1 := [ra, 0];
+            r2 := byte [r1, 0];
+            r3 := r2 = '1';
+            jump_if r3, #ijkL_Convert_str_to_bool_true;
+            r3 := r2 = 'v';
+            jump_if r3, #ijkL_Convert_str_to_bool_true;
+            r3 := r2 = 'V';
+            jump_if r3, #ijkL_Convert_str_to_bool_true;
+            r3 := r2 = 't';
+            jump_if r3, #ijkL_Convert_str_to_bool_true;
+            r3 := r2 = 'T';
+            jump_if r3, #ijkL_Convert_str_to_bool_true;
+            r0 := 0;
+            free_frame;
+            return r0;
+#ijkL_Convert_str_to_bool_true:
+            r0 := 1;
+            free_frame;
+            return r0;
+        }
+    }
+
+    public toBool(int value): bool {
+        return value != 0;
+    }
+}

@@ -1,0 +1,36 @@
+// ==============================================================================
+// Exemplo 12: Registros e Estruturas Heterogêneas de Dados
+// Demonstração da definição de tipo 'registro', instanciação e acesso a membros (.)
+// ==============================================================================
+
+programa RegistrosApp {
+    // Definição de tipo estruturado de dados
+    tipo Aluno = registro {
+        texto nome;
+        inteiro matricula;
+        real nota_projeto;
+        logico aprovado;
+    };
+
+    // Procedimento para exibição dos dados de um Aluno
+    privado exibirAluno(Aluno a) {
+        escrevaln("--- Dados do Estudante ---");
+        escrevaln("Nome: ", a.nome);
+        escrevaln("Matricula: ", a.matricula);
+        escrevaln("Nota do Projeto: ", a.nota_projeto);
+        escrevaln("Status de Aprovacao: ", a.aprovado);
+    }
+
+    // Ponto de entrada obrigatório da aplicação
+    privado principal(): inteiro {
+        // Instanciação e atribuição dos campos do registro
+        Aluno estudante;
+        estudante.nome = "Mariana Silva";
+        estudante.matricula = 202601;
+        estudante.nota_projeto = 9.5;
+        estudante.aprovado = verdadeiro;
+
+        exibirAluno(estudante);
+        retorne 0;
+    }
+}

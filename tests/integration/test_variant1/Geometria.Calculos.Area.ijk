@@ -1,0 +1,5 @@
+unidade Geometria.Calculos.Area {
+    publico calcularArea(inteiro b, inteiro h): inteiro {
+        retorne b * h;
+    }
+}

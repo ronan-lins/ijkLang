@@ -1,0 +1,5 @@
+unidade Geometria.Calculos.Perimetro {
+    publico calcularPerimetro(inteiro b, inteiro h): inteiro {
+        retorne (b + h) * 2;
+    }
+}

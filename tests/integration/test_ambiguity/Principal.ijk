@@ -1,0 +1,7 @@
+importe Pacote.Sub.Item;
+
+programa PrincipalApp {
+    privado principal(): inteiro {
+        retorne 0;
+    }
+}

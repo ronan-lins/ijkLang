@@ -1,0 +1,27 @@
+unidade ModuloVis {
+    // Regra 0: Constantes e tipos são públicos por padrão
+    constante inteiro FATOR_BASE = 10;
+
+    tipo ParOrdenado = registro {
+        inteiro x;
+        inteiro y;
+    };
+
+    // Regra 1: Variáveis de módulo são privadas por padrão
+    inteiro contador_interno = 0;
+
+    // Regra 2: Procedimento auxiliar interno explicitamente privado
+    privado registrarOperacao() {
+        contador_interno = contador_interno + 1;
+    }
+
+    // Regra 2: Funções públicas expostas pela unidade
+    publico somarComBase(inteiro a): inteiro {
+        registrarOperacao();
+        retorne a + FATOR_BASE;
+    }
+
+    publico obterTotalOperacoes(): inteiro {
+        retorne contador_interno;
+    }
+}

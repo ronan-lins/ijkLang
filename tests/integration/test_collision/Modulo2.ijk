@@ -1,0 +1,5 @@
+unidade Modulo2 {
+    publico operacaoComum(): inteiro {
+        retorne 20;
+    }
+}

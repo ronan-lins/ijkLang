@@ -1,0 +1,18 @@
+// ==============================================================================
+// Example 01: Hello World and Procedures
+// Demonstration of minimum program structure and formatted output in ijkLang
+// ==============================================================================
+
+program HelloWorldApp {
+    // Private procedure declaration
+    private greet(string recipient) {
+        writeln("Hello, ", recipient, "! Welcome to ijkLang (ijkL).");
+    }
+
+    // Mandatory entry point for the application
+    private main(): int {
+        greet("Student");
+        writeln("Educational environment ready for execution.");
+        return 0;
+    }
+}

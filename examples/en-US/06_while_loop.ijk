@@ -1,0 +1,24 @@
+// ==============================================================================
+// Example 06: Pre-tested Iteration Loop (While)
+// Demonstration of conditional loop, accumulator, and factorial computation
+// ==============================================================================
+
+program WhileLoopApp {
+    // Mandatory entry point for the application
+    private main(): int {
+        int target_number = 5;
+        int counter = 1;
+        int factorial = 1;
+
+        writeln("Calculating factorial of ", target_number, " using 'while' loop:");
+
+        while (counter <= target_number) {
+            factorial = factorial * counter;
+            writeln("Step ", counter, ": partial value = ", factorial);
+            counter = counter + 1;
+        }
+
+        writeln("Final result: ", target_number, "! = ", factorial);
+        return 0;
+    }
+}

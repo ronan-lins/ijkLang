@@ -1,0 +1,34 @@
+// ==============================================================================
+// Exemplo 03: Operadores Aritméticos e Expressões
+// Demonstração de +, -, *, /, ^ (potência), div (divisão inteira) e mod (resto)
+// ==============================================================================
+
+programa OperadoresAritmeticosApp {
+    // Ponto de entrada obrigatório da aplicação
+    privado principal(): inteiro {
+        inteiro a = 20;
+        inteiro b = 6;
+
+        inteiro adicao = a + b;
+        inteiro subtracao = a - b;
+        inteiro multiplicacao = a * b;
+        inteiro divisao_inteira = a div b;
+        inteiro resto_divisao = a mod b;
+        real divisao_real = 20.0 / 6.0;
+        inteiro potencia = 2 ^ 8;
+
+        escrevaln("Operacoes entre a = ", a, " e b = ", b);
+        escrevaln("Adicao (a + b): ", adicao);
+        escrevaln("Subtracao (a - b): ", subtracao);
+        escrevaln("Multiplicacao (a * b): ", multiplicacao);
+        escrevaln("Divisao Inteira (a div b): ", divisao_inteira);
+        escrevaln("Resto da Divisao (a mod b): ", resto_divisao);
+        escrevaln("Divisao Real (20.0 / 6.0): ", divisao_real);
+        escrevaln("Potenciacao (2 ^ 8): ", potencia);
+
+        // Expressão combinada respeitando precedência
+        inteiro expressao = (a + b) * 2 - (a div b);
+        escrevaln("Resultado da expressao ((a + b) * 2 - (a div b)): ", expressao);
+        retorne 0;
+    }
+}

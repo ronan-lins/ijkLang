@@ -1,0 +1,204 @@
+// ==============================================================================
+// ijkLang (ijkL) - Linear Intermediate Code (.ci)
+// Generated automatically by ijkLang Compiler
+// ==============================================================================
+
+    jump #TesteCoercoesApp.main;
+
+
+#TesteCoercoesApp.principal:
+#principal:
+    alloc_frame 112;
+    r0 := 1;
+    push r0;
+    call #__builtin_int_to_str;
+    [ra, 48] := r0;
+    r1 := "2";
+    r0 := [ra, 48];
+    push r0;
+    push r1;
+    call #__builtin_str_concat;
+    [ra, 0] := r0;
+    r0 := [ra, 0];
+    push r0;
+    r1 := "12";
+    pop r0;
+    r0 := r0 <> r1;
+    jump_if r0, #se_verdadeiro_1;
+    jump #se_fim_2;
+#se_verdadeiro_1:
+    r0 := "Falha no teste 1: 1 + \"2\" != \"12\", obtido: ";
+    out 0x0001, r0;
+    r0 := [ra, 0];
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := 1;
+    free_frame;
+    return r0;
+#se_fim_2:
+    r0 := "Total: ";
+    [ra, 48] := r0;
+    r1 := 42;
+    push r1;
+    call #__builtin_int_to_str;
+    r1 := r0;
+    r0 := [ra, 48];
+    push r0;
+    push r1;
+    call #__builtin_str_concat;
+    [ra, 8] := r0;
+    r0 := [ra, 8];
+    push r0;
+    r1 := "Total: 42";
+    pop r0;
+    r0 := r0 <> r1;
+    jump_if r0, #se_verdadeiro_3;
+    jump #se_fim_4;
+#se_verdadeiro_3:
+    r0 := "Falha no teste 2: \"Total: \" + 42 != \"Total: 42\", obtido: ";
+    out 0x0001, r0;
+    r0 := [ra, 8];
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := 2;
+    free_frame;
+    return r0;
+#se_fim_4:
+    r0 := "Valor: ";
+    [ra, 48] := r0;
+    r1 := 3.140000;
+    push r1;
+    call #__builtin_real_to_str;
+    r1 := r0;
+    r0 := [ra, 48];
+    push r0;
+    push r1;
+    call #__builtin_str_concat;
+    [ra, 16] := r0;
+    r0 := [ra, 16];
+    push r0;
+    r1 := "Valor: 3.14";
+    pop r0;
+    r0 := r0 <> r1;
+    jump_if r0, #se_verdadeiro_5;
+    jump #se_fim_6;
+#se_verdadeiro_5:
+    r0 := "Falha no teste 3: \"Valor: \" + 3.14 != \"Valor: 3.14\", obtido: ";
+    out 0x0001, r0;
+    r0 := [ra, 16];
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := 3;
+    free_frame;
+    return r0;
+#se_fim_6:
+    r0 := "Status: ";
+    [ra, 48] := r0;
+    r1 := true;
+    push r1;
+    call #__builtin_bool_to_str;
+    r1 := r0;
+    r0 := [ra, 48];
+    push r0;
+    push r1;
+    call #__builtin_str_concat;
+    [ra, 24] := r0;
+    r0 := [ra, 24];
+    push r0;
+    r1 := "Status: verdadeiro";
+    pop r0;
+    r0 := r0 <> r1;
+    jump_if r0, #se_verdadeiro_7;
+    jump #se_fim_8;
+#se_verdadeiro_7:
+    r0 := "Falha no teste 4: \"Status: \" + verdadeiro != \"Status: verdadeiro\", obtido: ";
+    out 0x0001, r0;
+    r0 := [ra, 24];
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := 4;
+    free_frame;
+    return r0;
+#se_fim_8:
+    r0 := 1;
+    push r0;
+    r1 := 2;
+    pop r0;
+    r0 := r0 + r1;
+    push r0;
+    call #__builtin_int_to_str;
+    [ra, 48] := r0;
+    r1 := "3";
+    r0 := [ra, 48];
+    push r0;
+    push r1;
+    call #__builtin_str_concat;
+    [ra, 32] := r0;
+    r0 := [ra, 32];
+    push r0;
+    r1 := "33";
+    pop r0;
+    r0 := r0 <> r1;
+    jump_if r0, #se_verdadeiro_9;
+    jump #se_fim_10;
+#se_verdadeiro_9:
+    r0 := "Falha no teste 5: 1 + 2 + \"3\" != \"33\", obtido: ";
+    out 0x0001, r0;
+    r0 := [ra, 32];
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := 5;
+    free_frame;
+    return r0;
+#se_fim_10:
+    r0 := "Ola";
+    [ra, 48] := r0;
+    r1 := " ";
+    r0 := [ra, 48];
+    push r0;
+    push r1;
+    call #__builtin_str_concat;
+    [ra, 48] := r0;
+    r1 := "Mundo";
+    r0 := [ra, 48];
+    push r0;
+    push r1;
+    call #__builtin_str_concat;
+    [ra, 40] := r0;
+    r0 := [ra, 40];
+    push r0;
+    r1 := "Ola Mundo";
+    pop r0;
+    r0 := r0 <> r1;
+    jump_if r0, #se_verdadeiro_11;
+    jump #se_fim_12;
+#se_verdadeiro_11:
+    r0 := "Falha no teste 6: \"Ola\" + \" \" + \"Mundo\" != \"Ola Mundo\", obtido: ";
+    out 0x0001, r0;
+    r0 := [ra, 40];
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := 6;
+    free_frame;
+    return r0;
+#se_fim_12:
+    r0 := "Fase 2: Todos os testes de coercoes implicitas e concatenacao passaram com sucesso!";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := 0;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+// ==============================================================================
+// Bootstrap & Lifecycle Management Sequence
+// ==============================================================================
+#TesteCoercoesApp.main:
+#main:
+    alloc_frame 80;
+    call #TesteCoercoesApp.principal;
+    r1 := r0;
+    r0 := r1;
+    free_frame;
+    halt;

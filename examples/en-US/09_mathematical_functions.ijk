@@ -1,0 +1,34 @@
+// ==============================================================================
+// Example 09: Mathematical Functions with Typed Return
+// Demonstration of f(x): Type { return ...; } syntax and call composition
+// ==============================================================================
+
+program MathematicalFunctionsApp {
+    // Mathematical function calculating the square of a number
+    private square(int value): int {
+        return value * value;
+    }
+
+    // Mathematical function with multiple parameters for sum of squares
+    private sumOfSquares(int x, int y): int {
+        return square(x) + square(y);
+    }
+
+    // Function calculating weighted average returning real decimal
+    private weightedAverage(real p1, real p2, real weight1, real weight2): real {
+        return (p1 * weight1 + p2 * weight2) / (weight1 + weight2);
+    }
+
+    // Mandatory entry point for the application
+    private main(): int {
+        int square_result = square(5);
+        writeln("Square of 5: ", square_result);
+
+        int sum_sq = sumOfSquares(3, 4);
+        writeln("Sum of squares of 3 and 4: ", sum_sq);
+
+        real average = weightedAverage(8.0, 6.0, 2.0, 3.0);
+        writeln("Calculated weighted average: ", average);
+        return 0;
+    }
+}

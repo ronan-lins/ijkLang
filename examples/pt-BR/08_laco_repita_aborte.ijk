@@ -1,0 +1,28 @@
+// ==============================================================================
+// Exemplo 08: Laço Pós-Testado e Interrupção (Repita / Aborte)
+// Demonstração de execução garantida de pelo menos um ciclo e saída antecipada
+// ==============================================================================
+
+programa LacoRepitaAborteApp {
+    // Ponto de entrada obrigatório da aplicação
+    privado principal(): inteiro {
+        inteiro tentativa = 1;
+        inteiro limite_seguranca = 10;
+
+        escrevaln("Iniciando laco 'repita ... enquanto' com condicao de parada:");
+
+        repita {
+            escrevaln("Executando ciclo de verificacao numero ", tentativa);
+
+            se (tentativa = 4) {
+                escrevaln("Condicao de convergencia atingida! Acionando comando 'aborte'.");
+                aborte;
+            }
+
+            tentativa = tentativa + 1;
+        } enquanto (tentativa <= limite_seguranca);
+
+        escrevaln("Laco finalizado com sucesso.");
+        retorne 0;
+    }
+}

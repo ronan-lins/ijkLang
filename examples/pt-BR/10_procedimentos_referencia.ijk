@@ -1,0 +1,32 @@
+// ==============================================================================
+// Exemplo 10: Procedimentos e Passagem de Parâmetros por Referência
+// Demonstração de procedimentos sem 'vazio' e mutação de variáveis via ponteiro (& e @)
+// ==============================================================================
+
+programa ProcedimentosReferenciaApp {
+    // Procedimento para troca de valores (swap) via ponteiros
+    privado trocar(ponteiro inteiro ptr_a, ponteiro inteiro ptr_b) {
+        inteiro temporario = @ptr_a;
+        @ptr_a = @ptr_b;
+        @ptr_b = temporario;
+    }
+
+    // Procedimento para incrementar valor em memória
+    privado incrementar(ponteiro inteiro ptr_valor, inteiro delta) {
+        @ptr_valor = @ptr_valor + delta;
+    }
+
+    // Ponto de entrada obrigatório da aplicação
+    privado principal(): inteiro {
+        inteiro x = 10;
+        inteiro y = 99;
+
+        escrevaln("Valores antes da troca: x = ", x, ", y = ", y);
+        trocar(&x, &y);
+        escrevaln("Valores apos trocar(&x, &y): x = ", x, ", y = ", y);
+
+        incrementar(&x, 5);
+        escrevaln("Valor de x apos incrementar(&x, 5): x = ", x);
+        retorne 0;
+    }
+}

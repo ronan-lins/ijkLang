@@ -1,0 +1,90 @@
+// ==============================================================================
+// Unit Test: test_model
+// Target: Onm.Core.Json.Model
+// Language: ijkLang (ijkL)
+// ==============================================================================
+
+import ijkL.Text;
+import Onm.Core.Json.Model;
+
+program TestModelApp {
+
+    private main(): int {
+        writeln("Running test_model...");
+
+        JsonNode root = createNode();
+        if (root == null) {
+            writeln("[FAIL] createNode returned null.");
+            return 1;
+        }
+        if (root.count != 0) {
+            writeln("[FAIL] initial root.count must be 0.");
+            return 1;
+        }
+
+        // Test adding node
+        bool add_node_ok = addNodeProperty(root, "info");
+        if (!add_node_ok || root.count != 1) {
+            writeln("[FAIL] addNodeProperty failed or incorrect count.");
+            return 1;
+        }
+
+        // Test rejecting duplicate node name
+        bool duplicate_node = addNodeProperty(root, "info");
+        if (duplicate_node) {
+            writeln("[FAIL] addNodeProperty allowed duplicate node name.");
+            return 1;
+        }
+
+        // Test rejecting duplicate key name matching existing node
+        bool duplicate_key = addKeyProperty(root, "info", "duplicate");
+        if (duplicate_key) {
+            writeln("[FAIL] addKeyProperty allowed duplicate name colliding with node.");
+            return 1;
+        }
+
+        // Test adding key
+        bool add_key_ok = addKeyProperty(root, "version", "1.0.0");
+        if (!add_key_ok || root.count != 2) {
+            writeln("[FAIL] addKeyProperty failed or incorrect count.");
+            return 1;
+        }
+
+        // Test findProperty on existing node
+        JsonProperty node_prop = findProperty(root, "info");
+        if (node_prop == null || !node_prop.is_node) {
+            writeln("[FAIL] findProperty('info') did not find node.");
+            return 1;
+        }
+
+        // Test findProperty on existing key
+        JsonProperty key_prop = findProperty(root, "version");
+        if (key_prop == null || key_prop.is_node || !ijkL.Text.equals(key_prop.key_value, "1.0.0")) {
+            writeln("[FAIL] findProperty('version') did not return key value.");
+            return 1;
+        }
+
+        // Test findProperty on non-existent property
+        JsonProperty non_existent = findProperty(root, "non_existent");
+        if (non_existent != null) {
+            writeln("[FAIL] findProperty found non-existent property.");
+            return 1;
+        }
+
+        // Test removing property
+        bool remove_ok = removeProperty(root, "version");
+        if (!remove_ok || root.count != 1) {
+            writeln("[FAIL] removeProperty failed or count incorrect.");
+            return 1;
+        }
+        JsonProperty removed_prop = findProperty(root, "version");
+        if (removed_prop != null) {
+            writeln("[FAIL] removed property still found.");
+            return 1;
+        }
+
+        freeNode(root);
+        writeln("[PASS] test_model: all assertions passed.");
+        return 0;
+    }
+}

@@ -1,0 +1,32 @@
+// ==============================================================================
+// Example 10: Procedures and Parameter Passing by Reference
+// Demonstration of procedures without 'void' and mutating variables via pointers (& and @)
+// ==============================================================================
+
+program ProceduresReferenceApp {
+    // Procedure for swapping two values via pointers
+    private swap(pointer int ptr_a, pointer int ptr_b) {
+        int temp = @ptr_a;
+        @ptr_a = @ptr_b;
+        @ptr_b = temp;
+    }
+
+    // Procedure to increment a value in memory
+    private increment(pointer int ptr_value, int delta) {
+        @ptr_value = @ptr_value + delta;
+    }
+
+    // Mandatory entry point for the application
+    private main(): int {
+        int x = 10;
+        int y = 99;
+
+        writeln("Values before swap: x = ", x, ", y = ", y);
+        swap(&x, &y);
+        writeln("Values after swap(&x, &y): x = ", x, ", y = ", y);
+
+        increment(&x, 5);
+        writeln("Value of x after increment(&x, 5): x = ", x);
+        return 0;
+    }
+}

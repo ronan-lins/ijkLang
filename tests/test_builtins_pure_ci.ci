@@ -1,0 +1,382 @@
+// ==============================================================================
+// Teste de Verificacao da Fase 1: Rotinas Built-in em Codigo Intermediario Puro
+// ==============================================================================
+
+jump #main;
+
+// ------------------------------------------------------------------------------
+// Built-in: __builtin_str_len
+// ------------------------------------------------------------------------------
+#__builtin_str_len:
+    alloc_frame 0;
+    r1 := [ra, 0];
+    r0 := 0;
+#__builtin_str_len_loop:
+    r2 := byte [r1, r0];
+    r3 := r2 = 0;
+    jump_if r3, #__builtin_str_len_end;
+    r0 := r0 + 1;
+    jump #__builtin_str_len_loop;
+#__builtin_str_len_end:
+    free_frame;
+    return r0;
+
+// ------------------------------------------------------------------------------
+// Built-in: __builtin_str_cmp
+// ------------------------------------------------------------------------------
+#__builtin_str_cmp:
+    alloc_frame 0;
+    r1 := [ra, 0];
+    r2 := [ra, 8];
+    r3 := 0;
+#__builtin_str_cmp_loop:
+    r0 := byte [r1, r3];
+    r4 := byte [r2, r3];
+    r0 := r0 - r4;
+    jump_if r0, #__builtin_str_cmp_diff;
+    r4 := byte [r1, r3];
+    r4 := r4 = 0;
+    jump_if r4, #__builtin_str_cmp_same;
+    r3 := r3 + 1;
+    jump #__builtin_str_cmp_loop;
+#__builtin_str_cmp_diff:
+    free_frame;
+    return r0;
+#__builtin_str_cmp_same:
+    r0 := 0;
+    free_frame;
+    return r0;
+
+// ------------------------------------------------------------------------------
+// Built-in: __builtin_str_concat
+// ------------------------------------------------------------------------------
+#__builtin_str_concat:
+    alloc_frame 48;
+    // len1 = __builtin_str_len(s1)
+    r0 := [ra, 0];
+    push r0;
+    call #__builtin_str_len;
+    [ra, 16] := r0;
+    // len2 = __builtin_str_len(s2)
+    r0 := [ra, 8];
+    push r0;
+    call #__builtin_str_len;
+    [ra, 24] := r0;
+    // total = len1 + len2 + 1
+    r1 := [ra, 16];
+    r0 := r1 + r0;
+    r0 := r0 + 1;
+    // dest = alloc total
+    r0 := alloc(r0);
+    [ra, 32] := r0;
+    // copia s1
+    r1 := [ra, 0];
+    r2 := [ra, 32];
+    r3 := 0;
+#__builtin_str_concat_cp1:
+    r4 := [ra, 16];
+    r4 := r3 < r4;
+    r4 := not r4;
+    jump_if r4, #__builtin_str_concat_cp1_end;
+    r4 := byte [r1, r3];
+    byte [r2, r3] := r4;
+    r3 := r3 + 1;
+    jump #__builtin_str_concat_cp1;
+#__builtin_str_concat_cp1_end:
+    // copia s2
+    r1 := [ra, 8];
+    r2 := [ra, 32];
+    r0 := [ra, 16];
+    r2 := r2 + r0;
+    r3 := 0;
+#__builtin_str_concat_cp2:
+    r4 := [ra, 24];
+    r4 := r3 < r4;
+    r4 := not r4;
+    jump_if r4, #__builtin_str_concat_cp2_end;
+    r4 := byte [r1, r3];
+    byte [r2, r3] := r4;
+    r3 := r3 + 1;
+    jump #__builtin_str_concat_cp2;
+#__builtin_str_concat_cp2_end:
+    r0 := 0;
+    byte [r2, r3] := r0;
+    r0 := [ra, 32];
+    free_frame;
+    return r0;
+
+// ------------------------------------------------------------------------------
+// Built-in: __builtin_str_to_int
+// ------------------------------------------------------------------------------
+#__builtin_str_to_int:
+    alloc_frame 16;
+    r1 := [ra, 0];
+    r0 := 0;
+    r3 := 0;
+    r4 := 1;
+    [ra, 8] := r4;
+
+    r2 := byte [r1, r3];
+    r4 := r2 = '-';
+    jump_if r4, #__builtin_str_to_int_neg;
+    r4 := r2 = '+';
+    jump_if r4, #__builtin_str_to_int_pos;
+    jump #__builtin_str_to_int_loop;
+
+#__builtin_str_to_int_neg:
+    r4 := -1;
+    [ra, 8] := r4;
+    r3 := r3 + 1;
+    jump #__builtin_str_to_int_loop;
+
+#__builtin_str_to_int_pos:
+    r3 := r3 + 1;
+
+#__builtin_str_to_int_loop:
+    r2 := byte [r1, r3];
+    r4 := r2 < '0';
+    jump_if r4, #__builtin_str_to_int_done;
+    r4 := r2 > '9';
+    jump_if r4, #__builtin_str_to_int_done;
+
+    r2 := r2 - 48;
+    r0 := r0 * 10;
+    r0 := r0 + r2;
+    r3 := r3 + 1;
+    jump #__builtin_str_to_int_loop;
+
+#__builtin_str_to_int_done:
+    r4 := [ra, 8];
+    r0 := r0 * r4;
+    free_frame;
+    return r0;
+
+// ------------------------------------------------------------------------------
+// Built-in: __builtin_str_to_real
+// ------------------------------------------------------------------------------
+#__builtin_str_to_real:
+    alloc_frame 48;
+    r1 := [ra, 0];
+    r0 := 0;
+    r3 := 0;
+    r4 := 1;
+    [ra, 8] := r4;
+
+    r2 := byte [r1, r3];
+    r4 := r2 = '-';
+    jump_if r4, #__builtin_str_to_real_neg;
+    r4 := r2 = '+';
+    jump_if r4, #__builtin_str_to_real_pos;
+    jump #__builtin_str_to_real_int_loop;
+
+#__builtin_str_to_real_neg:
+    r4 := -1;
+    [ra, 8] := r4;
+    r3 := r3 + 1;
+    jump #__builtin_str_to_real_int_loop;
+
+#__builtin_str_to_real_pos:
+    r3 := r3 + 1;
+
+#__builtin_str_to_real_int_loop:
+    r2 := byte [r1, r3];
+    r4 := r2 < '0';
+    jump_if r4, #__builtin_str_to_real_check_dot;
+    r4 := r2 > '9';
+    jump_if r4, #__builtin_str_to_real_check_dot;
+
+    r2 := r2 - 48;
+    r0 := r0 * 10;
+    r0 := r0 + r2;
+    r3 := r3 + 1;
+    jump #__builtin_str_to_real_int_loop;
+
+#__builtin_str_to_real_check_dot:
+    r0 := r0 + 0.0;
+    [ra, 16] := r0;
+
+    r2 := byte [r1, r3];
+    r4 := r2 = '.';
+    jump_if r4, #__builtin_str_to_real_dot_found;
+    r4 := r2 = ',';
+    jump_if r4, #__builtin_str_to_real_dot_found;
+    jump #__builtin_str_to_real_finish;
+
+#__builtin_str_to_real_dot_found:
+    r3 := r3 + 1;
+    r0 := 0.0;
+    [ra, 32] := r0;
+    r0 := 1.0;
+    [ra, 24] := r0;
+
+#__builtin_str_to_real_frac_loop:
+    r2 := byte [r1, r3];
+    r4 := r2 < '0';
+    jump_if r4, #__builtin_str_to_real_add_frac;
+    r4 := r2 > '9';
+    jump_if r4, #__builtin_str_to_real_add_frac;
+
+    r2 := r2 - 48;
+    r2 := r2 + 0.0;
+    r0 := [ra, 24];
+    r0 := r0 * 10.0;
+    [ra, 24] := r0;
+    r2 := r2 / r0;
+    r0 := [ra, 32];
+    r0 := r0 + r2;
+    [ra, 32] := r0;
+    r3 := r3 + 1;
+    jump #__builtin_str_to_real_frac_loop;
+
+#__builtin_str_to_real_add_frac:
+    r1 := [ra, 16];
+    r0 := [ra, 32];
+    r0 := r1 + r0;
+    [ra, 16] := r0;
+
+#__builtin_str_to_real_finish:
+    r0 := [ra, 16];
+    r4 := [ra, 8];
+    r2 := r4 = -1;
+    jump_if r2, #__builtin_str_to_real_negate;
+    jump #__builtin_str_to_real_ret;
+
+#__builtin_str_to_real_negate:
+    r0 := -r0;
+
+#__builtin_str_to_real_ret:
+    free_frame;
+    return r0;
+
+// ------------------------------------------------------------------------------
+// Built-in: __builtin_str_to_bool
+// ------------------------------------------------------------------------------
+#__builtin_str_to_bool:
+    alloc_frame 0;
+    r1 := [ra, 0];
+    r2 := byte [r1, 0];
+    r3 := r2 = '1';
+    jump_if r3, #__builtin_str_to_bool_true;
+    r3 := r2 = 'v';
+    jump_if r3, #__builtin_str_to_bool_true;
+    r3 := r2 = 'V';
+    jump_if r3, #__builtin_str_to_bool_true;
+    r3 := r2 = 't';
+    jump_if r3, #__builtin_str_to_bool_true;
+    r3 := r2 = 'T';
+    jump_if r3, #__builtin_str_to_bool_true;
+    r0 := 0;
+    free_frame;
+    return r0;
+
+#__builtin_str_to_bool_true:
+    r0 := 1;
+    free_frame;
+    return r0;
+
+// ------------------------------------------------------------------------------
+// Built-in: __builtin_bool_to_str
+// ------------------------------------------------------------------------------
+#__builtin_bool_to_str:
+    alloc_frame 0;
+    r1 := [ra, 0];
+    jump_if r1, #__builtin_bool_to_str_true;
+    r0 := "falso";
+    free_frame;
+    return r0;
+
+#__builtin_bool_to_str_true:
+    r0 := "verdadeiro";
+    free_frame;
+    return r0;
+
+// ------------------------------------------------------------------------------
+// Ponto de Entrada Principal
+// ------------------------------------------------------------------------------
+#main:
+    alloc_frame 0;
+
+    // 1. Testa __builtin_str_len em literal
+    r0 := "Compilador";
+    push r0;
+    call #__builtin_str_len;
+    r3 := r0 = 10;
+    jump_if r3, #test_len_ok;
+    error "Falha no __builtin_str_len puro CI";
+
+#test_len_ok:
+    // 2. Testa __builtin_str_concat em puro CI
+    r0 := "ijk";
+    r1 := "Lang";
+    push r0;
+    push r1;
+    call #__builtin_str_concat;
+    push r0;
+    call #__builtin_str_len;
+    r3 := r0 = 7;
+    jump_if r3, #test_concat_ok;
+    error "Falha no __builtin_str_concat puro CI";
+
+#test_concat_ok:
+    // 3. Testa __builtin_str_cmp em puro CI
+    r0 := "XYZ";
+    r1 := "XYZ";
+    push r0;
+    push r1;
+    call #__builtin_str_cmp;
+    r3 := r0 = 0;
+    jump_if r3, #test_cmp_ok;
+    error "Falha no __builtin_str_cmp puro CI";
+
+#test_cmp_ok:
+    // 4. Testa __builtin_str_to_int em puro CI
+    r0 := "8765";
+    push r0;
+    call #__builtin_str_to_int;
+    r3 := r0 = 8765;
+    jump_if r3, #test_str_to_int_neg_ok;
+    error "Falha no __builtin_str_to_int positivo puro CI";
+
+#test_str_to_int_neg_ok:
+    r0 := "-321";
+    push r0;
+    call #__builtin_str_to_int;
+    r3 := r0 = -321;
+    jump_if r3, #test_str_to_real_ok;
+    error "Falha no __builtin_str_to_int negativo puro CI";
+
+#test_str_to_real_ok:
+    // 5. Testa __builtin_str_to_real em puro CI
+    r0 := "45.5";
+    push r0;
+    call #__builtin_str_to_real;
+    r3 := r0 = 45.5;
+    jump_if r3, #test_str_to_bool_ok;
+    error "Falha no __builtin_str_to_real puro CI";
+
+#test_str_to_bool_ok:
+    // 6. Testa __builtin_str_to_bool em puro CI
+    r0 := "verdadeiro";
+    push r0;
+    call #__builtin_str_to_bool;
+    jump_if r0, #test_bool_to_str_ok;
+    error "Falha no __builtin_str_to_bool puro CI";
+
+#test_bool_to_str_ok:
+    // 7. Testa __builtin_bool_to_str em puro CI
+    push 1;
+    call #__builtin_bool_to_str;
+    r1 := "verdadeiro";
+    push r0;
+    push r1;
+    call #__builtin_str_cmp;
+    r3 := r0 = 0;
+    jump_if r3, #test_all_pure_success;
+    error "Falha no __builtin_bool_to_str puro CI";
+
+#test_all_pure_success:
+    out 0x0001, "Fase 1: Execucao das rotinas built-in em Codigo Intermediario PURO passou com sucesso!";
+    out 0x0000, '\n';
+    r0 := 0;
+    free_frame;
+    return r0;

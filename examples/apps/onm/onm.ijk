@@ -1,0 +1,418 @@
+// ==============================================================================
+// Application: onm — Object Notation Management
+// Language: ijkLang (ijkL)
+// Standard: ISO C11 Alignment, Clean Code (AGENTS.md)
+// Specification: onm.spec.md
+// Architecture: Modular Orchestration (SRP) via 'unit' and 'import'
+// ==============================================================================
+
+import ijkL.Text;
+import ijkL.Collections;
+import ijkL.IO.Console;
+
+import Onm.Core.Json.Model;
+import Onm.Core.Json.Parser;
+import Onm.Core.Json.Serializer;
+import Onm.Storage.File.Repository;
+import Onm.Cli.Input.Tokenizer;
+import Onm.Cli.Path.Navigator;
+import Onm.Cli.Command.Help;
+
+program OnmApp {
+
+    const string APP_NAME = "onm — Object Notation Management";
+    const string APP_VERSION = "1.0.0";
+
+    // --------------------------------------------------------------------------
+    // Main Interactive CLI Loop
+    // --------------------------------------------------------------------------
+
+    private main(): int {
+        writeln(APP_NAME, " v", APP_VERSION);
+        writeln("Type 'help' for instructions.");
+
+        List path_segments = ijkL.Collections.createList(4);
+
+        // Verify or initialize data file on startup
+        JsonNode initial_root = loadRootNode();
+        if (initial_root != null) {
+            freeNode(initial_root);
+        }
+
+        while (true) {
+            string current_path = formatPath(path_segments);
+            write("onm:", current_path, "> ");
+            string line = ijkL.IO.Console.readLine();
+            if (line == null) {
+                break;
+            }
+            string trimmed_line = ijkL.Text.trim(line);
+            if (ijkL.Text.length(trimmed_line) > 0) {
+                List tokens = tokenizeLine(trimmed_line);
+                if (tokens.count > 0) {
+                    string primary_cmd = ijkL.Collections.get(tokens, 0);
+
+                    if (ijkL.Text.equals(primary_cmd, "exit")) {
+                        ijkL.Collections.destroyList(tokens);
+                        break;
+                    } else if (ijkL.Text.equals(primary_cmd, "help")) {
+                        if (tokens.count >= 3) {
+                            string sub1 = ijkL.Collections.get(tokens, 1);
+                            string sub2 = ijkL.Collections.get(tokens, 2);
+                            string full_sub = ijkL.Text.concat(sub1, " ");
+                            full_sub = ijkL.Text.concat(full_sub, sub2);
+                            printCommandHelp(full_sub);
+                        } else if (tokens.count == 2) {
+                            string sub = ijkL.Collections.get(tokens, 1);
+                            printCommandHelp(sub);
+                        } else {
+                            printGeneralHelp();
+                        }
+                    } else if (ijkL.Text.equals(primary_cmd, "close")) {
+                        if (path_segments.count == 0) {
+                            writeln("Session is already at root.");
+                        } else {
+                            ijkL.Collections.removeAt(path_segments, path_segments.count - 1);
+                        }
+                    } else {
+                        // Commands requiring onm.data file access
+                        JsonNode root = loadRootNode();
+                        if (root != null) {
+                            JsonNode target_node = resolveNodeAtPath(root, path_segments);
+                            if (target_node == null) {
+                                ijkL.Collections.clear(path_segments);
+                                writeln("Current location was modified externally. Returned to root.");
+                                target_node = root;
+                            }
+
+                            if (ijkL.Text.equals(primary_cmd, "open")) {
+                                string node_name = "";
+                                if (tokens.count >= 2) {
+                                    node_name = ijkL.Collections.get(tokens, 1);
+                                } else {
+                                    node_name = promptRequired("Node name: ");
+                                }
+
+                                if (ijkL.Text.length(node_name) == 0) {
+                                    writeln("Error: Node name cannot be empty.");
+                                } else {
+                                    JsonProperty prop = findProperty(target_node, node_name);
+                                    if (prop == null) {
+                                        writeln("Error: Node '", node_name, "' does not exist.");
+                                    } else if (!prop.is_node) {
+                                        writeln("Error: '", node_name, "' is a key, not a node.");
+                                    } else {
+                                        ijkL.Collections.add(path_segments, node_name);
+                                    }
+                                }
+                            } else if (ijkL.Text.equals(primary_cmd, "list")) {
+                                string list_kind = "";
+                                if (tokens.count >= 2) {
+                                    list_kind = ijkL.Collections.get(tokens, 1);
+                                } else {
+                                    list_kind = promptRequired("List target ('nodes' or 'keys'): ");
+                                }
+
+                                if (ijkL.Text.equals(list_kind, "nodes")) {
+                                    int node_count = 0;
+                                    JsonProperty prop = target_node.first_property;
+                                    while (prop != null) {
+                                        if (prop.is_node) {
+                                            writeln("  ", prop.name);
+                                            node_count = node_count + 1;
+                                        }
+                                        prop = prop.next_property;
+                                    }
+                                    if (node_count == 0) {
+                                        writeln("No child nodes found.");
+                                    }
+                                } else if (ijkL.Text.equals(list_kind, "keys")) {
+                                    int key_count = 0;
+                                    JsonProperty prop = target_node.first_property;
+                                    while (prop != null) {
+                                        if (!prop.is_node) {
+                                            writeln("  ", prop.name, " = \"", prop.key_value, "\"");
+                                            key_count = key_count + 1;
+                                        }
+                                        prop = prop.next_property;
+                                    }
+                                    if (key_count == 0) {
+                                        writeln("No keys found.");
+                                    }
+                                } else {
+                                    writeln("Error: Invalid list command. Use 'list nodes' or 'list keys'.");
+                                }
+                            } else if (ijkL.Text.equals(primary_cmd, "add")) {
+                                string add_kind = "";
+                                if (tokens.count >= 2) {
+                                    add_kind = ijkL.Collections.get(tokens, 1);
+                                } else {
+                                    add_kind = promptRequired("Add target ('node' or 'key'): ");
+                                }
+
+                                if (ijkL.Text.equals(add_kind, "node")) {
+                                    string node_name = "";
+                                    if (tokens.count >= 3) {
+                                        node_name = ijkL.Collections.get(tokens, 2);
+                                    } else {
+                                        node_name = promptRequired("Node name: ");
+                                    }
+
+                                    if (ijkL.Text.length(node_name) == 0) {
+                                        writeln("Error: Node name cannot be empty.");
+                                    } else if (ijkL.Text.equals(node_name, ".")) {
+                                        writeln("Error: '.' is reserved and cannot be used as a node name.");
+                                    } else if (findProperty(target_node, node_name) != null) {
+                                        writeln("Error: An element named '", node_name, "' already exists in this node.");
+                                    } else {
+                                        addNodeProperty(target_node, node_name);
+                                        if (saveRootNode(root)) {
+                                            writeln("Node '", node_name, "' created.");
+                                        }
+                                    }
+                                } else if (ijkL.Text.equals(add_kind, "key")) {
+                                    string key_name = "";
+                                    if (tokens.count >= 3) {
+                                        key_name = ijkL.Collections.get(tokens, 2);
+                                    } else {
+                                        key_name = promptRequired("Key name: ");
+                                    }
+
+                                    if (ijkL.Text.length(key_name) == 0) {
+                                        writeln("Error: Key name cannot be empty.");
+                                    } else if (ijkL.Text.equals(key_name, ".")) {
+                                        writeln("Error: '.' is reserved and cannot be used as a key name.");
+                                    } else if (findProperty(target_node, key_name) != null) {
+                                        writeln("Error: An element named '", key_name, "' already exists in this node.");
+                                    } else {
+                                        string key_val = "";
+                                        if (tokens.count >= 4) {
+                                            key_val = ijkL.Collections.get(tokens, 3);
+                                        }
+                                        addKeyProperty(target_node, key_name, key_val);
+                                        if (saveRootNode(root)) {
+                                            writeln("Key '", key_name, "' created.");
+                                        }
+                                    }
+                                } else {
+                                    writeln("Error: Invalid add command. Use 'add node <name>' or 'add key <name> [value]'.");
+                                }
+                            } else if (ijkL.Text.equals(primary_cmd, "update")) {
+                                string key_name = "";
+                                if (tokens.count >= 2) {
+                                    key_name = ijkL.Collections.get(tokens, 1);
+                                } else {
+                                    key_name = promptRequired("Key name: ");
+                                }
+
+                                if (ijkL.Text.length(key_name) == 0) {
+                                    writeln("Error: Key name cannot be empty.");
+                                } else {
+                                    JsonProperty prop = findProperty(target_node, key_name);
+                                    if (prop == null) {
+                                        writeln("Error: Key '", key_name, "' does not exist.");
+                                    } else if (prop.is_node) {
+                                        writeln("Error: '", key_name, "' is a node, not a key. Nodes cannot be updated with values.");
+                                    } else {
+                                        string new_val = "";
+                                        if (tokens.count >= 3) {
+                                            new_val = ijkL.Collections.get(tokens, 2);
+                                        } else {
+                                            new_val = promptRequired("New value: ");
+                                        }
+                                        prop.key_value = new_val;
+                                        if (saveRootNode(root)) {
+                                            writeln("Key '", key_name, "' updated.");
+                                        }
+                                    }
+                                }
+                            } else if (ijkL.Text.equals(primary_cmd, "ren")) {
+                                string ren_kind = "";
+                                if (tokens.count >= 2) {
+                                    ren_kind = ijkL.Collections.get(tokens, 1);
+                                } else {
+                                    ren_kind = promptRequired("Rename target ('node' or 'key'): ");
+                                }
+
+                                if (ijkL.Text.equals(ren_kind, "node")) {
+                                    string old_name = "";
+                                    if (tokens.count >= 3) {
+                                        old_name = ijkL.Collections.get(tokens, 2);
+                                    } else {
+                                        old_name = promptRequired("Current node name: ");
+                                    }
+
+                                    JsonProperty prop = findProperty(target_node, old_name);
+                                    if (prop == null) {
+                                        writeln("Error: Node '", old_name, "' does not exist.");
+                                    } else if (!prop.is_node) {
+                                        writeln("Error: '", old_name, "' is a key, not a node.");
+                                    } else {
+                                        string new_name = "";
+                                        if (tokens.count >= 4) {
+                                            new_name = ijkL.Collections.get(tokens, 3);
+                                        } else {
+                                            new_name = promptRequired("New node name: ");
+                                        }
+
+                                        if (ijkL.Text.length(new_name) == 0) {
+                                            writeln("Error: New node name cannot be empty.");
+                                        } else if (ijkL.Text.equals(new_name, ".")) {
+                                            writeln("Error: '.' is reserved and cannot be used as a name.");
+                                        } else if (findProperty(target_node, new_name) != null) {
+                                            writeln("Error: An element named '", new_name, "' already exists in this node.");
+                                        } else {
+                                            prop.name = new_name;
+                                            if (saveRootNode(root)) {
+                                                writeln("Node '", old_name, "' renamed to '", new_name, "'.");
+                                            }
+                                        }
+                                    }
+                                } else if (ijkL.Text.equals(ren_kind, "key")) {
+                                    string old_name = "";
+                                    if (tokens.count >= 3) {
+                                        old_name = ijkL.Collections.get(tokens, 2);
+                                    } else {
+                                        old_name = promptRequired("Current key name: ");
+                                    }
+
+                                    JsonProperty prop = findProperty(target_node, old_name);
+                                    if (prop == null) {
+                                        writeln("Error: Key '", old_name, "' does not exist.");
+                                    } else if (prop.is_node) {
+                                        writeln("Error: '", old_name, "' is a node, not a key.");
+                                    } else {
+                                        string new_name = "";
+                                        if (tokens.count >= 4) {
+                                            new_name = ijkL.Collections.get(tokens, 3);
+                                        } else {
+                                            new_name = promptRequired("New key name: ");
+                                        }
+
+                                        if (ijkL.Text.length(new_name) == 0) {
+                                            writeln("Error: New key name cannot be empty.");
+                                        } else if (ijkL.Text.equals(new_name, ".")) {
+                                            writeln("Error: '.' is reserved and cannot be used as a name.");
+                                        } else if (findProperty(target_node, new_name) != null) {
+                                            writeln("Error: An element named '", new_name, "' already exists in this node.");
+                                        } else {
+                                            prop.name = new_name;
+                                            if (saveRootNode(root)) {
+                                                writeln("Key '", old_name, "' renamed to '", new_name, "'.");
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    writeln("Error: Invalid rename command. Use 'ren node <name> <new_name>' or 'ren key <name> <new_name>'.");
+                                }
+                            } else if (ijkL.Text.equals(primary_cmd, "del")) {
+                                string del_kind = "";
+                                if (tokens.count >= 2) {
+                                    del_kind = ijkL.Collections.get(tokens, 1);
+                                } else {
+                                    del_kind = promptRequired("Delete target ('node' or 'key'): ");
+                                }
+
+                                if (ijkL.Text.equals(del_kind, "node")) {
+                                    string node_name = "";
+                                    if (tokens.count >= 3) {
+                                        node_name = ijkL.Collections.get(tokens, 2);
+                                    } else {
+                                        node_name = promptRequired("Node name to delete: ");
+                                    }
+
+                                    JsonProperty prop = findProperty(target_node, node_name);
+                                    if (prop == null) {
+                                        writeln("Error: Node '", node_name, "' does not exist.");
+                                    } else if (!prop.is_node) {
+                                        writeln("Error: '", node_name, "' is a key, not a node.");
+                                    } else {
+                                        removeProperty(target_node, node_name);
+                                        if (saveRootNode(root)) {
+                                            writeln("Node '", node_name, "' deleted.");
+                                        }
+                                    }
+                                } else if (ijkL.Text.equals(del_kind, "key")) {
+                                    string key_name = "";
+                                    if (tokens.count >= 3) {
+                                        key_name = ijkL.Collections.get(tokens, 2);
+                                    } else {
+                                        key_name = promptRequired("Key name to delete: ");
+                                    }
+
+                                    JsonProperty prop = findProperty(target_node, key_name);
+                                    if (prop == null) {
+                                        writeln("Error: Key '", key_name, "' does not exist.");
+                                    } else if (prop.is_node) {
+                                        writeln("Error: '", key_name, "' is a node, not a key.");
+                                    } else {
+                                        removeProperty(target_node, key_name);
+                                        if (saveRootNode(root)) {
+                                            writeln("Key '", key_name, "' deleted.");
+                                        }
+                                    }
+                                } else {
+                                    writeln("Error: Invalid delete command. Use 'del node <name>' or 'del key <name>'.");
+                                }
+                            } else if (ijkL.Text.equals(primary_cmd, "show")) {
+                                string show_kind = "";
+                                if (tokens.count >= 2) {
+                                    show_kind = ijkL.Collections.get(tokens, 1);
+                                } else {
+                                    show_kind = promptRequired("Show target ('node'): ");
+                                }
+
+                                if (ijkL.Text.equals(show_kind, "node")) {
+                                    string target_name = "";
+                                    if (tokens.count >= 3) {
+                                        target_name = ijkL.Collections.get(tokens, 2);
+                                    } else {
+                                        target_name = promptRequired("Node name (or '.' for current): ");
+                                    }
+
+                                    bool recursive = false;
+                                    if (tokens.count >= 4) {
+                                        string rec_opt = ijkL.Collections.get(tokens, 3);
+                                        if (ijkL.Text.equals(rec_opt, "recursive")) {
+                                            recursive = true;
+                                        }
+                                    }
+
+                                    JsonNode node_to_show = null;
+                                    if (ijkL.Text.equals(target_name, ".")) {
+                                        node_to_show = target_node;
+                                    } else {
+                                        JsonProperty prop = findProperty(target_node, target_name);
+                                        if (prop == null) {
+                                            writeln("Error: Node '", target_name, "' does not exist.");
+                                        } else if (!prop.is_node) {
+                                            writeln("Error: '", target_name, "' is a key, not a node.");
+                                        } else {
+                                            node_to_show = prop.node_value;
+                                        }
+                                    }
+
+                                    if (node_to_show != null) {
+                                        string rendered_json = serializeNode(node_to_show, 0, recursive);
+                                        write(rendered_json);
+                                    }
+                                } else {
+                                    writeln("Error: Invalid show command. Use 'show node <name> [recursive]' or 'show node . [recursive]'.");
+                                }
+                            } else {
+                                writeln("Unrecognized command '", primary_cmd, "'. Type 'help' for instructions.");
+                            }
+                            freeNode(root);
+                        }
+                    }
+                    ijkL.Collections.destroyList(tokens);
+                } else {
+                    ijkL.Collections.destroyList(tokens);
+                }
+            }
+        }
+
+        ijkL.Collections.destroyList(path_segments);
+        return 0;
+    }
+}

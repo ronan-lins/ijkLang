@@ -1,0 +1,34 @@
+// ==============================================================================
+// Example 03: Arithmetic Operators and Expressions
+// Demonstration of +, -, *, /, ^ (power), div (integer division), and mod (remainder)
+// ==============================================================================
+
+program ArithmeticOperatorsApp {
+    // Mandatory entry point for the application
+    private main(): int {
+        int a = 20;
+        int b = 6;
+
+        int addition = a + b;
+        int subtraction = a - b;
+        int multiplication = a * b;
+        int integer_division = a div b;
+        int remainder = a mod b;
+        real real_division = 20.0 / 6.0;
+        int power = 2 ^ 8;
+
+        writeln("Operations between a = ", a, " and b = ", b);
+        writeln("Addition (a + b): ", addition);
+        writeln("Subtraction (a - b): ", subtraction);
+        writeln("Multiplication (a * b): ", multiplication);
+        writeln("Integer division (a div b): ", integer_division);
+        writeln("Remainder (a mod b): ", remainder);
+        writeln("Real division (20.0 / 6.0): ", real_division);
+        writeln("Exponentiation (2 ^ 8): ", power);
+
+        // Combined expression following operator precedence
+        int expression_result = (a + b) * 2 - (a div b);
+        writeln("Expression result ((a + b) * 2 - (a div b)): ", expression_result);
+        return 0;
+    }
+}

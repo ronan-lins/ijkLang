@@ -1,0 +1,151 @@
+// ==============================================================================
+// Teste de Verificacao da Fase 1: Acesso a Bytes e Built-ins na VM
+// ==============================================================================
+
+#main:
+    alloc_frame 0;
+
+    // 1. Testa escrita e leitura a nivel de byte na memoria alocada
+    r0 := alloc 16;
+    r1 := r0;
+    byte [r1, 0] := 'H';
+    byte [r1, 1] := 'i';
+    byte [r1, 2] := '!';
+    byte [r1, 3] := 0;
+
+    // Leitura a nivel de byte
+    r2 := byte [r1, 0];
+    r3 := r2 = 'H';
+    jump_if r3, #test_byte_ok;
+    error "Falha no acesso de leitura byte [r1, 0]";
+
+#test_byte_ok:
+    r2 := byte [r1, 1];
+    r3 := r2 = 'i';
+    jump_if r3, #test_byte_ok2;
+    error "Falha no acesso de leitura byte [r1, 1]";
+
+#test_byte_ok2:
+    // 2. Testa __builtin_str_len no buffer recem-criado
+    push r1;
+    call #__builtin_str_len;
+    // r0 deve ser 3
+    r3 := r0 = 3;
+    jump_if r3, #test_len_ok;
+    error "Falha no __builtin_str_len com buffer dinamico";
+
+#test_len_ok:
+    // 3. Testa __builtin_str_len em literal estatico
+    r0 := "ABCDEFG";
+    push r0;
+    call #__builtin_str_len;
+    r3 := r0 = 7;
+    jump_if r3, #test_literal_len_ok;
+    error "Falha no __builtin_str_len com literal";
+
+#test_literal_len_ok:
+    // 4. Testa __builtin_str_concat
+    r0 := "Ola, ";
+    r1 := "Mundo!";
+    push r0;
+    push r1;
+    call #__builtin_str_concat;
+    // r0 agora e o novo ponteiro concatenado
+    push r0;
+    call #__builtin_str_len;
+    r3 := r0 = 11;
+    jump_if r3, #test_concat_ok;
+    error "Falha no __builtin_str_concat tamanho";
+
+#test_concat_ok:
+    // 5. Testa __builtin_int_to_str
+    push 12345;
+    call #__builtin_int_to_str;
+    push r0;
+    call #__builtin_str_len;
+    r3 := r0 = 5;
+    jump_if r3, #test_int_to_str_ok;
+    error "Falha no __builtin_int_to_str";
+
+#test_int_to_str_ok:
+    // 6. Testa __builtin_real_to_str
+    push 42.5;
+    call #__builtin_real_to_str;
+    push r0;
+    call #__builtin_str_len;
+    r3 := r0 > 0;
+    jump_if r3, #test_real_to_str_ok;
+    error "Falha no __builtin_real_to_str";
+
+#test_real_to_str_ok:
+    // 7. Testa __builtin_str_cmp
+    r0 := "ijkLang";
+    r1 := "ijkLang";
+    push r0;
+    push r1;
+    call #__builtin_str_cmp;
+    r3 := r0 = 0;
+    jump_if r3, #test_cmp_ok;
+    error "Falha no __builtin_str_cmp iguais";
+
+#test_cmp_ok:
+    r0 := "A";
+    r1 := "B";
+    push r0;
+    push r1;
+    call #__builtin_str_cmp;
+    r3 := r0 < 0;
+    jump_if r3, #test_str_to_int;
+    error "Falha no __builtin_str_cmp diferentes";
+
+#test_str_to_int:
+    // 8. Testa __builtin_str_to_int positivo e negativo
+    r0 := "9876";
+    push r0;
+    call #__builtin_str_to_int;
+    r3 := r0 = 9876;
+    jump_if r3, #test_str_to_int_neg;
+    error "Falha no __builtin_str_to_int positivo";
+
+#test_str_to_int_neg:
+    r0 := "-543";
+    push r0;
+    call #__builtin_str_to_int;
+    r3 := r0 = -543;
+    jump_if r3, #test_str_to_real;
+    error "Falha no __builtin_str_to_int negativo";
+
+#test_str_to_real:
+    // 9. Testa __builtin_str_to_real
+    r0 := "123.75";
+    push r0;
+    call #__builtin_str_to_real;
+    r3 := r0 = 123.75;
+    jump_if r3, #test_str_to_bool;
+    error "Falha no __builtin_str_to_real";
+
+#test_str_to_bool:
+    // 10. Testa __builtin_str_to_bool e __builtin_bool_to_str
+    r0 := "verdadeiro";
+    push r0;
+    call #__builtin_str_to_bool;
+    jump_if r0, #test_bool_to_str;
+    error "Falha no __builtin_str_to_bool verdadeiro";
+
+#test_bool_to_str:
+    push 1;
+    call #__builtin_bool_to_str;
+    r1 := "verdadeiro";
+    push r0;
+    push r1;
+    call #__builtin_str_cmp;
+    r3 := r0 = 0;
+    jump_if r3, #test_all_success;
+    error "Falha no __builtin_bool_to_str";
+
+#test_all_success:
+    out 0x0001, "Fase 1: Todos os testes nativos (incluindo conversoes reversas) passaram com sucesso!";
+    out 0x0000, '\n';
+    r0 := 0;
+    free_frame;
+    return r0;

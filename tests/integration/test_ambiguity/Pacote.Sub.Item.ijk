@@ -1,0 +1,5 @@
+unidade Pacote.Sub.Item {
+    publico teste(): inteiro {
+        retorne 1;
+    }
+}

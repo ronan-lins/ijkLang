@@ -1,0 +1,7 @@
+importe Geometria.Calculos.Area;
+
+programa PrincipalApp {
+    privado principal(): inteiro {
+        retorne calcularArea(5, 4);
+    }
+}

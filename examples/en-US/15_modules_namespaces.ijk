@@ -1,0 +1,66 @@
+// ==============================================================================
+// Example 15: Modules, Namespaces, and Lifecycle Procedures
+// Demonstration of modular organization: Main program and dotted submodule
+// ==============================================================================
+
+// Submodule containing analytical geometry routines
+unit GeometryApp.Calculations {
+    // Internal module variable (private by default)
+    int total_calculations = 0;
+
+    // Lifecycle procedure invoked upon loading the module
+    private initialize() {
+        total_calculations = 0;
+        writeln("[Module GeometryApp.Calculations] Initialized successfully.");
+    }
+
+    // Internal helper procedure (explicitly private)
+    private recordOperation() {
+        total_calculations = total_calculations + 1;
+    }
+
+    // Public operations exposed by the unit
+    public rectangleArea(real width, real height): real {
+        recordOperation();
+        return width * height;
+    }
+
+    public rectanglePerimeter(real width, real height): real {
+        recordOperation();
+        return 2.0 * (width + height);
+    }
+
+    // Lifecycle procedure invoked upon application teardown
+    private finalize() {
+        writeln("[Module GeometryApp.Calculations] Finalized. Total operations: ", total_calculations);
+    }
+}
+
+// Main program block
+program GeometryApp {
+    // Lifecycle procedure executed before the main method
+    private initialize() {
+        writeln("[Program GeometryApp] Initializing application...");
+    }
+
+    // Mandatory entry point for the application
+    private main(): int {
+        real base_val = 12.0;
+        real height_val = 5.0;
+
+        // Invocation of functions declared inside the submodule
+        real area = GeometryApp.Calculations.rectangleArea(base_val, height_val);
+        real perimeter = GeometryApp.Calculations.rectanglePerimeter(base_val, height_val);
+
+        writeln("--- Geometric Rectangle Computation ---");
+        writeln("Dimensions: base = ", base_val, ", height = ", height_val);
+        writeln("Area computed via submodule: ", area);
+        writeln("Perimeter computed via submodule: ", perimeter);
+        return 0;
+    }
+
+    // Lifecycle procedure executed after the main method concludes
+    private finalize() {
+        writeln("[Program GeometryApp] Application completed successfully.");
+    }
+}

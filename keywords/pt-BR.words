@@ -1,0 +1,175 @@
+; ==============================================================================
+; ijkLang (ijkL) - Dicionário de Vocabulário: Português (Brasil)
+; ==============================================================================
+
+[complementary_alphabet]
+; Mapeamento de caracteres acentuados para suas letras base normalizadas
+a = à á ã â
+e = é ê
+i = í
+o = ó õ ô
+u = ú
+c = ç
+
+[reserved_words]
+; Controle de fluxo e decisão
+KW_IF         = se
+KW_ELSE       = senao
+KW_SWITCH     = escolha
+KW_CASE       = caso
+KW_DEFAULT    = padrao
+
+; Laços de repetição e interrupção
+KW_WHILE      = enquanto
+KW_FOR        = para
+KW_FROM       = de
+KW_TO         = ate
+KW_STEP       = passo
+KW_REPEAT     = repita
+KW_BREAK      = aborte
+KW_RETURN     = retorne
+
+; Memória dinâmica e E/S (Verbos Imperativos)
+KW_ALLOC      = reserve
+KW_FREE       = libere
+KW_READ       = leia
+KW_WRITE      = escreva
+KW_WRITELN    = escrevaln
+
+; Tipos de dados e estruturas
+KW_INT        = inteiro
+KW_REAL       = real
+KW_FLOAT      = flutuante
+KW_CHAR       = caracter caractere
+KW_STRING     = texto
+KW_BOOL       = logico
+KW_ARRAY      = arranjo
+KW_STRUCT     = registro
+KW_POINTER    = ponteiro
+KW_REF        = ref referencia
+KW_CONST      = constante
+KW_TYPE       = tipo
+
+; Literais booleanos e nulo
+KW_TRUE       = verdadeiro
+KW_FALSE      = falso
+KW_NULL       = nulo
+
+; Operadores textuais
+KW_AND        = e
+KW_OR         = ou
+KW_NOT        = nao
+KW_DIV        = div
+KW_MOD        = mod
+
+; Modularizacao e Visibilidade
+KW_UNIT       = unidade
+KW_PROGRAM    = programa
+KW_IMPORT     = importe
+KW_PUBLIC     = publico
+KW_PRIVATE    = privado
+KW_OF         = de
+KW_MAIN       = principal
+KW_INITIALIZE = inicializar
+KW_FINALIZE   = finalizar
+KW_ASM        = asm
+
+[framework_units]
+; Mapeamento de unidades do framework padrao (alias = canonico)
+ijkL.Conversao      = ijkL.Convert
+ijkL.Texto          = ijkL.Text
+ijkL.Colecoes       = ijkL.Collections
+ijkL.IO.Console     = ijkL.IO.Console
+ijkL.ES.Console     = ijkL.IO.Console
+ijkL.IO.Path        = ijkL.IO.Path
+ijkL.ES.Caminho     = ijkL.IO.Path
+ijkL.IO.Folder      = ijkL.IO.Folder
+ijkL.ES.Pasta       = ijkL.IO.Folder
+ijkL.IO.File        = ijkL.IO.File
+ijkL.ES.Arquivo     = ijkL.IO.File
+ijkL.Memory         = ijkL.Memory
+ijkL.Memoria        = ijkL.Memory
+ijkL.Math           = ijkL.Math
+ijkL.Matematica     = ijkL.Math
+
+[framework_members]
+; Mapeamento de membros e rotinas do framework padrao (alias = canonico)
+paraInteiro         = toInt
+paraReal            = toReal
+paraFlutuante       = toFloat
+paraTexto           = toString
+paraLogico          = toBool
+tamanho             = length
+comparar            = compare
+concatenar          = concat
+subtexto            = substring
+obter               = get
+alterar             = change
+criarLista          = createList
+adicionar           = add
+tamanhoLista        = size
+limpar              = clear
+destruirLista       = destroyList
+escreva             = write
+escrevaLinha        = writeLine
+leiaLinha           = readLine
+leiaTecla           = readKey
+leiaInteiro         = readInt
+leiaReal            = readReal
+limparTela          = clear
+separador           = separator
+combinar            = combine
+obterNomeArquivo    = getFileName
+obterNomeDiretorio  = getDirectoryName
+obterExtensao       = getExtension
+possuiExtensao      = hasExtension
+alterarExtensao     = changeExtension
+existe              = exists
+criar               = create
+excluir             = delete
+obterDiretorioAtual = getCurrent
+definirDiretorioAtual = setCurrent
+lerTodoTexto        = readAllText
+escreverTodoTexto   = writeAllText
+anexarTexto         = appendText
+renomear            = rename
+copiar              = copy
+preencher           = fill
+criarPilha          = createStack
+empilhar            = push
+desempilhar         = pop
+topo                = peek
+estaVazia           = isEmpty
+destruirPilha       = destroyStack
+criarFila           = createQueue
+enfileirar          = enqueue
+desenfileirar       = dequeue
+destruirFila        = destroyQueue
+criarMapa           = createMap
+inserir             = put
+contemChave         = containsKey
+destruirMapa        = destroyMap
+definir             = set
+removerEm           = removeAt
+remover             = remove
+igual               = equals
+indiceDe            = indexOf
+contem              = contains
+comecaCom           = startsWith
+terminaCom          = endsWith
+aparar              = trim
+absoluto            = abs
+minimo              = min
+maximo              = max
+limitar             = clamp
+potencia            = power
+raiz                = sqrt
+sinal               = sign
+absolutoReal        = absReal
+minimoReal          = minReal
+maximoReal          = maxReal
+limitarReal         = clampReal
+potenciaReal        = powerReal
+sinalReal           = signReal
+
+

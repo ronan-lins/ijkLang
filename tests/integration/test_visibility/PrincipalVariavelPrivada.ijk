@@ -1,0 +1,9 @@
+importe ModuloVis;
+
+programa PrincipalVariavelPrivada {
+    privado principal(inteiro quantidade, arranjo[] de texto args): inteiro {
+        // Tentativa inválida de acessar variável privada de outra unidade
+        inteiro x = contador_interno;
+        retorne x;
+    }
+}

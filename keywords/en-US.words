@@ -1,0 +1,168 @@
+; ==============================================================================
+; ijkLang (ijkL) - Vocabulary Dictionary: English (US)
+; ==============================================================================
+
+[complementary_alphabet]
+; Base mappings for loan words and extended Latin characters
+a = à á â ä
+e = é è ê ë
+i = í î ï
+o = ó ô ö
+u = ú û ü
+c = ç
+
+[reserved_words]
+; Control flow and decision
+KW_IF         = if
+KW_ELSE       = else
+KW_SWITCH     = switch
+KW_CASE       = case
+KW_DEFAULT    = default
+
+; Loops and iteration control
+KW_WHILE      = while
+KW_FOR        = for
+KW_FROM       = from
+KW_TO         = to
+KW_STEP       = step
+KW_REPEAT     = repeat
+KW_BREAK      = break
+KW_RETURN     = return
+
+; Dynamic memory and I/O (Imperative verbs)
+KW_ALLOC      = alloc
+KW_FREE       = free
+KW_READ       = read
+KW_WRITE      = write
+KW_WRITELN    = writeln
+
+; Data types and structures
+KW_INT        = int integer
+KW_REAL       = real decimal
+KW_FLOAT      = float
+KW_CHAR       = char character
+KW_STRING     = string text
+KW_BOOL       = bool boolean
+KW_ARRAY      = array
+KW_STRUCT     = struct record
+KW_POINTER    = pointer
+KW_REF        = ref
+KW_CONST      = const
+KW_TYPE       = type
+
+; Boolean literals and null
+KW_TRUE       = true
+KW_FALSE      = false
+KW_NULL       = null
+
+; Textual operators
+KW_AND        = and
+KW_OR         = or
+KW_NOT        = not
+KW_DIV        = div
+KW_MOD        = mod
+
+; Modularization and Visibility
+KW_UNIT       = unit
+KW_PROGRAM    = program
+KW_IMPORT     = import
+KW_PUBLIC     = public
+KW_PRIVATE    = private
+KW_OF         = of
+KW_MAIN       = main
+KW_INITIALIZE = initialize
+KW_FINALIZE   = finalize
+KW_ASM        = asm
+
+[framework_units]
+; Canonical framework unit mappings
+ijkL.Convert        = ijkL.Convert
+ijkL.Text           = ijkL.Text
+ijkL.Collections    = ijkL.Collections
+ijkL.IO.Console     = ijkL.IO.Console
+ijkL.IO.Path        = ijkL.IO.Path
+ijkL.IO.Folder      = ijkL.IO.Folder
+ijkL.IO.File        = ijkL.IO.File
+ijkL.Memory         = ijkL.Memory
+ijkL.Math           = ijkL.Math
+
+[framework_members]
+; Canonical framework member mappings
+toInt               = toInt
+toReal              = toReal
+toFloat             = toFloat
+toString            = toString
+toBool              = toBool
+length              = length
+compare             = compare
+concat              = concat
+substring           = substring
+get                 = get
+change              = change
+createList          = createList
+add                 = add
+size                = size
+clear               = clear
+destroyList         = destroyList
+write               = write
+writeLine           = writeLine
+readLine            = readLine
+readKey             = readKey
+readInt             = readInt
+readReal            = readReal
+separator           = separator
+combine             = combine
+getFileName         = getFileName
+getDirectoryName    = getDirectoryName
+getExtension        = getExtension
+hasExtension        = hasExtension
+changeExtension     = changeExtension
+exists              = exists
+create              = create
+delete              = delete
+getCurrent          = getCurrent
+setCurrent          = setCurrent
+readAllText         = readAllText
+writeAllText        = writeAllText
+appendText          = appendText
+rename              = rename
+copy                = copy
+fill                = fill
+createStack         = createStack
+push                = push
+pop                 = pop
+peek                = peek
+isEmpty             = isEmpty
+destroyStack        = destroyStack
+createQueue         = createQueue
+enqueue             = enqueue
+dequeue             = dequeue
+destroyQueue        = destroyQueue
+createMap           = createMap
+put                 = put
+containsKey         = containsKey
+destroyMap          = destroyMap
+set                 = set
+removeAt            = removeAt
+remove              = remove
+equals              = equals
+indexOf             = indexOf
+contains            = contains
+startsWith          = startsWith
+endsWith            = endsWith
+trim                = trim
+abs                 = abs
+min                 = min
+max                 = max
+clamp               = clamp
+power               = power
+sqrt                = sqrt
+sign                = sign
+absReal             = absReal
+minReal             = minReal
+maxReal             = maxReal
+clampReal           = clampReal
+powerReal           = powerReal
+signReal            = signReal
+
+

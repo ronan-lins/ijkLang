@@ -1,0 +1,5 @@
+unidade Geometria.Calculos.Volume {
+    publico calcularVolume(inteiro l, inteiro c, inteiro a): inteiro {
+        retorne l * c * a;
+    }
+}

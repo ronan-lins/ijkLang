@@ -1,0 +1,9 @@
+programa ProgramaSemModificador {
+    calcular(): inteiro {
+        retorne 10;
+    }
+
+    privado principal(): inteiro {
+        retorne calcular();
+    }
+}

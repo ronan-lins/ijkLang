@@ -1,0 +1,82 @@
+// ==============================================================================
+// Teste de Sobrecarga de Rotinas e Name Mangling (Fase 3 - ijkLang)
+// ==============================================================================
+programa TesteSobrecarga {
+    // Variavel global para acumular resultados dos procedimentos sobrecarregados
+    inteiro total_procedimentos = 0;
+
+    // 1. Funcoes sobrecarregadas com diferentes tipos e quantidades de parametros
+    privado somar(inteiro primeiro_valor, inteiro segundo_valor): inteiro {
+        retorne primeiro_valor + segundo_valor;
+    }
+
+    privado somar(real primeiro_valor, real segundo_valor): real {
+        retorne primeiro_valor + segundo_valor;
+    }
+
+    privado somar(texto primeiro_valor, texto segundo_valor): texto {
+        retorne primeiro_valor + segundo_valor;
+    }
+
+    privado somar(inteiro primeiro_valor, inteiro segundo_valor, inteiro terceiro_valor): inteiro {
+        retorne primeiro_valor + segundo_valor + terceiro_valor;
+    }
+
+    // 2. Procedimentos sobrecarregados com diferentes tipos de parametros
+    privado acumular(inteiro valor_inteiro) {
+        total_procedimentos = total_procedimentos + valor_inteiro;
+    }
+
+    privado acumular(real valor_real) {
+        total_procedimentos = total_procedimentos + 100;
+    }
+
+    privado acumular(texto valor_texto) {
+        total_procedimentos = total_procedimentos + 1000;
+    }
+
+    // 3. Funcao para testar resolucao por promocao numerica (inteiro -> real)
+    privado converter_e_multiplicar(real fator_real): real {
+        retorne fator_real * 2.5;
+    }
+
+    // Ponto de entrada obrigatorio da aplicacao
+    privado principal(): inteiro {
+        total_procedimentos = 0;
+
+        // Teste 1: somar(inteiro, inteiro) -> 10 + 20 = 30
+        inteiro resultado_int = somar(10, 20);
+
+        // Teste 2: somar(inteiro, inteiro, inteiro) -> 5 + 10 + 15 = 30
+        inteiro resultado_tres_int = somar(5, 10, 15);
+
+        // Teste 3: somar(real, real) -> 1.5 + 2.5 = 4.0
+        real resultado_real = somar(1.5, 2.5);
+
+        // Teste 4: somar(texto, texto) -> "Ola, " + "Mundo!"
+        texto resultado_texto = somar("Ola, ", "Mundo!");
+
+        // Teste 5: Procedimentos sobrecarregados
+        acumular(7);            // adiciona 7 -> total_procedimentos = 7
+        acumular(3.14);         // adiciona 100 -> total_procedimentos = 107
+        acumular("exemplo");    // adiciona 1000 -> total_procedimentos = 1107
+
+        // Teste 6: Promocao numerica (passando literal inteiro 4 para parametro real)
+        // 4 promovido para 4.0 * 2.5 = 10.0
+        real resultado_promocao = converter_e_multiplicar(4);
+
+        escrevaln("resultado_int: ", resultado_int);
+        escrevaln("resultado_tres_int: ", resultado_tres_int);
+        escrevaln("resultado_real: ", resultado_real);
+        escrevaln("resultado_texto: ", resultado_texto);
+        escrevaln("total_procedimentos: ", total_procedimentos);
+        escrevaln("resultado_promocao: ", resultado_promocao);
+
+        se (resultado_int == 30 e resultado_tres_int == 30 e total_procedimentos == 1107) {
+            escrevaln("Todos os testes de sobrecarga passaram com sucesso!");
+            retorne 42;
+        } senao {
+            retorne 1;
+        }
+    }
+}

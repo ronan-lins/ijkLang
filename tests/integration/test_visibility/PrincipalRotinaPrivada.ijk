@@ -1,0 +1,9 @@
+importe ModuloVis;
+
+programa PrincipalRotinaPrivada {
+    privado principal(inteiro quantidade, arranjo[] de texto args): inteiro {
+        // Tentativa inválida de invocar rotina privada de outra unidade
+        registrarOperacao();
+        retorne 0;
+    }
+}

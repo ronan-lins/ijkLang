@@ -1,0 +1,17 @@
+importe ModuloCiclo;
+
+programa ProgramaCiclo {
+    inteiro prog_estado = 20;
+
+    privado inicializar() {
+        prog_estado = prog_estado + 10;
+    }
+
+    privado principal(): inteiro {
+        retorne ModuloCiclo.getValor() + prog_estado;
+    }
+
+    privado finalizar() {
+        prog_estado = 0;
+    }
+}

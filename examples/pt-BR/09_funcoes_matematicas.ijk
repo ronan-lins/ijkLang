@@ -1,0 +1,34 @@
+// ==============================================================================
+// Exemplo 09: Funções com Notação Matemática e Retorno Tipado
+// Demonstração da sintaxe f(x): Tipo { retorne ...; } e composição de chamadas
+// ==============================================================================
+
+programa FuncoesMatematicasApp {
+    // Função matemática que calcula o quadrado de um número
+    privado quadrado(inteiro valor): inteiro {
+        retorne valor * valor;
+    }
+
+    // Função matemática com múltiplos parâmetros para distância euclidiana simples
+    privado somaQuadrados(inteiro x, inteiro y): inteiro {
+        retorne quadrado(x) + quadrado(y);
+    }
+
+    // Função que calcula a média ponderada com tipo de retorno real
+    privado mediaPonderada(real p1, real p2, real peso1, real peso2): real {
+        retorne (p1 * peso1 + p2 * peso2) / (peso1 + peso2);
+    }
+
+    // Ponto de entrada obrigatório da aplicação
+    privado principal(): inteiro {
+        inteiro resultado_quadrado = quadrado(5);
+        escrevaln("Quadrado de 5: ", resultado_quadrado);
+
+        inteiro soma_quad = somaQuadrados(3, 4);
+        escrevaln("Soma dos quadrados de 3 e 4: ", soma_quad);
+
+        real media = mediaPonderada(8.0, 6.0, 2.0, 3.0);
+        escrevaln("Media ponderada calculada: ", media);
+        retorne 0;
+    }
+}

@@ -1,0 +1,131 @@
+// ==============================================================================
+// ijkLang (ijkL) Standard Framework - File and Directory Path Utilities
+// Canonical Unit: ijkL.IO.Path (Aliases: ijkL.ES.Caminho)
+// ==============================================================================
+
+import ijkL.Text;
+
+unit ijkL.IO.Path {
+
+    // --------------------------------------------------------------------------
+    // Public Path Inspection & Manipulation Functions
+    // --------------------------------------------------------------------------
+
+    public separator(): string {
+        return "/";
+    }
+
+    public combine(string first_path, string second_path): string {
+        int first_length = ijkL.Text.length(first_path);
+        if (first_length == 0) {
+            return second_path;
+        }
+
+        int second_length = ijkL.Text.length(second_path);
+        if (second_length == 0) {
+            return first_path;
+        }
+
+        string last_char = ijkL.Text.substring(first_path, first_length - 1, 1);
+        string first_char = ijkL.Text.substring(second_path, 0, 1);
+
+        bool ends_with_slash = ijkL.Text.compare(last_char, "/") == 0 || ijkL.Text.compare(last_char, "\\") == 0;
+        bool starts_with_slash = ijkL.Text.compare(first_char, "/") == 0 || ijkL.Text.compare(first_char, "\\") == 0;
+
+        if (ends_with_slash && starts_with_slash) {
+            string second_tail = ijkL.Text.substring(second_path, 1, second_length - 1);
+            return ijkL.Text.concat(first_path, second_tail);
+        }
+
+        if (!ends_with_slash && !starts_with_slash) {
+            string intermediate_path = ijkL.Text.concat(first_path, "/");
+            return ijkL.Text.concat(intermediate_path, second_path);
+        }
+
+        return ijkL.Text.concat(first_path, second_path);
+    }
+
+    public getFileName(string path_string): string {
+        int total_length = ijkL.Text.length(path_string);
+        if (total_length == 0) {
+            return "";
+        }
+
+        int scan_index = total_length - 1;
+        while (scan_index >= 0) {
+            string current_char = ijkL.Text.substring(path_string, scan_index, 1);
+            if (ijkL.Text.compare(current_char, "/") == 0 || ijkL.Text.compare(current_char, "\\") == 0) {
+                int name_length = total_length - scan_index - 1;
+                return ijkL.Text.substring(path_string, scan_index + 1, name_length);
+            }
+            scan_index = scan_index - 1;
+        }
+
+        return path_string;
+    }
+
+    public getDirectoryName(string path_string): string {
+        int total_length = ijkL.Text.length(path_string);
+        if (total_length == 0) {
+            return "";
+        }
+
+        int scan_index = total_length - 1;
+        while (scan_index >= 0) {
+            string current_char = ijkL.Text.substring(path_string, scan_index, 1);
+            if (ijkL.Text.compare(current_char, "/") == 0 || ijkL.Text.compare(current_char, "\\") == 0) {
+                if (scan_index == 0) {
+                    return "/";
+                }
+                return ijkL.Text.substring(path_string, 0, scan_index);
+            }
+            scan_index = scan_index - 1;
+        }
+
+        return "";
+    }
+
+    public getExtension(string path_string): string {
+        string filename = getFileName(path_string);
+        int filename_length = ijkL.Text.length(filename);
+        if (filename_length == 0) {
+            return "";
+        }
+
+        int scan_index = filename_length - 1;
+        while (scan_index >= 0) {
+            string current_char = ijkL.Text.substring(filename, scan_index, 1);
+            if (ijkL.Text.compare(current_char, ".") == 0) {
+                int extension_length = filename_length - scan_index;
+                return ijkL.Text.substring(filename, scan_index, extension_length);
+            }
+            scan_index = scan_index - 1;
+        }
+
+        return "";
+    }
+
+    public hasExtension(string path_string): bool {
+        string ext = getExtension(path_string);
+        return ijkL.Text.length(ext) > 0;
+    }
+
+    public changeExtension(string path_string, string new_extension): string {
+        string ext = getExtension(path_string);
+        int original_length = ijkL.Text.length(path_string);
+        int ext_length = ijkL.Text.length(ext);
+
+        string base_path = ijkL.Text.substring(path_string, 0, original_length - ext_length);
+        if (ijkL.Text.length(new_extension) == 0) {
+            return base_path;
+        }
+
+        string first_char = ijkL.Text.substring(new_extension, 0, 1);
+        if (ijkL.Text.compare(first_char, ".") == 0) {
+            return ijkL.Text.concat(base_path, new_extension);
+        }
+
+        string with_dot = ijkL.Text.concat(base_path, ".");
+        return ijkL.Text.concat(with_dot, new_extension);
+    }
+}

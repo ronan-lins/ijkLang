@@ -1,0 +1,73 @@
+Copyright (c) 2004-2026 Ronan Lins. All rights reserved.
+
+==============================================================================
+ PolyForm Noncommercial License 1.0.0
+==============================================================================
+
+https://polyformproject.org/licenses/noncommercial/1.0.0
+
+## Purpose
+
+This license permits each person who receives a copy of this software to use,
+modify, and distribute it for noncommercial purposes, without fees or
+royalties.
+
+## Agreement
+
+In order to receive this license, you must agree to its rules. The rules of this
+license are both obligations under that agreement and conditions to your
+license. You must not do anything with this software that triggers a rule you
+cannot or will not follow.
+
+## Notices
+
+You must ensure that anyone who gets a copy of any part of this software from
+you also gets a copy of this license or the URL for it above, as well as
+copyright and other notices that appear in this software.
+
+## Noncommercial Purposes
+
+Any use of this software that does not involve commercial advantage or
+monetary compensation is a noncommercial purpose.
+
+Noncommercial purposes include:
+- Personal study, experimentation and use
+- Educational use, including coursework, classroom teaching, academic
+  research and university demonstrations
+- Creation of open extensions, plugins, tools and educational materials that
+  do not generate commercial revenue
+
+Commercial purposes include:
+- Selling the software or services that use the software
+- Incorporating the software into a commercial product or service
+- Internal business use for commercial operations
+
+## Fair Use
+
+You may have rights under the law, such as "fair use" or "fair dealing", that
+permit you to use this software in ways this license does not cover. This
+license does not restrict those rights.
+
+## No Other Rights
+
+These terms do not give you any patent licenses, and they do not grant you any
+rights in any trademarks or service marks.
+
+## No Liability
+
+As far as the law allows, this software comes as is, without any warranty or
+condition, and no contributor will be liable to anyone for any damages related
+to this software or this license, under any kind of legal claim.
+
+---
+
+## Nota sobre a Documentação e Materiais Didáticos
+
+A documentação técnica, especificações formais, diagramas e materiais didáticos
+contidos no diretório `docs/` e nos manuais do projeto são disponibilizados sob
+os termos da licença **Creative Commons Atribuição-NãoComercial 4.0 Internacional**
+(CC BY-NC 4.0: https://creativecommons.org/licenses/by-nc/4.0/deed.pt-BR).
+
+Você é livre para compartilhar, copiar, redistribuir e adaptar o material para
+qualquer fim educacional, pessoal e não comercial, desde que atribua o crédito
+apropriado ao autor original (Ronan Lins).

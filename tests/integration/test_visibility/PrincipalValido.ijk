@@ -1,0 +1,21 @@
+importe ModuloVis;
+
+programa PrincipalValido {
+    privado principal(inteiro quantidade, arranjo[] de texto args): inteiro {
+        // Uso de constante pública importada
+        inteiro base = FATOR_BASE;
+
+        // Uso de tipo registro público importado
+        ParOrdenado ponto;
+        ponto.x = 5;
+        ponto.y = base;
+
+        // Uso de funções públicas expostas
+        inteiro r1 = somarComBase(ponto.x);
+        inteiro r2 = somarComBase(ponto.y);
+        inteiro ops = obterTotalOperacoes();
+
+        // r1 = 5 + 10 = 15; r2 = 10 + 10 = 20; ops = 2. Soma = 15 + 20 + 2 = 37.
+        retorne r1 + r2 + ops;
+    }
+}

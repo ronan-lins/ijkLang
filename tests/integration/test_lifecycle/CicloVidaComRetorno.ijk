@@ -1,0 +1,10 @@
+// Teste de rejeição de rotina de ciclo de vida com valor de retorno
+programa CicloVidaComRetornoApp {
+    privado inicializar(): inteiro {
+        retorne 1;
+    }
+
+    privado principal(): inteiro {
+        retorne 0;
+    }
+}

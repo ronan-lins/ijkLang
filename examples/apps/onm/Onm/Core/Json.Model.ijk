@@ -1,0 +1,143 @@
+// ==============================================================================
+// Unit: Onm.Core.Json.Model
+// Application: onm — Object Notation Management
+// Language: ijkLang (ijkL)
+// Standard: ISO C11 Alignment, Clean Code (AGENTS.md)
+// Responsibility: In-memory representation of JSON nodes and properties,
+//                 preserving insertion order and ensuring uniqueness.
+// ==============================================================================
+
+import ijkL.Text;
+
+unit Onm.Core.Json.Model {
+
+    type JsonProperty = pointer struct {
+        string name;
+        bool is_node;
+        pointer node_value;
+        string key_value;
+        pointer next_property;
+    };
+
+    type JsonNode = pointer struct {
+        pointer first_property;
+        pointer last_property;
+        int count;
+    };
+
+    public createNode(): JsonNode {
+        JsonNode node = alloc($JsonNode);
+        node.first_property = null;
+        node.last_property = null;
+        node.count = 0;
+        return node;
+    }
+
+    public freeNode(JsonNode node) {
+        if (node == null) {
+            return;
+        }
+        JsonProperty current = node.first_property;
+        while (current != null) {
+            JsonProperty next = current.next_property;
+            if (current.is_node && current.node_value != null) {
+                freeNode(current.node_value);
+            }
+            free(current);
+            current = next;
+        }
+        free(node);
+    }
+
+    public findProperty(JsonNode node, string name): JsonProperty {
+        if (node == null) {
+            return null;
+        }
+        JsonProperty current = node.first_property;
+        while (current != null) {
+            if (ijkL.Text.equals(current.name, name)) {
+                return current;
+            }
+            current = current.next_property;
+        }
+        return null;
+    }
+
+    public addNodeProperty(JsonNode parent, string name): bool {
+        if (findProperty(parent, name) != null) {
+            return false;
+        }
+        JsonProperty prop = alloc($JsonProperty);
+        prop.name = name;
+        prop.is_node = true;
+        prop.node_value = createNode();
+        prop.key_value = "";
+        prop.next_property = null;
+
+        if (parent.first_property == null) {
+            parent.first_property = prop;
+            parent.last_property = prop;
+        } else {
+            JsonProperty last = parent.last_property;
+            last.next_property = prop;
+            parent.last_property = prop;
+        }
+        parent.count = parent.count + 1;
+        return true;
+    }
+
+    public addKeyProperty(JsonNode parent, string name, string value): bool {
+        if (findProperty(parent, name) != null) {
+            return false;
+        }
+        JsonProperty prop = alloc($JsonProperty);
+        prop.name = name;
+        prop.is_node = false;
+        prop.node_value = null;
+        prop.key_value = value;
+        prop.next_property = null;
+
+        if (parent.first_property == null) {
+            parent.first_property = prop;
+            parent.last_property = prop;
+        } else {
+            JsonProperty last = parent.last_property;
+            last.next_property = prop;
+            parent.last_property = prop;
+        }
+        parent.count = parent.count + 1;
+        return true;
+    }
+
+    public removeProperty(JsonNode parent, string name): bool {
+        if (parent == null) {
+            return false;
+        }
+        if (parent.first_property == null) {
+            return false;
+        }
+        JsonProperty prev = null;
+        JsonProperty current = parent.first_property;
+        while (current != null) {
+            if (ijkL.Text.equals(current.name, name)) {
+                if (prev == null) {
+                    parent.first_property = current.next_property;
+                } else {
+                    prev.next_property = current.next_property;
+                }
+                if (current == parent.last_property) {
+                    parent.last_property = prev;
+                }
+                parent.count = parent.count - 1;
+                if (current.is_node && current.node_value != null) {
+                    freeNode(current.node_value);
+                }
+                free(current);
+                return true;
+            }
+            prev = current;
+            current = current.next_property;
+        }
+        return false;
+    }
+}

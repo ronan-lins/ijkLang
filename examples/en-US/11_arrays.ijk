@@ -1,0 +1,33 @@
+// ==============================================================================
+// Example 11: One-Dimensional Arrays (Vectors)
+// Demonstration of declaration, indexed assignment, and array traversal with loop
+// ==============================================================================
+
+program ArraysApp {
+    const SIZE = 5;
+
+    // Mandatory entry point for the application
+    private main(): int {
+        array[5] int numbers;
+
+        // Initializing array elements
+        numbers[0] = 10;
+        numbers[1] = 25;
+        numbers[2] = 30;
+        numbers[3] = 45;
+        numbers[4] = 50;
+
+        int total_sum = 0;
+
+        writeln("--- Traversing array elements ---");
+        for (int index = 0 to 4 step 1) {
+            writeln("Element at index [", index, "] = ", numbers[index]);
+            total_sum = total_sum + numbers[index];
+        }
+
+        real average = total_sum / 5.0;
+        writeln("\nTotal sum of elements: ", total_sum);
+        writeln("Calculated arithmetic average: ", average);
+        return 0;
+    }
+}

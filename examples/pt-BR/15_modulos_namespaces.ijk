@@ -1,0 +1,66 @@
+// ==============================================================================
+// Exemplo 15: Módulos, Espaços de Nomes e Ciclo de Vida
+// Demonstração da organização modular: Programa principal e submodulo pontuado
+// ==============================================================================
+
+// Submódulo com rotinas de geometria analítica
+unidade GeometriaApp.Calculos {
+    // Variável interna do módulo (privada por padrão)
+    inteiro total_calculos = 0;
+
+    // Procedimento de ciclo de vida invocado na carga do módulo
+    privado inicializar() {
+        total_calculos = 0;
+        escrevaln("[Modulo GeometriaApp.Calculos] Inicializado com sucesso.");
+    }
+
+    // Procedimento auxiliar interno (privado explicitamente)
+    privado registrarOperacao() {
+        total_calculos = total_calculos + 1;
+    }
+
+    // Operações públicas expostas pela unidade
+    publico areaRetangulo(real largura, real altura): real {
+        registrarOperacao();
+        retorne largura * altura;
+    }
+
+    publico perimetroRetangulo(real largura, real altura): real {
+        registrarOperacao();
+        retorne 2.0 * (largura + altura);
+    }
+
+    // Procedimento de ciclo de vida invocado na finalização da aplicação
+    privado finalizar() {
+        escrevaln("[Modulo GeometriaApp.Calculos] Finalizado. Total de operacoes: ", total_calculos);
+    }
+}
+
+// Bloco do programa principal
+programa GeometriaApp {
+    // Procedimento de ciclo de vida executado antes do método principal
+    privado inicializar() {
+        escrevaln("[Programa GeometriaApp] Inicializando aplicacao...");
+    }
+
+    // Ponto de entrada obrigatório da aplicação
+    privado principal(): inteiro {
+        real base = 12.0;
+        real altura = 5.0;
+
+        // Chamadas a funções declaradas dentro do submódulo
+        real area = GeometriaApp.Calculos.areaRetangulo(base, altura);
+        real perimetro = GeometriaApp.Calculos.perimetroRetangulo(base, altura);
+
+        escrevaln("--- Calculo Geometrico de Retangulo ---");
+        escrevaln("Dimensoes: base = ", base, ", altura = ", altura);
+        escrevaln("Area calculada via submodulo: ", area);
+        escrevaln("Perimetro calculado via submodulo: ", perimetro);
+        retorne 0;
+    }
+
+    // Procedimento de ciclo de vida executado após o término do método principal
+    privado finalizar() {
+        escrevaln("[Programa GeometriaApp] Aplicacao concluida com sucesso.");
+    }
+}

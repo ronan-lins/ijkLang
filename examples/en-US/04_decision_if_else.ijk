@@ -1,0 +1,35 @@
+// ==============================================================================
+// Example 04: Conditional Decision Structures (If / Else)
+// Demonstration of relational operators, logical operators (and, or, not), and blocks
+// ==============================================================================
+
+program DecisionIfElseApp {
+    // Mandatory entry point for the application
+    private main(): int {
+        real assignment_grade = 8.5;
+        real exam_grade = 6.0;
+        real final_average = (assignment_grade + exam_grade) / 2.0;
+        int attendance_percentage = 80;
+
+        writeln("Calculated average: ", final_average);
+        writeln("Attendance: ", attendance_percentage, "%");
+
+        // Compound conditional decision with logical 'and' operator
+        if (final_average >= 7.0 and attendance_percentage >= 75) {
+            writeln("Status: Passed with direct merit.");
+        } else {
+            if (final_average >= 5.0 and attendance_percentage >= 75) {
+                writeln("Status: Eligible for final examination.");
+            } else {
+                writeln("Status: Failed.");
+            }
+        }
+
+        // Tolerant equality comparison (=)
+        if (final_average = 7.25) {
+            writeln("Grade exactly matches test reference value.");
+        }
+
+        return 0;
+    }
+}

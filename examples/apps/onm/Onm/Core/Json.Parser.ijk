@@ -1,0 +1,240 @@
+// ==============================================================================
+// Unit: Onm.Core.Json.Parser
+// Application: onm — Object Notation Management
+// Language: ijkLang (ijkL)
+// Standard: ISO C11 Alignment, Clean Code (AGENTS.md)
+// Responsibility: Strict JSON parser rejecting arrays, numbers, booleans,
+//                 null, and duplicate property names per onm.spec.md.
+// ==============================================================================
+
+import ijkL.Text;
+import Onm.Core.Json.Model;
+
+unit Onm.Core.Json.Parser {
+
+    type JsonParser = pointer struct {
+        string source_content;
+        int length;
+        int index;
+        bool has_error;
+        string error_message;
+    };
+
+    public createParser(string json_text): JsonParser {
+        JsonParser parser = alloc($JsonParser);
+        parser.source_content = json_text;
+        parser.length = ijkL.Text.length(json_text);
+        parser.index = 0;
+        parser.has_error = false;
+        parser.error_message = "";
+        return parser;
+    }
+
+    public skipWhitespace(JsonParser parser) {
+        while (parser.index < parser.length) {
+            char c = ijkL.Text.get(parser.source_content, parser.index);
+            if (c == ' ' || c == '\t' || c == '\n' || c == '\r') {
+                parser.index = parser.index + 1;
+            } else {
+                break;
+            }
+        }
+    }
+
+    private peekChar(JsonParser parser): char {
+        skipWhitespace(parser);
+        if (parser.index >= parser.length) {
+            return '\0';
+        }
+        return ijkL.Text.get(parser.source_content, parser.index);
+    }
+
+    private parseStringLiteral(JsonParser parser): string {
+        skipWhitespace(parser);
+        if (parser.index >= parser.length || ijkL.Text.get(parser.source_content, parser.index) != '"') {
+            parser.has_error = true;
+            parser.error_message = "Expected '\"' at start of string literal.";
+            return "";
+        }
+        parser.index = parser.index + 1;
+        int start_pos = parser.index;
+        bool contains_escape = false;
+
+        while (parser.index < parser.length) {
+            char current_char = ijkL.Text.get(parser.source_content, parser.index);
+            if (current_char == '"') {
+                break;
+            }
+            if (current_char == '\\') {
+                contains_escape = true;
+                parser.index = parser.index + 2;
+            } else {
+                parser.index = parser.index + 1;
+            }
+        }
+
+        if (parser.index >= parser.length) {
+            parser.has_error = true;
+            parser.error_message = "Unterminated string literal.";
+            return "";
+        }
+
+        int end_pos = parser.index;
+        parser.index = parser.index + 1;
+
+        if (!contains_escape) {
+            return ijkL.Text.substring(parser.source_content, start_pos, end_pos - start_pos);
+        }
+
+        string result = "";
+        int current_pos = start_pos;
+        while (current_pos < end_pos) {
+            char c = ijkL.Text.get(parser.source_content, current_pos);
+            if (c == '\\' && current_pos + 1 < end_pos) {
+                char esc = ijkL.Text.get(parser.source_content, current_pos + 1);
+                if (esc == '"') {
+                    result = ijkL.Text.concat(result, "\"");
+                } else if (esc == '\\') {
+                    result = ijkL.Text.concat(result, "\\");
+                } else if (esc == 'n') {
+                    result = ijkL.Text.concat(result, "\n");
+                } else if (esc == 'r') {
+                    result = ijkL.Text.concat(result, "\r");
+                } else if (esc == 't') {
+                    result = ijkL.Text.concat(result, "\t");
+                } else {
+                    string esc_char = ijkL.Text.substring(parser.source_content, current_pos + 1, 1);
+                    result = ijkL.Text.concat(result, esc_char);
+                }
+                current_pos = current_pos + 2;
+            } else {
+                string single_char = ijkL.Text.substring(parser.source_content, current_pos, 1);
+                result = ijkL.Text.concat(result, single_char);
+                current_pos = current_pos + 1;
+            }
+        }
+        return result;
+    }
+
+    public parseJsonObject(JsonParser parser): JsonNode {
+        skipWhitespace(parser);
+        if (parser.index >= parser.length || ijkL.Text.get(parser.source_content, parser.index) != '{') {
+            parser.has_error = true;
+            parser.error_message = "Expected '{' at start of JSON object.";
+            return null;
+        }
+        parser.index = parser.index + 1;
+        JsonNode node = createNode();
+
+        skipWhitespace(parser);
+        if (peekChar(parser) == '}') {
+            parser.index = parser.index + 1;
+            return node;
+        }
+
+        while (true) {
+            skipWhitespace(parser);
+            if (peekChar(parser) != '"') {
+                parser.has_error = true;
+                parser.error_message = "Expected string property name enclosed in '\"'.";
+                freeNode(node);
+                return null;
+            }
+            string property_name = parseStringLiteral(parser);
+            if (parser.has_error) {
+                freeNode(node);
+                return null;
+            }
+
+            if (findProperty(node, property_name) != null) {
+                parser.has_error = true;
+                parser.error_message = ijkL.Text.concat("Duplicate property name: ", property_name);
+                freeNode(node);
+                return null;
+            }
+
+            skipWhitespace(parser);
+            if (peekChar(parser) != ':') {
+                parser.has_error = true;
+                parser.error_message = "Expected ':' after property name.";
+                freeNode(node);
+                return null;
+            }
+            parser.index = parser.index + 1;
+
+            skipWhitespace(parser);
+            char value_char = peekChar(parser);
+            if (value_char == '{') {
+                JsonNode child_node = parseJsonObject(parser);
+                if (parser.has_error) {
+                    freeNode(node);
+                    return null;
+                }
+                JsonProperty prop = alloc($JsonProperty);
+                prop.name = property_name;
+                prop.is_node = true;
+                prop.node_value = child_node;
+                prop.key_value = "";
+                prop.next_property = null;
+                if (node.first_property == null) {
+                    node.first_property = prop;
+                    node.last_property = prop;
+                } else {
+                    JsonProperty last = node.last_property;
+                    last.next_property = prop;
+                    node.last_property = prop;
+                }
+                node.count = node.count + 1;
+            } else if (value_char == '"') {
+                string key_string_value = parseStringLiteral(parser);
+                if (parser.has_error) {
+                    freeNode(node);
+                    return null;
+                }
+                JsonProperty prop = alloc($JsonProperty);
+                prop.name = property_name;
+                prop.is_node = false;
+                prop.node_value = null;
+                prop.key_value = key_string_value;
+                prop.next_property = null;
+                if (node.first_property == null) {
+                    node.first_property = prop;
+                    node.last_property = prop;
+                } else {
+                    JsonProperty last = node.last_property;
+                    last.next_property = prop;
+                    node.last_property = prop;
+                }
+                node.count = node.count + 1;
+            } else {
+                parser.has_error = true;
+                parser.error_message = "Unsupported JSON value type. Only objects (nodes) and strings (keys) are supported.";
+                freeNode(node);
+                return null;
+            }
+
+            skipWhitespace(parser);
+            char separator_char = peekChar(parser);
+            if (separator_char == ',') {
+                parser.index = parser.index + 1;
+                skipWhitespace(parser);
+                if (peekChar(parser) == '}') {
+                    parser.has_error = true;
+                    parser.error_message = "Trailing comma before '}' is not allowed in JSON.";
+                    freeNode(node);
+                    return null;
+                }
+            } else if (separator_char == '}') {
+                parser.index = parser.index + 1;
+                break;
+            } else {
+                parser.has_error = true;
+                parser.error_message = "Expected ',' or '}' inside JSON object.";
+                freeNode(node);
+                return null;
+            }
+        }
+
+        return node;
+    }
+}

@@ -1,0 +1,115 @@
+// ==============================================================================
+// ijkLang (ijkL) Standard Framework - Console and Terminal I/O
+// Canonical Unit: ijkL.IO.Console (Aliases: ijkL.ES.Console)
+// ==============================================================================
+
+import ijkL.Convert;
+
+unit ijkL.IO.Console {
+
+    // --------------------------------------------------------------------------
+    // Public Output Procedures (write / escreva)
+    // --------------------------------------------------------------------------
+
+    public write(string value) {
+        asm {
+            r1 := [ra, 0];
+            out 0x0001, r1;
+        }
+    }
+
+    public write(int value) {
+        write(ijkL.Convert.toString(value));
+    }
+
+    public write(real value) {
+        write(ijkL.Convert.toString(value));
+    }
+
+    public write(bool value) {
+        write(ijkL.Convert.toString(value));
+    }
+
+    public write(char value) {
+        asm {
+            r1 := [ra, 0];
+            out 0x0000, r1;
+        }
+    }
+
+    // --------------------------------------------------------------------------
+    // Public Output Procedures with Newline (writeLine / escrevaLinha)
+    // --------------------------------------------------------------------------
+
+    public writeLine() {
+        asm {
+            out 0x0000, '\n';
+        }
+    }
+
+    public writeLine(string value) {
+        write(value);
+        writeLine();
+    }
+
+    public writeLine(int value) {
+        write(value);
+        writeLine();
+    }
+
+    public writeLine(real value) {
+        write(value);
+        writeLine();
+    }
+
+    public writeLine(bool value) {
+        write(value);
+        writeLine();
+    }
+
+    public writeLine(char value) {
+        write(value);
+        writeLine();
+    }
+
+    // --------------------------------------------------------------------------
+    // Public Input Functions (readLine / leiaLinha, readKey / leiaTecla)
+    // --------------------------------------------------------------------------
+
+    public readLine(): string {
+        asm {
+            in 0x0004, r0;
+            free_frame;
+            return r0;
+        }
+    }
+
+    public readKey(): char {
+        asm {
+            in 0x0000, r0;
+            free_frame;
+            return r0;
+        }
+    }
+
+    public readInt(): int {
+        string input_line = readLine();
+        return ijkL.Convert.toInt(input_line);
+    }
+
+    public readReal(): real {
+        string input_line = readLine();
+        return ijkL.Convert.toReal(input_line);
+    }
+
+    // --------------------------------------------------------------------------
+    // Terminal Screen Control
+    // --------------------------------------------------------------------------
+
+    public clear() {
+        asm {
+            r0 := "\033[2J\033[H";
+            out 0x0001, r0;
+        }
+    }
+}

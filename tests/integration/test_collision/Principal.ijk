@@ -1,0 +1,8 @@
+importe Modulo1;
+importe Modulo2;
+
+programa PrincipalApp {
+    privado principal(): inteiro {
+        retorne operacaoComum();
+    }
+}

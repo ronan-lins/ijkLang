@@ -1,0 +1,59 @@
+# ==============================================================================
+# .gitignore - Regras de Ignoração do Repositório ijkLang (ijkL)
+# ==============================================================================
+
+# Diretórios e Artefatos de Compilação (Visual Studio MSVC / GCC)
+bin/
+build/
+x64/
+x86/
+ARM/
+ARM64/
+Debug/
+Release/
+
+# Arquivos de Objetos, Binários e Bibliotecas
+*.obj
+*.o
+*.lib
+*.a
+*.dll
+*.so
+*.dylib
+*.exe
+*.out
+*.app
+
+# Arquivos de Depuração e Metadados do Compilador/Linker
+*.pdb
+*.idb
+*.ilk
+*.iobj
+*.ipdb
+*.recipe
+*.tlog/
+*.lastbuildstate
+*.log
+
+# Arquivos de Configuração do Usuário e Cache do Visual Studio
+.vs/
+*.user
+*.suo
+*.opendb
+*.db
+
+# Arquivos Temporários de Editores e Sistema Operacional
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.tmp
+*.bak
+*~
+
+# Arquivos e Pastas Temporarias de Rascunho de Testes
+scratch/
+test_*.txt
+
+# Diretorio de Configuracoes e Regras Locais de Desenvolvimento
+.agents/
+

@@ -1,0 +1,7 @@
+importe Geometria.Calculos.Volume;
+
+programa PrincipalApp {
+    privado principal(): inteiro {
+        retorne calcularVolume(2, 3, 4);
+    }
+}

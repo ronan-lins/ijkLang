@@ -1,0 +1,33 @@
+// ==============================================================================
+// Exemplo 11: Arranjos Unidimensionais (Vetores)
+// Demonstração de declaração, atribuição indexada e percurso de arranjo com laço
+// ==============================================================================
+
+programa ArranjosApp {
+    constante TAMANHO = 5;
+
+    // Ponto de entrada obrigatório da aplicação
+    privado principal(): inteiro {
+        arranjo[5] inteiro numeros;
+
+        // Inicialização dos elementos do arranjo
+        numeros[0] = 10;
+        numeros[1] = 25;
+        numeros[2] = 30;
+        numeros[3] = 45;
+        numeros[4] = 50;
+
+        inteiro soma = 0;
+
+        escrevaln("--- Percorrendo os elementos do arranjo ---");
+        para (inteiro indice = 0 ate 4 passo 1) {
+            escrevaln("Elemento no indice [", indice, "] = ", numeros[indice]);
+            soma = soma + numeros[indice];
+        }
+
+        real media = soma / 5.0;
+        escrevaln("\nSoma total dos elementos: ", soma);
+        escrevaln("Media aritmetica calculada: ", media);
+        retorne 0;
+    }
+}

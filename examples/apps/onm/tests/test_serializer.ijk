@@ -1,0 +1,56 @@
+// ==============================================================================
+// Unit Test: test_serializer
+// Target: Onm.Core.Json.Serializer
+// Language: ijkLang (ijkL)
+// ==============================================================================
+
+import ijkL.Text;
+import Onm.Core.Json.Model;
+import Onm.Core.Json.Serializer;
+
+program TestSerializerApp {
+
+    private main(): int {
+        writeln("Running test_serializer...");
+
+        // 1. Empty root node serialization
+        JsonNode empty_root = createNode();
+        string empty_json = serializeNode(empty_root, 0, true);
+        if (!ijkL.Text.equals(empty_json, "{\n}\n")) {
+            writeln("[FAIL] Empty root node expected '{\\n}\\n', got: '", empty_json, "'");
+            freeNode(empty_root);
+            return 1;
+        }
+        freeNode(empty_root);
+
+        // 2. Node with properties and nested child
+        JsonNode root = createNode();
+        addKeyProperty(root, "app", "onm");
+        addNodeProperty(root, "config");
+        JsonProperty config_prop = findProperty(root, "config");
+        JsonNode config_node = config_prop.node_value;
+        addKeyProperty(config_node, "env", "test");
+
+        // Shallow serialization (recursive = false)
+        string shallow_json = serializeNode(root, 0, false);
+        // Expecting: "config": {}
+        if (!ijkL.Text.contains(shallow_json, "\"config\": {}")) {
+            writeln("[FAIL] Non-recursive serialization must output child node as '{}'. Got:\n", shallow_json);
+            freeNode(root);
+            return 1;
+        }
+
+        // Recursive serialization (recursive = true)
+        string recursive_json = serializeNode(root, 0, true);
+        // Expecting: "env": "test"
+        if (!ijkL.Text.contains(recursive_json, "\"env\": \"test\"")) {
+            writeln("[FAIL] Recursive serialization must expand child nodes. Got:\n", recursive_json);
+            freeNode(root);
+            return 1;
+        }
+
+        freeNode(root);
+        writeln("[PASS] test_serializer: all assertions passed.");
+        return 0;
+    }
+}

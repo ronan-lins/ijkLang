@@ -1,0 +1,1437 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include "vm/vm_core.h"
+
+/*
+ * ==============================================================================
+ * MÓDULO: NÚCLEO DE EXECUÇÃO DA MÁQUINA VIRTUAL (IJKLANG VM)
+ * ==============================================================================
+ * Implementa o ciclo de busca, decodificação e execução (fetch-decode-execute)
+ * das instruções intermediárias lineares, banco de registradores de 64 bits,
+ * unidade aritmética/lógica e despacho de chamadas com quadros de ativação.
+ * ==============================================================================
+ */
+
+static inline uint64_t align_to_8_bytes(uint64_t address) {
+    return (address + 7ULL) & ~7ULL;
+}
+
+bool ijkl_virtual_machine_initialize(IjklVirtualMachine* machine,
+                                     IjklMemoryArena* memory_arena,
+                                     size_t memory_capacity_bytes) {
+    if (!machine) return false;
+
+    memset(machine, 0, sizeof(IjklVirtualMachine));
+    machine->memory_arena = memory_arena;
+
+    if (!ijkl_vm_memory_initialize(&machine->memory, memory_capacity_bytes)) {
+        return false;
+    }
+
+    if (!ijkl_vm_io_bus_initialize(&machine->io_bus)) {
+        ijkl_vm_memory_destroy(&machine->memory);
+        return false;
+    }
+
+    if (!ijkl_vm_io_bus_register_standard_console(&machine->io_bus, machine)) {
+        ijkl_vm_io_bus_destroy(&machine->io_bus);
+        ijkl_vm_memory_destroy(&machine->memory);
+        return false;
+    }
+
+    if (!ijkl_vm_io_bus_register_dma_controller(&machine->io_bus, &machine->dma_controller, &machine->memory)) {
+        ijkl_vm_io_bus_destroy(&machine->io_bus);
+        ijkl_vm_memory_destroy(&machine->memory);
+        return false;
+    }
+
+    if (!ijkl_vm_io_bus_register_file_system_controller(&machine->io_bus, &machine->file_io_controller, machine)) {
+        ijkl_vm_io_bus_destroy(&machine->io_bus);
+        ijkl_vm_memory_destroy(&machine->memory);
+        return false;
+    }
+
+    ijkl_virtual_machine_reset(machine);
+    return true;
+}
+
+void ijkl_virtual_machine_destroy(IjklVirtualMachine* machine) {
+    if (!machine) return;
+
+    ijkl_vm_io_bus_destroy(&machine->io_bus);
+    ijkl_vm_memory_destroy(&machine->memory);
+    memset(machine, 0, sizeof(IjklVirtualMachine));
+}
+
+/*
+ * Utilitário interno para resolução de ponteiros de strings:
+ * Converte tanto endereços virtuais no espaço linear da VM quanto ponteiros diretos do host.
+ */
+static const char* resolve_string_pointer(const IjklVirtualMachine* machine, const IjklVmRegisterValue* value) {
+    if (!machine || !value) return NULL;
+    if (value->type != VM_VALUE_TYPE_STRING && value->type != VM_VALUE_TYPE_INT) {
+        return NULL;
+    }
+    uint64_t raw_address = value->as.unsigned_value;
+    if (raw_address == 0) return NULL;
+    if (raw_address < machine->memory.total_allocated_capacity_bytes) {
+        if (raw_address >= IJKL_VM_PAGE_NULL_END_ADDRESS) {
+            return (const char*)&machine->memory.raw_linear_memory_buffer[raw_address];
+        }
+        return NULL;
+    }
+    return value->as.string_pointer;
+}
+
+/*
+ * Mapeia e copia todos os literais de texto das instruções para o segmento estático da VM,
+ * garantindo que instruções de acesso a bytes possam inspecionar os caracteres.
+ */
+static void populate_instruction_string_literals(IjklVirtualMachine* machine) {
+    if (!machine || !machine->instruction_stream || machine->instructions_count == 0) return;
+    if (!machine->memory.raw_linear_memory_buffer) return;
+
+    uint64_t current_static_address = IJKL_VM_GLOBAL_BASE_ADDRESS;
+
+    for (size_t i = 0; i < machine->instructions_count; ++i) {
+        IjklVmInstruction* inst = &machine->instruction_stream[i];
+        IjklVmOperand* operands[3] = { &inst->destination, &inst->first_operand, &inst->second_operand };
+        for (int op_idx = 0; op_idx < 3; ++op_idx) {
+            IjklVmOperand* operand = operands[op_idx];
+            if (operand->kind == OPERAND_KIND_IMMEDIATE_STRING && operand->value.string_value) {
+                const char* text = operand->value.string_value;
+                size_t text_length = strlen(text) + 1;
+                if (current_static_address + text_length < IJKL_VM_HEAP_BASE_ADDRESS) {
+                    memcpy(&machine->memory.raw_linear_memory_buffer[current_static_address], text, text_length);
+                    operand->string_virtual_address = current_static_address;
+                    current_static_address += text_length;
+                    /* Alinha o próximo endereço para limite de 8 bytes */
+                    current_static_address = (current_static_address + 7ULL) & ~7ULL;
+                }
+            }
+        }
+    }
+}
+
+void ijkl_virtual_machine_reset(IjklVirtualMachine* machine) {
+    if (!machine) return;
+
+    memset(machine->registers, 0, sizeof(machine->registers));
+    machine->instruction_pointer = 0;
+    machine->call_stack_depth = 0;
+    machine->execution_state = VM_STATE_READY;
+    machine->last_error_code = VM_ERROR_NONE;
+    machine->error_message_buffer[0] = '\0';
+    machine->error_line_number = 0;
+    machine->total_executed_cycles_count = 0;
+
+    ijkl_vm_memory_reset(&machine->memory);
+    ijkl_vm_io_bus_reset(&machine->io_bus);
+    memset(&machine->dma_controller, 0, sizeof(IjklDmaController));
+    machine->dma_controller.target_memory = &machine->memory;
+    memset(&machine->file_io_controller, 0, sizeof(IjklFileIoController));
+    machine->file_io_controller.machine = machine;
+
+    /* Registradores especiais de controle */
+    machine->current_frame_top = machine->memory.stack_base_address;
+    machine->registers[IJKL_VM_REG_RA].type = VM_VALUE_TYPE_INT;
+    machine->registers[IJKL_VM_REG_RA].as.unsigned_value = machine->memory.stack_base_address;
+
+    machine->registers[IJKL_VM_REG_SP].type = VM_VALUE_TYPE_INT;
+    machine->registers[IJKL_VM_REG_SP].as.unsigned_value = machine->memory.stack_base_address;
+
+    populate_instruction_string_literals(machine);
+}
+
+bool ijkl_virtual_machine_load_instructions(IjklVirtualMachine* machine,
+                                            IjklVmInstruction* instructions,
+                                            size_t instructions_count) {
+    if (!machine || !instructions || instructions_count == 0) return false;
+
+    machine->instruction_stream = instructions;
+    machine->instructions_count = instructions_count;
+    machine->instruction_pointer = 0;
+    machine->execution_state = VM_STATE_READY;
+    populate_instruction_string_literals(machine);
+    return true;
+}
+
+/*
+ * EFEITO COLATERAL:
+ * Registra um erro fatal de execução, interrompendo a Máquina Virtual.
+ */
+static void set_runtime_error(IjklVirtualMachine* machine,
+                              IjklVmErrorCode error_code,
+                              const char* error_message,
+                              size_t source_line_number) {
+    machine->execution_state = VM_STATE_ERROR;
+    machine->last_error_code = error_code;
+    machine->error_line_number = source_line_number;
+    snprintf(machine->error_message_buffer, sizeof(machine->error_message_buffer), "%s", error_message);
+}
+
+/*
+ * Avalia um operando e extrai seu valor tipado (registrador, imediato ou memória).
+ */
+static bool evaluate_operand(IjklVirtualMachine* machine,
+                             const IjklVmOperand* operand,
+                             IjklVmRegisterValue* output_value) {
+    if (!operand || !output_value) return false;
+
+    switch (operand->kind) {
+        case OPERAND_KIND_REGISTER: {
+            IjklVmRegister reg = operand->value.register_identifier;
+            if (reg >= 0 && reg < IJKL_VM_REG_COUNT) {
+                *output_value = machine->registers[reg];
+                return true;
+            }
+            return false;
+        }
+
+        case OPERAND_KIND_IMMEDIATE_INT: {
+            output_value->type = VM_VALUE_TYPE_INT;
+            output_value->as.integer_value = operand->value.integer_value;
+            return true;
+        }
+
+        case OPERAND_KIND_IMMEDIATE_FLOAT: {
+            output_value->type = VM_VALUE_TYPE_FLOAT;
+            output_value->as.float_value = operand->value.float_value;
+            return true;
+        }
+
+        case OPERAND_KIND_IMMEDIATE_STRING: {
+            output_value->type = VM_VALUE_TYPE_STRING;
+            if (operand->string_virtual_address) {
+                output_value->as.unsigned_value = operand->string_virtual_address;
+            } else {
+                output_value->as.string_pointer = operand->value.string_value;
+            }
+            return true;
+        }
+
+        case OPERAND_KIND_IMMEDIATE_BOOL: {
+            output_value->type = VM_VALUE_TYPE_BOOL;
+            output_value->as.integer_value = operand->value.boolean_value ? 1 : 0;
+            return true;
+        }
+
+        case OPERAND_KIND_IMMEDIATE_CHAR: {
+            output_value->type = VM_VALUE_TYPE_CHAR;
+            output_value->as.integer_value = (int64_t)operand->value.character_value;
+            return true;
+        }
+
+        case OPERAND_KIND_MEMORY_INDIRECT: {
+            /* Calcula o endereço efetivo: base + deslocamento */
+            uint64_t base_address = 0;
+            if (operand->value.memory_reference.base_register != IJKL_VM_REG_NONE) {
+                base_address = machine->registers[operand->value.memory_reference.base_register].as.unsigned_value;
+            } else {
+                base_address = operand->value.memory_reference.base_address;
+            }
+
+            int64_t offset_bytes = 0;
+            if (operand->value.memory_reference.offset_register != IJKL_VM_REG_NONE) {
+                offset_bytes = machine->registers[operand->value.memory_reference.offset_register].as.integer_value;
+            } else {
+                offset_bytes = operand->value.memory_reference.displacement_bytes;
+            }
+
+            uint64_t effective_address = (uint64_t)((int64_t)base_address + offset_bytes);
+
+            if (operand->value.memory_reference.is_byte_access) {
+                uint8_t byte_val = 0;
+                if (!ijkl_vm_memory_read_bytes(&machine->memory, effective_address, &byte_val, 1)) {
+                    set_runtime_error(machine, VM_ERROR_MEMORY_ACCESS_VIOLATION,
+                                      "Segmentation fault: invalid memory read access (byte).", 0);
+                    return false;
+                }
+                output_value->type = VM_VALUE_TYPE_INT;
+                output_value->as.integer_value = (int64_t)byte_val;
+                return true;
+            }
+
+            uint8_t tag = ijkl_vm_memory_get_tag(&machine->memory, effective_address);
+            if (tag == VM_VALUE_TYPE_FLOAT) {
+                double raw_float = 0.0;
+                if (!ijkl_vm_memory_read_float(&machine->memory, effective_address, &raw_float)) {
+                    set_runtime_error(machine, VM_ERROR_MEMORY_ACCESS_VIOLATION,
+                                      "Segmentation fault: invalid memory read access (float).", 0);
+                    return false;
+                }
+                output_value->type = VM_VALUE_TYPE_FLOAT;
+                output_value->as.float_value = raw_float;
+                return true;
+            } else if (tag == VM_VALUE_TYPE_STRING) {
+                int64_t raw_ptr = 0;
+                if (!ijkl_vm_memory_read_integer(&machine->memory, effective_address, &raw_ptr)) {
+                    set_runtime_error(machine, VM_ERROR_MEMORY_ACCESS_VIOLATION,
+                                      "Segmentation fault: invalid memory read access (string).", 0);
+                    return false;
+                }
+                output_value->type = VM_VALUE_TYPE_STRING;
+                output_value->as.string_pointer = (const char*)(uintptr_t)raw_ptr;
+                output_value->as.unsigned_value = (uint64_t)raw_ptr;
+                return true;
+            } else {
+                int64_t raw_memory_value = 0;
+                if (!ijkl_vm_memory_read_integer(&machine->memory, effective_address, &raw_memory_value)) {
+                    set_runtime_error(machine, VM_ERROR_MEMORY_ACCESS_VIOLATION,
+                                      "Segmentation fault: invalid memory read access.", 0);
+                    return false;
+                }
+                output_value->type = (tag == VM_VALUE_TYPE_CHAR || tag == VM_VALUE_TYPE_BOOL) ?
+                    (IjklVmValueType)tag : VM_VALUE_TYPE_INT;
+                output_value->as.integer_value = raw_memory_value;
+                return true;
+            }
+        }
+
+        case OPERAND_KIND_LABEL_REFERENCE: {
+            output_value->type = VM_VALUE_TYPE_INT;
+            output_value->as.unsigned_value = operand->value.label_reference.target_instruction_index;
+            return true;
+        }
+
+        default:
+            return false;
+    }
+}
+
+/*
+ * EFEITO COLATERAL:
+ * Escreve um valor avaliado no operando de destino (registrador ou memória indireta).
+ */
+static bool write_destination_operand(IjklVirtualMachine* machine,
+                                      const IjklVmOperand* destination_operand,
+                                      IjklVmRegisterValue value_to_write) {
+    if (!destination_operand) return false;
+
+    if (destination_operand->kind == OPERAND_KIND_REGISTER) {
+        IjklVmRegister reg = destination_operand->value.register_identifier;
+        if (reg >= 0 && reg < IJKL_VM_REG_COUNT) {
+            machine->registers[reg] = value_to_write;
+
+            /* Sincronização de registradores de controle com subsistema de memória */
+            if (reg == IJKL_VM_REG_RA) {
+                machine->memory.current_frame_pointer = value_to_write.as.unsigned_value;
+            } else if (reg == IJKL_VM_REG_SP) {
+                machine->memory.current_stack_pointer = value_to_write.as.unsigned_value;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    if (destination_operand->kind == OPERAND_KIND_MEMORY_INDIRECT) {
+        uint64_t base_address = 0;
+        if (destination_operand->value.memory_reference.base_register != IJKL_VM_REG_NONE) {
+            base_address = machine->registers[destination_operand->value.memory_reference.base_register].as.unsigned_value;
+        } else {
+            base_address = destination_operand->value.memory_reference.base_address;
+        }
+
+        int64_t offset_bytes = 0;
+        if (destination_operand->value.memory_reference.offset_register != IJKL_VM_REG_NONE) {
+            offset_bytes = machine->registers[destination_operand->value.memory_reference.offset_register].as.integer_value;
+        } else {
+            offset_bytes = destination_operand->value.memory_reference.displacement_bytes;
+        }
+
+        uint64_t effective_address = (uint64_t)((int64_t)base_address + offset_bytes);
+
+        if (destination_operand->value.memory_reference.is_byte_access) {
+            uint8_t byte_val = (uint8_t)(value_to_write.as.integer_value & 0xFF);
+            if (!ijkl_vm_memory_write_bytes(&machine->memory, effective_address, &byte_val, 1)) {
+                set_runtime_error(machine, VM_ERROR_MEMORY_ACCESS_VIOLATION,
+                                  "Segmentation fault: invalid memory write access (byte).", 0);
+                return false;
+            }
+            return true;
+        }
+
+        if (value_to_write.type == VM_VALUE_TYPE_FLOAT) {
+            if (!ijkl_vm_memory_write_float(&machine->memory, effective_address, value_to_write.as.float_value)) {
+                set_runtime_error(machine, VM_ERROR_MEMORY_ACCESS_VIOLATION,
+                                  "Segmentation fault: invalid memory write access (float).", 0);
+                return false;
+            }
+            ijkl_vm_memory_set_tag(&machine->memory, effective_address, VM_VALUE_TYPE_FLOAT);
+        } else if (value_to_write.type == VM_VALUE_TYPE_STRING) {
+            uint64_t addr_to_write = value_to_write.as.unsigned_value ?
+                value_to_write.as.unsigned_value : (uint64_t)(uintptr_t)value_to_write.as.string_pointer;
+            if (!ijkl_vm_memory_write_integer(&machine->memory, effective_address, (int64_t)addr_to_write)) {
+                set_runtime_error(machine, VM_ERROR_MEMORY_ACCESS_VIOLATION,
+                                  "Segmentation fault: invalid memory write access (string).", 0);
+                return false;
+            }
+            ijkl_vm_memory_set_tag(&machine->memory, effective_address, VM_VALUE_TYPE_STRING);
+        } else {
+            if (!ijkl_vm_memory_write_integer(&machine->memory, effective_address, value_to_write.as.integer_value)) {
+                set_runtime_error(machine, VM_ERROR_MEMORY_ACCESS_VIOLATION,
+                                  "Segmentation fault: invalid memory write access (int/pointer).", 0);
+                return false;
+            }
+            ijkl_vm_memory_set_tag(&machine->memory, effective_address, (uint8_t)value_to_write.type);
+        }
+        return true;
+    }
+
+    return false;
+}
+
+/*
+ * EFEITO COLATERAL:
+ * Despacha rotinas embutidas (built-ins) do sistema implementadas nativamente em C
+ * quando a compilação omite os corpos em Código Intermediário (e.g. flag --native-builtins).
+ */
+static bool execute_native_builtin(IjklVirtualMachine* machine, const char* builtin_name) {
+    if (!machine || !builtin_name) return false;
+
+    uint64_t args_base = machine->current_frame_top;
+
+    if (strcmp(builtin_name, "__builtin_str_len") == 0) {
+        int64_t str_addr = 0;
+        ijkl_vm_memory_read_integer(&machine->memory, args_base, &str_addr);
+
+        IjklVmRegisterValue temp_val;
+        temp_val.type = VM_VALUE_TYPE_STRING;
+        temp_val.as.integer_value = str_addr;
+        const char* str = resolve_string_pointer(machine, &temp_val);
+        size_t len = str ? strlen(str) : 0;
+
+        machine->registers[IJKL_VM_REG_R0].type = VM_VALUE_TYPE_INT;
+        machine->registers[IJKL_VM_REG_R0].as.integer_value = (int64_t)len;
+
+        machine->memory.current_stack_pointer = machine->current_frame_top;
+        return true;
+    }
+
+    if (strcmp(builtin_name, "__builtin_str_cmp") == 0) {
+        int64_t str1_addr = 0, str2_addr = 0;
+        ijkl_vm_memory_read_integer(&machine->memory, args_base, &str1_addr);
+        ijkl_vm_memory_read_integer(&machine->memory, args_base + 8, &str2_addr);
+
+        IjklVmRegisterValue val1, val2;
+        val1.type = VM_VALUE_TYPE_STRING; val1.as.integer_value = str1_addr;
+        val2.type = VM_VALUE_TYPE_STRING; val2.as.integer_value = str2_addr;
+        const char* s1 = resolve_string_pointer(machine, &val1);
+        const char* s2 = resolve_string_pointer(machine, &val2);
+
+        int cmp_res = 0;
+        if (s1 && s2) {
+            cmp_res = strcmp(s1, s2);
+        } else if (s1 && !s2) {
+            cmp_res = 1;
+        } else if (!s1 && s2) {
+            cmp_res = -1;
+        }
+
+        machine->registers[IJKL_VM_REG_R0].type = VM_VALUE_TYPE_INT;
+        machine->registers[IJKL_VM_REG_R0].as.integer_value = (int64_t)cmp_res;
+
+        machine->memory.current_stack_pointer = machine->current_frame_top;
+        return true;
+    }
+
+    if (strcmp(builtin_name, "__builtin_str_concat") == 0) {
+        int64_t str1_addr = 0, str2_addr = 0;
+        ijkl_vm_memory_read_integer(&machine->memory, args_base, &str1_addr);
+        ijkl_vm_memory_read_integer(&machine->memory, args_base + 8, &str2_addr);
+
+        IjklVmRegisterValue val1, val2;
+        val1.type = VM_VALUE_TYPE_STRING; val1.as.integer_value = str1_addr;
+        val2.type = VM_VALUE_TYPE_STRING; val2.as.integer_value = str2_addr;
+        const char* s1 = resolve_string_pointer(machine, &val1);
+        const char* s2 = resolve_string_pointer(machine, &val2);
+        if (!s1) s1 = "";
+        if (!s2) s2 = "";
+
+        size_t len1 = strlen(s1);
+        size_t len2 = strlen(s2);
+        size_t total_len = len1 + len2 + 1;
+
+        uint64_t new_str_addr = ijkl_vm_memory_allocate_heap(&machine->memory, total_len);
+        if (new_str_addr == 0) return false;
+
+        memcpy(&machine->memory.raw_linear_memory_buffer[new_str_addr], s1, len1);
+        memcpy(&machine->memory.raw_linear_memory_buffer[new_str_addr + len1], s2, len2);
+        machine->memory.raw_linear_memory_buffer[new_str_addr + len1 + len2] = '\0';
+
+        machine->registers[IJKL_VM_REG_R0].type = VM_VALUE_TYPE_STRING;
+        machine->registers[IJKL_VM_REG_R0].as.unsigned_value = new_str_addr;
+        ijkl_vm_memory_set_tag(&machine->memory, new_str_addr, VM_VALUE_TYPE_STRING);
+
+        machine->memory.current_stack_pointer = machine->current_frame_top;
+        return true;
+    }
+
+    if (strcmp(builtin_name, "__builtin_str_sub") == 0) {
+        int64_t source_string_address = 0;
+        int64_t start_index = 0;
+        int64_t substring_length = 0;
+        ijkl_vm_memory_read_integer(&machine->memory, args_base, &source_string_address);
+        ijkl_vm_memory_read_integer(&machine->memory, args_base + 8, &start_index);
+        ijkl_vm_memory_read_integer(&machine->memory, args_base + 16, &substring_length);
+
+        IjklVmRegisterValue temp_val;
+        temp_val.type = VM_VALUE_TYPE_STRING;
+        temp_val.as.integer_value = source_string_address;
+        const char* source_string = resolve_string_pointer(machine, &temp_val);
+
+        size_t source_length = source_string ? strlen(source_string) : 0;
+        if (start_index < 0) start_index = 0;
+        if (substring_length < 0) substring_length = 0;
+
+        size_t actual_start = (size_t)start_index;
+        size_t actual_length = (size_t)substring_length;
+
+        if (actual_start > source_length) {
+            actual_start = source_length;
+            actual_length = 0;
+        } else if (actual_start + actual_length > source_length) {
+            actual_length = source_length - actual_start;
+        }
+
+        uint64_t new_str_addr = ijkl_vm_memory_allocate_heap(&machine->memory, actual_length + 1);
+        if (new_str_addr == 0) return false;
+
+        if (actual_length > 0 && source_string) {
+            memcpy(&machine->memory.raw_linear_memory_buffer[new_str_addr], source_string + actual_start, actual_length);
+        }
+        machine->memory.raw_linear_memory_buffer[new_str_addr + actual_length] = '\0';
+
+        machine->registers[IJKL_VM_REG_R0].type = VM_VALUE_TYPE_STRING;
+        machine->registers[IJKL_VM_REG_R0].as.unsigned_value = new_str_addr;
+        ijkl_vm_memory_set_tag(&machine->memory, new_str_addr, VM_VALUE_TYPE_STRING);
+
+        machine->memory.current_stack_pointer = machine->current_frame_top;
+        return true;
+    }
+
+    if (strcmp(builtin_name, "__builtin_int_to_str") == 0) {
+        int64_t int_val = 0;
+        ijkl_vm_memory_read_integer(&machine->memory, args_base, &int_val);
+
+        char temp_buffer[64];
+        snprintf(temp_buffer, sizeof(temp_buffer), "%lld", (long long)int_val);
+        size_t str_len = strlen(temp_buffer) + 1;
+
+        uint64_t new_str_addr = ijkl_vm_memory_allocate_heap(&machine->memory, str_len);
+        if (new_str_addr == 0) return false;
+
+        memcpy(&machine->memory.raw_linear_memory_buffer[new_str_addr], temp_buffer, str_len);
+
+        machine->registers[IJKL_VM_REG_R0].type = VM_VALUE_TYPE_STRING;
+        machine->registers[IJKL_VM_REG_R0].as.unsigned_value = new_str_addr;
+        ijkl_vm_memory_set_tag(&machine->memory, new_str_addr, VM_VALUE_TYPE_STRING);
+
+        machine->memory.current_stack_pointer = machine->current_frame_top;
+        return true;
+    }
+
+    if (strcmp(builtin_name, "__builtin_real_to_str") == 0) {
+        double float_val = 0.0;
+        ijkl_vm_memory_read_float(&machine->memory, args_base, &float_val);
+
+        char temp_buffer[64];
+        snprintf(temp_buffer, sizeof(temp_buffer), "%.6f", float_val);
+        char* dot = strchr(temp_buffer, '.');
+        if (dot) {
+            char* end = temp_buffer + strlen(temp_buffer) - 1;
+            while (end > dot + 1 && *end == '0') {
+                *end = '\0';
+                end--;
+            }
+        }
+        size_t str_len = strlen(temp_buffer) + 1;
+
+        uint64_t new_str_addr = ijkl_vm_memory_allocate_heap(&machine->memory, str_len);
+        if (new_str_addr == 0) return false;
+
+        memcpy(&machine->memory.raw_linear_memory_buffer[new_str_addr], temp_buffer, str_len);
+
+        machine->registers[IJKL_VM_REG_R0].type = VM_VALUE_TYPE_STRING;
+        machine->registers[IJKL_VM_REG_R0].as.unsigned_value = new_str_addr;
+        ijkl_vm_memory_set_tag(&machine->memory, new_str_addr, VM_VALUE_TYPE_STRING);
+
+        machine->memory.current_stack_pointer = machine->current_frame_top;
+        return true;
+    }
+
+    if (strcmp(builtin_name, "__builtin_str_to_int") == 0) {
+        int64_t str_addr = 0;
+        ijkl_vm_memory_read_integer(&machine->memory, args_base, &str_addr);
+
+        IjklVmRegisterValue temp_val;
+        temp_val.type = VM_VALUE_TYPE_STRING;
+        temp_val.as.integer_value = str_addr;
+        const char* str = resolve_string_pointer(machine, &temp_val);
+
+        int64_t parsed_int = 0;
+        if (str) {
+            char* end_ptr = NULL;
+            parsed_int = (int64_t)strtoll(str, &end_ptr, 10);
+        }
+
+        machine->registers[IJKL_VM_REG_R0].type = VM_VALUE_TYPE_INT;
+        machine->registers[IJKL_VM_REG_R0].as.integer_value = parsed_int;
+
+        machine->memory.current_stack_pointer = machine->current_frame_top;
+        return true;
+    }
+
+    if (strcmp(builtin_name, "__builtin_str_to_real") == 0) {
+        int64_t str_addr = 0;
+        ijkl_vm_memory_read_integer(&machine->memory, args_base, &str_addr);
+
+        IjklVmRegisterValue temp_val;
+        temp_val.type = VM_VALUE_TYPE_STRING;
+        temp_val.as.integer_value = str_addr;
+        const char* str = resolve_string_pointer(machine, &temp_val);
+
+        double parsed_real = 0.0;
+        if (str) {
+            char* end_ptr = NULL;
+            parsed_real = strtod(str, &end_ptr);
+        }
+
+        machine->registers[IJKL_VM_REG_R0].type = VM_VALUE_TYPE_FLOAT;
+        machine->registers[IJKL_VM_REG_R0].as.float_value = parsed_real;
+
+        machine->memory.current_stack_pointer = machine->current_frame_top;
+        return true;
+    }
+
+    if (strcmp(builtin_name, "__builtin_str_to_bool") == 0) {
+        int64_t str_addr = 0;
+        ijkl_vm_memory_read_integer(&machine->memory, args_base, &str_addr);
+
+        IjklVmRegisterValue temp_val;
+        temp_val.type = VM_VALUE_TYPE_STRING;
+        temp_val.as.integer_value = str_addr;
+        const char* str = resolve_string_pointer(machine, &temp_val);
+
+        bool bool_val = false;
+        if (str) {
+            if (strcmp(str, "1") == 0 ||
+                ijkl_string_case_insensitive_equals(str, "true") ||
+                ijkl_string_case_insensitive_equals(str, "verdadeiro") ||
+                ijkl_string_case_insensitive_equals(str, "vrai")) {
+                bool_val = true;
+            }
+        }
+
+        machine->registers[IJKL_VM_REG_R0].type = VM_VALUE_TYPE_BOOL;
+        machine->registers[IJKL_VM_REG_R0].as.integer_value = bool_val ? 1 : 0;
+
+        machine->memory.current_stack_pointer = machine->current_frame_top;
+        return true;
+    }
+
+    if (strcmp(builtin_name, "__builtin_bool_to_str") == 0) {
+        int64_t bool_int = 0;
+        ijkl_vm_memory_read_integer(&machine->memory, args_base, &bool_int);
+
+        const char* text_val = bool_int ? "verdadeiro" : "falso";
+        size_t str_len = strlen(text_val) + 1;
+
+        uint64_t new_str_addr = ijkl_vm_memory_allocate_heap(&machine->memory, str_len);
+        if (new_str_addr == 0) return false;
+
+        memcpy(&machine->memory.raw_linear_memory_buffer[new_str_addr], text_val, str_len);
+
+        machine->registers[IJKL_VM_REG_R0].type = VM_VALUE_TYPE_STRING;
+        machine->registers[IJKL_VM_REG_R0].as.unsigned_value = new_str_addr;
+        ijkl_vm_memory_set_tag(&machine->memory, new_str_addr, VM_VALUE_TYPE_STRING);
+
+        machine->memory.current_stack_pointer = machine->current_frame_top;
+        return true;
+    }
+
+    if (strcmp(builtin_name, "__builtin_char_to_str") == 0) {
+        int64_t char_code = 0;
+        ijkl_vm_memory_read_integer(&machine->memory, args_base, &char_code);
+
+        uint64_t new_str_addr = ijkl_vm_memory_allocate_heap(&machine->memory, 2);
+        if (new_str_addr == 0) return false;
+
+        machine->memory.raw_linear_memory_buffer[new_str_addr] = (uint8_t)char_code;
+        machine->memory.raw_linear_memory_buffer[new_str_addr + 1] = '\0';
+
+        machine->registers[IJKL_VM_REG_R0].type = VM_VALUE_TYPE_STRING;
+        machine->registers[IJKL_VM_REG_R0].as.unsigned_value = new_str_addr;
+        ijkl_vm_memory_set_tag(&machine->memory, new_str_addr, VM_VALUE_TYPE_STRING);
+
+        machine->memory.current_stack_pointer = machine->current_frame_top;
+        return true;
+    }
+
+    if (strcmp(builtin_name, "__builtin_str_create") == 0) {
+        int64_t length = 0;
+        ijkl_vm_memory_read_integer(&machine->memory, args_base, &length);
+        if (length < 0) length = 0;
+
+        size_t total_alloc = (size_t)length + 1;
+        uint64_t new_str_addr = ijkl_vm_memory_allocate_heap(&machine->memory, total_alloc);
+        if (new_str_addr == 0) return false;
+
+        memset(&machine->memory.raw_linear_memory_buffer[new_str_addr], ' ', total_alloc - 1);
+        machine->memory.raw_linear_memory_buffer[new_str_addr + length] = '\0';
+
+        machine->registers[IJKL_VM_REG_R0].type = VM_VALUE_TYPE_STRING;
+        machine->registers[IJKL_VM_REG_R0].as.unsigned_value = new_str_addr;
+        ijkl_vm_memory_set_tag(&machine->memory, new_str_addr, VM_VALUE_TYPE_STRING);
+
+        machine->memory.current_stack_pointer = machine->current_frame_top;
+        return true;
+    }
+
+    if (strcmp(builtin_name, "__builtin_str_get_char") == 0) {
+        int64_t str_addr = 0;
+        int64_t index = 0;
+        ijkl_vm_memory_read_integer(&machine->memory, args_base, &str_addr);
+        ijkl_vm_memory_read_integer(&machine->memory, args_base + 8, &index);
+
+        IjklVmRegisterValue temp_val;
+        temp_val.type = VM_VALUE_TYPE_STRING;
+        temp_val.as.integer_value = str_addr;
+        const char* str = resolve_string_pointer(machine, &temp_val);
+
+        char result_char = '\0';
+        if (str && index >= 0) {
+            size_t str_len = strlen(str);
+            if ((size_t)index < str_len) {
+                result_char = str[index];
+            }
+        }
+
+        machine->registers[IJKL_VM_REG_R0].type = VM_VALUE_TYPE_INT;
+        machine->registers[IJKL_VM_REG_R0].as.integer_value = (unsigned char)result_char;
+
+        machine->memory.current_stack_pointer = machine->current_frame_top;
+        return true;
+    }
+
+    if (strcmp(builtin_name, "__builtin_str_set_char") == 0) {
+        int64_t str_addr = 0;
+        int64_t index = 0;
+        int64_t new_char_val = 0;
+        ijkl_vm_memory_read_integer(&machine->memory, args_base, &str_addr);
+        ijkl_vm_memory_read_integer(&machine->memory, args_base + 8, &index);
+        ijkl_vm_memory_read_integer(&machine->memory, args_base + 16, &new_char_val);
+
+        IjklVmRegisterValue temp_val;
+        temp_val.type = VM_VALUE_TYPE_STRING;
+        temp_val.as.integer_value = str_addr;
+        const char* str = resolve_string_pointer(machine, &temp_val);
+
+        /*
+         * Semântica Pura e Imutável:
+         * Strings são imutáveis; aloca-se uma nova cadeia no heap com a cópia dos caracteres
+         * originais e a substituição pontual do caractere na posição 'index' solicitada.
+         */
+        size_t str_len = str ? strlen(str) : 0;
+        uint64_t new_str_addr = ijkl_vm_memory_allocate_heap(&machine->memory, str_len + 1);
+        if (new_str_addr == 0) return false;
+
+        if (str && str_len > 0) {
+            memcpy(&machine->memory.raw_linear_memory_buffer[new_str_addr], str, str_len);
+        }
+        if (str && index >= 0 && (size_t)index < str_len) {
+            machine->memory.raw_linear_memory_buffer[new_str_addr + index] = (uint8_t)new_char_val;
+        }
+        machine->memory.raw_linear_memory_buffer[new_str_addr + str_len] = '\0';
+
+        machine->registers[IJKL_VM_REG_R0].type = VM_VALUE_TYPE_STRING;
+        machine->registers[IJKL_VM_REG_R0].as.unsigned_value = new_str_addr;
+        ijkl_vm_memory_set_tag(&machine->memory, new_str_addr, VM_VALUE_TYPE_STRING);
+
+        machine->memory.current_stack_pointer = machine->current_frame_top;
+        return true;
+    }
+
+    if (strcmp(builtin_name, "__builtin_mem_copy") == 0) {
+        int64_t dest_addr = 0, src_addr = 0, count = 0;
+        ijkl_vm_memory_read_integer(&machine->memory, args_base, &dest_addr);
+        ijkl_vm_memory_read_integer(&machine->memory, args_base + 8, &src_addr);
+        ijkl_vm_memory_read_integer(&machine->memory, args_base + 16, &count);
+
+        if (count > 0) {
+            if (!ijkl_vm_memory_is_valid_address(&machine->memory, (uint64_t)dest_addr, (size_t)count) ||
+                !ijkl_vm_memory_is_valid_address(&machine->memory, (uint64_t)src_addr, (size_t)count)) {
+                set_runtime_error(machine, VM_ERROR_MEMORY_ACCESS_VIOLATION, "Out of bounds in __builtin_mem_copy", 0);
+                return false;
+            }
+            memmove(&machine->memory.raw_linear_memory_buffer[dest_addr],
+                    &machine->memory.raw_linear_memory_buffer[src_addr],
+                    (size_t)count);
+        }
+
+        machine->registers[IJKL_VM_REG_R0].type = VM_VALUE_TYPE_INT;
+        machine->registers[IJKL_VM_REG_R0].as.integer_value = dest_addr;
+        machine->memory.current_stack_pointer = machine->current_frame_top;
+        return true;
+    }
+
+    if (strcmp(builtin_name, "__builtin_mem_fill") == 0) {
+        int64_t dest_addr = 0, val = 0, count = 0;
+        ijkl_vm_memory_read_integer(&machine->memory, args_base, &dest_addr);
+        ijkl_vm_memory_read_integer(&machine->memory, args_base + 8, &val);
+        ijkl_vm_memory_read_integer(&machine->memory, args_base + 16, &count);
+
+        if (count > 0) {
+            if (!ijkl_vm_memory_is_valid_address(&machine->memory, (uint64_t)dest_addr, (size_t)count)) {
+                set_runtime_error(machine, VM_ERROR_MEMORY_ACCESS_VIOLATION, "Out of bounds in __builtin_mem_fill", 0);
+                return false;
+            }
+            memset(&machine->memory.raw_linear_memory_buffer[dest_addr],
+                   (uint8_t)(val & 0xFF),
+                   (size_t)count);
+        }
+
+        machine->registers[IJKL_VM_REG_R0].type = VM_VALUE_TYPE_INT;
+        machine->registers[IJKL_VM_REG_R0].as.integer_value = dest_addr;
+        machine->memory.current_stack_pointer = machine->current_frame_top;
+        return true;
+    }
+
+    if (strcmp(builtin_name, "__builtin_mem_cmp") == 0) {
+        int64_t buf1_addr = 0, buf2_addr = 0, count = 0;
+        ijkl_vm_memory_read_integer(&machine->memory, args_base, &buf1_addr);
+        ijkl_vm_memory_read_integer(&machine->memory, args_base + 8, &buf2_addr);
+        ijkl_vm_memory_read_integer(&machine->memory, args_base + 16, &count);
+
+        int cmp_res = 0;
+        if (count > 0) {
+            if (!ijkl_vm_memory_is_valid_address(&machine->memory, (uint64_t)buf1_addr, (size_t)count) ||
+                !ijkl_vm_memory_is_valid_address(&machine->memory, (uint64_t)buf2_addr, (size_t)count)) {
+                set_runtime_error(machine, VM_ERROR_MEMORY_ACCESS_VIOLATION, "Out of bounds in __builtin_mem_cmp", 0);
+                return false;
+            }
+            int c = memcmp(&machine->memory.raw_linear_memory_buffer[buf1_addr],
+                           &machine->memory.raw_linear_memory_buffer[buf2_addr],
+                           (size_t)count);
+            cmp_res = (c < 0) ? -1 : ((c > 0) ? 1 : 0);
+        }
+
+        machine->registers[IJKL_VM_REG_R0].type = VM_VALUE_TYPE_INT;
+        machine->registers[IJKL_VM_REG_R0].as.integer_value = cmp_res;
+        machine->memory.current_stack_pointer = machine->current_frame_top;
+        return true;
+    }
+
+    return false;
+}
+
+/*
+ * EFEITO COLATERAL:
+ * Executa uma única instrução (ciclo de busca, decodificação e despacho).
+ */
+bool ijkl_virtual_machine_step(IjklVirtualMachine* machine) {
+    if (!machine || machine->execution_state == VM_STATE_HALTED || machine->execution_state == VM_STATE_ERROR) {
+        return false;
+    }
+
+    if (machine->instruction_pointer >= machine->instructions_count) {
+        machine->execution_state = VM_STATE_HALTED;
+        return false;
+    }
+
+    const IjklVmInstruction* current_instruction = &machine->instruction_stream[machine->instruction_pointer];
+    machine->registers[IJKL_VM_REG_CI].type = VM_VALUE_TYPE_INT;
+    machine->registers[IJKL_VM_REG_CI].as.unsigned_value = machine->instruction_pointer;
+
+    size_t next_instruction_pointer = machine->instruction_pointer + 1;
+    bool should_advance_pc = true;
+
+    switch (current_instruction->opcode) {
+        /* 1. Atribuição simples: dest := op1; */
+        case IJKL_OPCODE_ASSIGN: {
+            IjklVmRegisterValue value;
+            if (!evaluate_operand(machine, &current_instruction->first_operand, &value)) {
+                set_runtime_error(machine, VM_ERROR_MEMORY_ACCESS_VIOLATION,
+                                  "Could not evaluate source operand in assignment.", current_instruction->source_line_number);
+                return false;
+            }
+            write_destination_operand(machine, &current_instruction->destination, value);
+            break;
+        }
+
+        /* 2. Operações Aritméticas e Lógicas */
+        case IJKL_OPCODE_ADD:
+        case IJKL_OPCODE_SUB:
+        case IJKL_OPCODE_MUL:
+        case IJKL_OPCODE_DIV:
+        case IJKL_OPCODE_MOD:
+        case IJKL_OPCODE_EXP:
+        case IJKL_OPCODE_EQUAL:
+        case IJKL_OPCODE_NOT_EQUAL:
+        case IJKL_OPCODE_LESS:
+        case IJKL_OPCODE_LESS_EQUAL:
+        case IJKL_OPCODE_GREATER:
+        case IJKL_OPCODE_GREATER_EQUAL:
+        case IJKL_OPCODE_LOGICAL_AND:
+        case IJKL_OPCODE_LOGICAL_OR:
+        case IJKL_OPCODE_LOGICAL_XOR:
+        case IJKL_OPCODE_BITWISE_AND:
+        case IJKL_OPCODE_BITWISE_OR:
+        case IJKL_OPCODE_SHIFT_LEFT:
+        case IJKL_OPCODE_SHIFT_RIGHT: {
+            IjklVmRegisterValue operand1;
+            IjklVmRegisterValue operand2;
+            evaluate_operand(machine, &current_instruction->first_operand, &operand1);
+            evaluate_operand(machine, &current_instruction->second_operand, &operand2);
+
+            IjklVmRegisterValue result;
+            memset(&result, 0, sizeof(IjklVmRegisterValue));
+
+            bool is_string_comparison = (operand1.type == VM_VALUE_TYPE_STRING && operand2.type == VM_VALUE_TYPE_STRING);
+            bool is_floating_point = (operand1.type == VM_VALUE_TYPE_FLOAT || operand2.type == VM_VALUE_TYPE_FLOAT);
+
+            if (is_string_comparison) {
+                const char* s1 = resolve_string_pointer(machine, &operand1);
+                const char* s2 = resolve_string_pointer(machine, &operand2);
+                if (!s1) s1 = "";
+                if (!s2) s2 = "";
+                int cmp = strcmp(s1, s2);
+                result.type = VM_VALUE_TYPE_INT;
+                switch (current_instruction->opcode) {
+                    case IJKL_OPCODE_EQUAL:         result.as.integer_value = (cmp == 0) ? 1 : 0; break;
+                    case IJKL_OPCODE_NOT_EQUAL:     result.as.integer_value = (cmp != 0) ? 1 : 0; break;
+                    case IJKL_OPCODE_LESS:          result.as.integer_value = (cmp < 0) ? 1 : 0; break;
+                    case IJKL_OPCODE_LESS_EQUAL:    result.as.integer_value = (cmp <= 0) ? 1 : 0; break;
+                    case IJKL_OPCODE_GREATER:       result.as.integer_value = (cmp > 0) ? 1 : 0; break;
+                    case IJKL_OPCODE_GREATER_EQUAL: result.as.integer_value = (cmp >= 0) ? 1 : 0; break;
+                    default: break;
+                }
+            } else if (is_floating_point) {
+                double val1 = (operand1.type == VM_VALUE_TYPE_FLOAT) ? operand1.as.float_value : (double)operand1.as.integer_value;
+                double val2 = (operand2.type == VM_VALUE_TYPE_FLOAT) ? operand2.as.float_value : (double)operand2.as.integer_value;
+
+                switch (current_instruction->opcode) {
+                    case IJKL_OPCODE_ADD: result.type = VM_VALUE_TYPE_FLOAT; result.as.float_value = val1 + val2; break;
+                    case IJKL_OPCODE_SUB: result.type = VM_VALUE_TYPE_FLOAT; result.as.float_value = val1 - val2; break;
+                    case IJKL_OPCODE_MUL: result.type = VM_VALUE_TYPE_FLOAT; result.as.float_value = val1 * val2; break;
+                    case IJKL_OPCODE_DIV:
+                        if (val2 == 0.0) {
+                            set_runtime_error(machine, VM_ERROR_DIVISION_BY_ZERO, "Division by zero (float).", current_instruction->source_line_number);
+                            return false;
+                        }
+                        result.type = VM_VALUE_TYPE_FLOAT;
+                        result.as.float_value = val1 / val2;
+                        break;
+                    case IJKL_OPCODE_EXP: result.type = VM_VALUE_TYPE_FLOAT; result.as.float_value = pow(val1, val2); break;
+                    case IJKL_OPCODE_EQUAL:         result.type = VM_VALUE_TYPE_INT; result.as.integer_value = (val1 == val2) ? 1 : 0; break;
+                    case IJKL_OPCODE_NOT_EQUAL:     result.type = VM_VALUE_TYPE_INT; result.as.integer_value = (val1 != val2) ? 1 : 0; break;
+                    case IJKL_OPCODE_LESS:          result.type = VM_VALUE_TYPE_INT; result.as.integer_value = (val1 < val2) ? 1 : 0; break;
+                    case IJKL_OPCODE_LESS_EQUAL:    result.type = VM_VALUE_TYPE_INT; result.as.integer_value = (val1 <= val2) ? 1 : 0; break;
+                    case IJKL_OPCODE_GREATER:       result.type = VM_VALUE_TYPE_INT; result.as.integer_value = (val1 > val2) ? 1 : 0; break;
+                    case IJKL_OPCODE_GREATER_EQUAL: result.type = VM_VALUE_TYPE_INT; result.as.integer_value = (val1 >= val2) ? 1 : 0; break;
+                    default: break;
+                }
+            } else {
+                int64_t int1 = operand1.as.integer_value;
+                int64_t int2 = operand2.as.integer_value;
+                result.type = VM_VALUE_TYPE_INT;
+
+                switch (current_instruction->opcode) {
+                    case IJKL_OPCODE_ADD: result.as.integer_value = int1 + int2; break;
+                    case IJKL_OPCODE_SUB: result.as.integer_value = int1 - int2; break;
+                    case IJKL_OPCODE_MUL: result.as.integer_value = int1 * int2; break;
+                    case IJKL_OPCODE_DIV:
+                        if (int2 == 0) {
+                            set_runtime_error(machine, VM_ERROR_DIVISION_BY_ZERO, "Division by zero (integer).", current_instruction->source_line_number);
+                            return false;
+                        }
+                        result.as.integer_value = int1 / int2;
+                        break;
+                    case IJKL_OPCODE_MOD:
+                        if (int2 == 0) {
+                            set_runtime_error(machine, VM_ERROR_DIVISION_BY_ZERO, "Modulo by zero.", current_instruction->source_line_number);
+                            return false;
+                        }
+                        result.as.integer_value = int1 % int2;
+                        break;
+                    case IJKL_OPCODE_EXP: result.as.integer_value = (int64_t)pow((double)int1, (double)int2); break;
+                    case IJKL_OPCODE_EQUAL:         result.as.integer_value = (int1 == int2) ? 1 : 0; break;
+                    case IJKL_OPCODE_NOT_EQUAL:     result.as.integer_value = (int1 != int2) ? 1 : 0; break;
+                    case IJKL_OPCODE_LESS:          result.as.integer_value = (int1 < int2) ? 1 : 0; break;
+                    case IJKL_OPCODE_LESS_EQUAL:    result.as.integer_value = (int1 <= int2) ? 1 : 0; break;
+                    case IJKL_OPCODE_GREATER:       result.as.integer_value = (int1 > int2) ? 1 : 0; break;
+                    case IJKL_OPCODE_GREATER_EQUAL: result.as.integer_value = (int1 >= int2) ? 1 : 0; break;
+                    case IJKL_OPCODE_LOGICAL_AND:   result.as.integer_value = (int1 != 0 && int2 != 0) ? 1 : 0; break;
+                    case IJKL_OPCODE_LOGICAL_OR:    result.as.integer_value = (int1 != 0 || int2 != 0) ? 1 : 0; break;
+                    case IJKL_OPCODE_LOGICAL_XOR:   result.as.integer_value = ((int1 != 0) ^ (int2 != 0)) ? 1 : 0; break;
+                    case IJKL_OPCODE_BITWISE_AND:   result.as.integer_value = int1 & int2; break;
+                    case IJKL_OPCODE_BITWISE_OR:    result.as.integer_value = int1 | int2; break;
+                    case IJKL_OPCODE_SHIFT_LEFT:    result.as.integer_value = int1 << int2; break;
+                    case IJKL_OPCODE_SHIFT_RIGHT:   result.as.integer_value = int1 >> int2; break;
+                    default: break;
+                }
+            }
+
+            write_destination_operand(machine, &current_instruction->destination, result);
+            break;
+        }
+
+        /* 3. Operadores Unários */
+        case IJKL_OPCODE_NEGATE: {
+            IjklVmRegisterValue operand1;
+            evaluate_operand(machine, &current_instruction->first_operand, &operand1);
+            if (operand1.type == VM_VALUE_TYPE_FLOAT) {
+                operand1.as.float_value = -operand1.as.float_value;
+            } else {
+                operand1.as.integer_value = -operand1.as.integer_value;
+            }
+            write_destination_operand(machine, &current_instruction->destination, operand1);
+            break;
+        }
+
+        case IJKL_OPCODE_LOGICAL_NOT: {
+            IjklVmRegisterValue operand1;
+            evaluate_operand(machine, &current_instruction->first_operand, &operand1);
+            operand1.type = VM_VALUE_TYPE_INT;
+            operand1.as.integer_value = (operand1.as.integer_value == 0) ? 1 : 0;
+            write_destination_operand(machine, &current_instruction->destination, operand1);
+            break;
+        }
+
+        /* 4. Alocação e Desalocação no Heap */
+        case IJKL_OPCODE_ALLOC: {
+            IjklVmRegisterValue size_val;
+            evaluate_operand(machine, &current_instruction->first_operand, &size_val);
+            uint64_t allocated_ptr = ijkl_vm_memory_allocate_heap(&machine->memory, (size_t)size_val.as.integer_value);
+            IjklVmRegisterValue ptr_val;
+            ptr_val.type = VM_VALUE_TYPE_INT;
+            ptr_val.as.unsigned_value = allocated_ptr;
+            write_destination_operand(machine, &current_instruction->destination, ptr_val);
+            break;
+        }
+
+        case IJKL_OPCODE_FREE: {
+            IjklVmRegisterValue ptr_val;
+            evaluate_operand(machine, &current_instruction->first_operand, &ptr_val);
+            ijkl_vm_memory_free_heap(&machine->memory, ptr_val.as.unsigned_value);
+            break;
+        }
+
+        /* 5. Controle de Fluxo: jump, jump_if, call, return, halt */
+        case IJKL_OPCODE_JUMP: {
+            next_instruction_pointer = current_instruction->destination.value.label_reference.target_instruction_index;
+            should_advance_pc = false;
+            break;
+        }
+
+        case IJKL_OPCODE_JUMP_IF: {
+            IjklVmRegisterValue cond;
+            evaluate_operand(machine, &current_instruction->first_operand, &cond);
+            bool is_condition_true = (cond.type == VM_VALUE_TYPE_FLOAT) ?
+                (cond.as.float_value != 0.0) : (cond.as.integer_value != 0);
+
+            if (is_condition_true) {
+                next_instruction_pointer = current_instruction->destination.value.label_reference.target_instruction_index;
+                should_advance_pc = false;
+            }
+            break;
+        }
+
+        case IJKL_OPCODE_CALL: {
+            if (current_instruction->destination.value.label_reference.target_instruction_index == (size_t)-1) {
+                const char* builtin_name = current_instruction->destination.value.label_reference.label_name;
+                if (!execute_native_builtin(machine, builtin_name)) {
+                    set_runtime_error(machine, VM_ERROR_UNRESOLVED_LABEL,
+                                      "Failed executing native built-in routine.",
+                                      current_instruction->source_line_number);
+                    return false;
+                }
+                break;
+            }
+
+            if (machine->call_stack_depth >= IJKL_VM_MAX_CALL_STACK_DEPTH) {
+                set_runtime_error(machine, VM_ERROR_STACK_OVERFLOW, "Call stack overflow (recursion too deep).", current_instruction->source_line_number);
+                return false;
+            }
+
+            IjklCallFrame* frame = &machine->call_stack[machine->call_stack_depth++];
+            frame->return_instruction_index = machine->instruction_pointer + 1;
+            frame->previous_frame_pointer = machine->memory.current_frame_pointer;
+            frame->caller_frame_top = machine->current_frame_top;
+            frame->called_routine_name = current_instruction->destination.value.label_reference.label_name;
+
+            next_instruction_pointer = current_instruction->destination.value.label_reference.target_instruction_index;
+            should_advance_pc = false;
+            break;
+        }
+
+        case IJKL_OPCODE_ALLOC_FRAME: {
+            IjklVmRegisterValue frame_size_val;
+            evaluate_operand(machine, &current_instruction->first_operand, &frame_size_val);
+            size_t frame_local_size = (size_t)frame_size_val.as.integer_value;
+
+            uint64_t new_frame_pointer = 0;
+            if (machine->call_stack_depth > 0) {
+                IjklCallFrame* frame = &machine->call_stack[machine->call_stack_depth - 1];
+                new_frame_pointer = frame->caller_frame_top;
+            } else {
+                new_frame_pointer = machine->memory.stack_base_address;
+            }
+
+            size_t total_aligned_size = align_to_8_bytes(frame_local_size);
+            uint64_t new_frame_top = new_frame_pointer + total_aligned_size;
+
+            /* Zera as variáveis locais recém-alocadas além dos argumentos já empilhados */
+            size_t arguments_bytes = (machine->memory.current_stack_pointer > new_frame_pointer) ?
+                (size_t)(machine->memory.current_stack_pointer - new_frame_pointer) : 0;
+            if (total_aligned_size > arguments_bytes &&
+                new_frame_pointer + total_aligned_size <= machine->memory.total_allocated_capacity_bytes) {
+                memset(&machine->memory.raw_linear_memory_buffer[new_frame_pointer + arguments_bytes],
+                       0,
+                       total_aligned_size - arguments_bytes);
+            }
+
+            machine->memory.current_frame_pointer = new_frame_pointer;
+            machine->current_frame_top = new_frame_top;
+            machine->memory.current_stack_pointer = new_frame_top;
+
+            /* Atualiza registradores de hardware ra e sp */
+            machine->registers[IJKL_VM_REG_RA].type = VM_VALUE_TYPE_INT;
+            machine->registers[IJKL_VM_REG_RA].as.unsigned_value = machine->memory.current_frame_pointer;
+
+            machine->registers[IJKL_VM_REG_SP].type = VM_VALUE_TYPE_INT;
+            machine->registers[IJKL_VM_REG_SP].as.unsigned_value = machine->memory.current_stack_pointer;
+            break;
+        }
+
+        case IJKL_OPCODE_FREE_FRAME: {
+            if (machine->call_stack_depth > 0) {
+                IjklCallFrame* frame = &machine->call_stack[machine->call_stack_depth - 1];
+                machine->memory.current_stack_pointer = frame->caller_frame_top;
+                machine->current_frame_top = frame->caller_frame_top;
+                machine->memory.current_frame_pointer = frame->previous_frame_pointer;
+            } else {
+                machine->memory.current_stack_pointer = machine->memory.stack_base_address;
+                machine->current_frame_top = machine->memory.stack_base_address;
+                machine->memory.current_frame_pointer = machine->memory.stack_base_address;
+            }
+
+            machine->registers[IJKL_VM_REG_RA].as.unsigned_value = machine->memory.current_frame_pointer;
+            machine->registers[IJKL_VM_REG_SP].as.unsigned_value = machine->memory.current_stack_pointer;
+            break;
+        }
+
+        case IJKL_OPCODE_RETURN: {
+            if (current_instruction->first_operand.kind != OPERAND_KIND_NONE) {
+                IjklVmRegisterValue ret_val;
+                evaluate_operand(machine, &current_instruction->first_operand, &ret_val);
+                machine->registers[IJKL_VM_REG_R0] = ret_val;
+            }
+            if (machine->call_stack_depth > 0) {
+                IjklCallFrame* frame = &machine->call_stack[--machine->call_stack_depth];
+                if (frame->called_routine_name) {
+                    if (strstr(frame->called_routine_name, "_to_str") != NULL ||
+                        strstr(frame->called_routine_name, "str_concat") != NULL ||
+                        strstr(frame->called_routine_name, "str_sub") != NULL ||
+                        strstr(frame->called_routine_name, "substring") != NULL ||
+                        strstr(frame->called_routine_name, "str_create") != NULL ||
+                        strstr(frame->called_routine_name, "create") != NULL ||
+                        strstr(frame->called_routine_name, "readAllText") != NULL ||
+                        strstr(frame->called_routine_name, "lerTodoTexto") != NULL ||
+                        strstr(frame->called_routine_name, "getCurrent") != NULL ||
+                        strstr(frame->called_routine_name, "obterDiretorioAtual") != NULL) {
+                        machine->registers[IJKL_VM_REG_R0].type = VM_VALUE_TYPE_STRING;
+                        uint64_t addr = machine->registers[IJKL_VM_REG_R0].as.unsigned_value;
+                        if (addr >= IJKL_VM_HEAP_BASE_ADDRESS &&
+                            addr < machine->memory.total_allocated_capacity_bytes) {
+                            ijkl_vm_memory_set_tag(&machine->memory, addr, VM_VALUE_TYPE_STRING);
+                        }
+                    } else if (strstr(frame->called_routine_name, "_to_real") != NULL) {
+                        machine->registers[IJKL_VM_REG_R0].type = VM_VALUE_TYPE_FLOAT;
+                    } else if (strstr(frame->called_routine_name, "_to_bool") != NULL) {
+                        machine->registers[IJKL_VM_REG_R0].type = VM_VALUE_TYPE_BOOL;
+                    } else if (strstr(frame->called_routine_name, "_to_int") != NULL ||
+                               strstr(frame->called_routine_name, "str_len") != NULL ||
+                               strstr(frame->called_routine_name, "str_cmp") != NULL) {
+                        machine->registers[IJKL_VM_REG_R0].type = VM_VALUE_TYPE_INT;
+                    }
+                }
+                next_instruction_pointer = frame->return_instruction_index;
+                should_advance_pc = false;
+            } else {
+                machine->execution_state = VM_STATE_HALTED;
+                return false;
+            }
+            break;
+        }
+
+        case IJKL_OPCODE_HALT: {
+            machine->execution_state = VM_STATE_HALTED;
+            return false;
+        }
+
+        /* 6. Pilha: push e pop */
+        case IJKL_OPCODE_PUSH: {
+            IjklVmRegisterValue push_val;
+            evaluate_operand(machine, &current_instruction->first_operand, &push_val);
+            uint64_t target_stack_address = machine->memory.current_stack_pointer;
+
+            if (push_val.type == VM_VALUE_TYPE_FLOAT) {
+                if (!ijkl_vm_memory_write_float(&machine->memory, target_stack_address, push_val.as.float_value)) {
+                    set_runtime_error(machine, VM_ERROR_STACK_OVERFLOW, "Stack overflow on push (float).", current_instruction->source_line_number);
+                    return false;
+                }
+                ijkl_vm_memory_set_tag(&machine->memory, target_stack_address, VM_VALUE_TYPE_FLOAT);
+            } else if (push_val.type == VM_VALUE_TYPE_STRING) {
+                if (!ijkl_vm_memory_write_integer(&machine->memory, target_stack_address, (int64_t)push_val.as.unsigned_value)) {
+                    set_runtime_error(machine, VM_ERROR_STACK_OVERFLOW, "Stack overflow on push (string).", current_instruction->source_line_number);
+                    return false;
+                }
+                ijkl_vm_memory_set_tag(&machine->memory, target_stack_address, VM_VALUE_TYPE_STRING);
+            } else if (push_val.type == VM_VALUE_TYPE_CHAR) {
+                if (!ijkl_vm_memory_write_integer(&machine->memory, target_stack_address, push_val.as.integer_value)) {
+                    set_runtime_error(machine, VM_ERROR_STACK_OVERFLOW, "Stack overflow on push (char).", current_instruction->source_line_number);
+                    return false;
+                }
+                ijkl_vm_memory_set_tag(&machine->memory, target_stack_address, VM_VALUE_TYPE_CHAR);
+            } else if (push_val.type == VM_VALUE_TYPE_BOOL) {
+                if (!ijkl_vm_memory_write_integer(&machine->memory, target_stack_address, push_val.as.integer_value ? 1 : 0)) {
+                    set_runtime_error(machine, VM_ERROR_STACK_OVERFLOW, "Stack overflow on push (bool).", current_instruction->source_line_number);
+                    return false;
+                }
+                ijkl_vm_memory_set_tag(&machine->memory, target_stack_address, VM_VALUE_TYPE_BOOL);
+            } else {
+                if (!ijkl_vm_memory_write_integer(&machine->memory, target_stack_address, push_val.as.integer_value)) {
+                    set_runtime_error(machine, VM_ERROR_STACK_OVERFLOW, "Stack overflow on push (int).", current_instruction->source_line_number);
+                    return false;
+                }
+                ijkl_vm_memory_set_tag(&machine->memory, target_stack_address, VM_VALUE_TYPE_INT);
+            }
+
+            machine->memory.current_stack_pointer += sizeof(int64_t);
+            machine->registers[IJKL_VM_REG_SP].as.unsigned_value = machine->memory.current_stack_pointer;
+            break;
+        }
+
+        case IJKL_OPCODE_POP: {
+            if (machine->memory.current_stack_pointer < machine->memory.stack_base_address + sizeof(int64_t)) {
+                set_runtime_error(machine, VM_ERROR_STACK_UNDERFLOW, "Stack underflow on pop.", current_instruction->source_line_number);
+                return false;
+            }
+
+            machine->memory.current_stack_pointer -= sizeof(int64_t);
+            uint64_t target_stack_address = machine->memory.current_stack_pointer;
+            uint8_t tag = ijkl_vm_memory_get_tag(&machine->memory, target_stack_address);
+
+            IjklVmRegisterValue pop_val;
+            if (tag == VM_VALUE_TYPE_FLOAT) {
+                double float_val = 0.0;
+                ijkl_vm_memory_read_float(&machine->memory, target_stack_address, &float_val);
+                pop_val.type = VM_VALUE_TYPE_FLOAT;
+                pop_val.as.float_value = float_val;
+            } else if (tag == VM_VALUE_TYPE_STRING) {
+                int64_t ptr_val = 0;
+                ijkl_vm_memory_read_integer(&machine->memory, target_stack_address, &ptr_val);
+                pop_val.type = VM_VALUE_TYPE_STRING;
+                pop_val.as.string_pointer = (const char*)(uintptr_t)ptr_val;
+                pop_val.as.unsigned_value = (uint64_t)ptr_val;
+            } else if (tag == VM_VALUE_TYPE_CHAR) {
+                int64_t int_val = 0;
+                ijkl_vm_memory_read_integer(&machine->memory, target_stack_address, &int_val);
+                pop_val.type = VM_VALUE_TYPE_CHAR;
+                pop_val.as.integer_value = int_val;
+            } else if (tag == VM_VALUE_TYPE_BOOL) {
+                int64_t int_val = 0;
+                ijkl_vm_memory_read_integer(&machine->memory, target_stack_address, &int_val);
+                pop_val.type = VM_VALUE_TYPE_BOOL;
+                pop_val.as.integer_value = (int_val != 0) ? 1 : 0;
+            } else {
+                int64_t int_val = 0;
+                ijkl_vm_memory_read_integer(&machine->memory, target_stack_address, &int_val);
+                pop_val.type = VM_VALUE_TYPE_INT;
+                pop_val.as.integer_value = int_val;
+            }
+
+            write_destination_operand(machine, &current_instruction->destination, pop_val);
+            machine->registers[IJKL_VM_REG_SP].as.unsigned_value = machine->memory.current_stack_pointer;
+            break;
+        }
+
+        /* 7. Barramento I/O: in e out */
+        case IJKL_OPCODE_IN: {
+            IjklVmRegisterValue port_val;
+            evaluate_operand(machine, &current_instruction->first_operand, &port_val);
+            uint16_t port_address = (uint16_t)port_val.as.integer_value;
+
+            int64_t input_result = 0;
+            if (!ijkl_vm_io_bus_read_port(&machine->io_bus, port_address, &input_result)) {
+                set_runtime_error(machine, VM_ERROR_IO_PORT_FAULT, "Failed reading from I/O port.", current_instruction->source_line_number);
+                return false;
+            }
+
+            IjklVmRegisterValue in_reg_val;
+            if (port_address == IJKL_VM_IO_PORT_CONSOLE_REAL) {
+                in_reg_val.type = VM_VALUE_TYPE_FLOAT;
+                in_reg_val.as.integer_value = input_result;
+            } else if (port_address == IJKL_VM_IO_PORT_FILE_READ_ALL || port_address == IJKL_VM_IO_PORT_FOLDER_GET_CURR) {
+                in_reg_val.type = VM_VALUE_TYPE_STRING;
+                in_reg_val.as.unsigned_value = (uint64_t)input_result;
+                if ((uint64_t)input_result >= IJKL_VM_HEAP_BASE_ADDRESS &&
+                    (uint64_t)input_result < machine->memory.total_allocated_capacity_bytes) {
+                    ijkl_vm_memory_set_tag(&machine->memory, (uint64_t)input_result, VM_VALUE_TYPE_STRING);
+                }
+            } else if ((port_address >= IJKL_VM_IO_PORT_FILE_EXISTS && port_address <= IJKL_VM_IO_PORT_FILE_COPY) ||
+                       (port_address >= IJKL_VM_IO_PORT_FOLDER_EXISTS && port_address <= IJKL_VM_IO_PORT_FOLDER_SET_CURR)) {
+                in_reg_val.type = VM_VALUE_TYPE_BOOL;
+                in_reg_val.as.integer_value = (input_result != 0) ? 1 : 0;
+            } else {
+                in_reg_val.type = VM_VALUE_TYPE_INT;
+                in_reg_val.as.integer_value = input_result;
+            }
+            write_destination_operand(machine, &current_instruction->destination, in_reg_val);
+            break;
+        }
+
+        case IJKL_OPCODE_OUT: {
+            IjklVmRegisterValue port_val;
+            IjklVmRegisterValue data_val;
+            evaluate_operand(machine, &current_instruction->first_operand, &port_val);
+            evaluate_operand(machine, &current_instruction->second_operand, &data_val);
+
+            uint16_t port_address = (uint16_t)port_val.as.integer_value;
+            const char* string_literal = (data_val.type == VM_VALUE_TYPE_STRING ||
+                                          (port_address == IJKL_VM_IO_PORT_CONSOLE_WRITE &&
+                                           data_val.as.unsigned_value >= IJKL_VM_PAGE_NULL_END_ADDRESS &&
+                                           data_val.as.unsigned_value < machine->memory.total_allocated_capacity_bytes)) ?
+                resolve_string_pointer(machine, &data_val) : NULL;
+
+            /* Se a escrita for na porta de console 0x0001, formata conforme o tipo dinâmico */
+            if (port_address == IJKL_VM_IO_PORT_CONSOLE_WRITE) {
+                if (data_val.type == VM_VALUE_TYPE_CHAR) {
+                    port_address = IJKL_VM_IO_PORT_CONSOLE_CHAR;
+                } else if (data_val.type == VM_VALUE_TYPE_FLOAT) {
+                    port_address = IJKL_VM_IO_PORT_CONSOLE_REAL;
+                } else if (data_val.type == VM_VALUE_TYPE_BOOL) {
+                    string_literal = data_val.as.integer_value ? "verdadeiro" : "falso";
+                }
+            }
+
+            int64_t raw_data = 0;
+            if (data_val.type == VM_VALUE_TYPE_FLOAT) {
+                memcpy(&raw_data, &data_val.as.float_value, sizeof(double));
+            } else {
+                raw_data = data_val.as.integer_value;
+            }
+
+            if (!ijkl_vm_io_bus_write_port(&machine->io_bus, port_address, raw_data, string_literal)) {
+                set_runtime_error(machine, VM_ERROR_IO_PORT_FAULT, "Failed writing to I/O port.", current_instruction->source_line_number);
+                return false;
+            }
+            break;
+        }
+
+        case IJKL_OPCODE_ERROR: {
+            IjklVmRegisterValue msg_val;
+            evaluate_operand(machine, &current_instruction->first_operand, &msg_val);
+            const char* msg = resolve_string_pointer(machine, &msg_val);
+            if (!msg) msg = "Assertion failed";
+            set_runtime_error(machine, VM_ERROR_USER_ASSERTION, msg, current_instruction->source_line_number);
+            return false;
+        }
+
+        default:
+            break;
+    }
+
+    if (should_advance_pc) {
+        machine->instruction_pointer = next_instruction_pointer;
+    } else {
+        machine->instruction_pointer = next_instruction_pointer;
+    }
+
+    machine->total_executed_cycles_count++;
+    return true;
+}
+
+/*
+ * EFEITO COLATERAL:
+ * Executa continuamente o programa até encontrar 'halt', erro ou conclusão.
+ */
+bool ijkl_virtual_machine_run(IjklVirtualMachine* machine) {
+    if (!machine) return false;
+
+    machine->execution_state = VM_STATE_RUNNING;
+
+    while (machine->execution_state == VM_STATE_RUNNING) {
+        if (!ijkl_virtual_machine_step(machine)) {
+            break;
+        }
+    }
+
+    return (machine->execution_state == VM_STATE_HALTED);
+}
+
+int64_t ijkl_virtual_machine_get_register_integer(const IjklVirtualMachine* machine,
+                                                  IjklVmRegister register_identifier) {
+    if (!machine || register_identifier < 0 || register_identifier >= IJKL_VM_REG_COUNT) return 0;
+    return machine->registers[register_identifier].as.integer_value;
+}
+
+void ijkl_virtual_machine_set_register_integer(IjklVirtualMachine* machine,
+                                               IjklVmRegister register_identifier,
+                                               int64_t integer_value) {
+    if (!machine || register_identifier < 0 || register_identifier >= IJKL_VM_REG_COUNT) return;
+    machine->registers[register_identifier].type = VM_VALUE_TYPE_INT;
+    machine->registers[register_identifier].as.integer_value = integer_value;
+}
+
+double ijkl_virtual_machine_get_register_float(const IjklVirtualMachine* machine,
+                                               IjklVmRegister register_identifier) {
+    if (!machine || register_identifier < 0 || register_identifier >= IJKL_VM_REG_COUNT) return 0.0;
+    return machine->registers[register_identifier].as.float_value;
+}
+
+void ijkl_virtual_machine_set_register_float(IjklVirtualMachine* machine,
+                                             IjklVmRegister register_identifier,
+                                             double float_value) {
+    if (!machine || register_identifier < 0 || register_identifier >= IJKL_VM_REG_COUNT) return;
+    machine->registers[register_identifier].type = VM_VALUE_TYPE_FLOAT;
+    machine->registers[register_identifier].as.float_value = float_value;
+}
+
+const char* ijkl_virtual_machine_get_register_string(const IjklVirtualMachine* machine,
+                                                     IjklVmRegister register_identifier) {
+    if (!machine || register_identifier < 0 || register_identifier >= IJKL_VM_REG_COUNT) return NULL;
+    return resolve_string_pointer(machine, &machine->registers[register_identifier]);
+}
+
+void ijkl_virtual_machine_set_register_string(IjklVirtualMachine* machine,
+                                              IjklVmRegister register_identifier,
+                                              const char* string_value) {
+    if (!machine || register_identifier < 0 || register_identifier >= IJKL_VM_REG_COUNT) return;
+    machine->registers[register_identifier].type = VM_VALUE_TYPE_STRING;
+    machine->registers[register_identifier].as.string_pointer = string_value;
+}
+
+const char* ijkl_virtual_machine_get_error_message(const IjklVirtualMachine* machine) {
+    if (!machine) return "Null virtual machine pointer.";
+    return machine->error_message_buffer;
+}
+
+const char* ijkl_virtual_machine_error_code_to_string(IjklVmErrorCode error_code) {
+    switch (error_code) {
+        case VM_ERROR_NONE: return "No error";
+        case VM_ERROR_DIVISION_BY_ZERO: return "Division by zero";
+        case VM_ERROR_INVALID_OPCODE: return "Invalid opcode";
+        case VM_ERROR_MEMORY_ACCESS_VIOLATION: return "Segmentation fault (memory access violation)";
+        case VM_ERROR_STACK_OVERFLOW: return "Stack overflow";
+        case VM_ERROR_STACK_UNDERFLOW: return "Stack underflow";
+        case VM_ERROR_UNRESOLVED_LABEL: return "Unresolved label target";
+        case VM_ERROR_IO_PORT_FAULT: return "I/O port fault";
+        case VM_ERROR_USER_ASSERTION: return "User assertion error";
+        case VM_ERROR_INSTRUCTION_OUT_OF_BOUNDS: return "Instruction pointer out of bounds";
+        default: return "Unknown runtime error";
+    }
+}

@@ -1,0 +1,38 @@
+// ==============================================================================
+// Example 14: Dynamic Memory Allocation and Deallocation
+// Demonstration of imperative verbs 'alloc' (allocation) and 'free' (deallocation)
+// ==============================================================================
+
+program DynamicAllocationApp {
+    type Node = struct {
+        int key;
+        pointer Node next;
+    };
+
+    // Mandatory entry point for the application
+    private main(): int {
+        // Dynamic allocation of a node in heap memory
+        pointer Node first = alloc($Node);
+
+        if (first != null) {
+            @first.key = 42;
+            @first.next = null;
+            writeln("Node successfully allocated in memory. Key = ", @first.key);
+        }
+
+        // Dynamic allocation of a second chained node
+        pointer Node second = alloc($Node);
+        if (second != null) {
+            @second.key = 84;
+            @second.next = null;
+            @first.next = second;
+            writeln("Second node successfully chained. Key = ", @second.key);
+        }
+
+        // Explicit deallocation of allocated memory
+        free(second);
+        free(first);
+        writeln("Node memory successfully deallocated using 'free' statement.");
+        return 0;
+    }
+}

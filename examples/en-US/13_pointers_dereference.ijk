@@ -1,0 +1,36 @@
+// ==============================================================================
+// Example 13: Pointers, Dereferencing, and Memory Cost
+// Demonstration of @ptr.field equivalent to (@ptr).field and $ operator (bytes)
+// ==============================================================================
+
+program PointersDereferenceApp {
+    type Point = struct {
+        int x;
+        int y;
+    };
+
+    // Mandatory entry point for the application
+    private main(): int {
+        Point origin_point;
+        origin_point.x = 100;
+        origin_point.y = 250;
+
+        // Pointer declaration and address assignment with & operator
+        pointer Point ptr_point = &origin_point;
+
+        writeln("Initial values: x = ", origin_point.x, ", y = ", origin_point.y);
+
+        // Operator '@' takes precedence over '.', so @ptr_point.x equals (@ptr_point).x
+        @ptr_point.x = 350;
+        @ptr_point.y = 500;
+
+        writeln("Values after mutation via pointer: x = ", origin_point.x, ", y = ", origin_point.y);
+
+        // Operator $ computes memory cost in bytes
+        int bytes_integer = $int;
+        int bytes_point = $Point;
+        writeln("Memory cost of 'int': ", bytes_integer, " bytes");
+        writeln("Memory cost of struct 'Point': ", bytes_point, " bytes");
+        return 0;
+    }
+}

@@ -1,0 +1,7406 @@
+// ==============================================================================
+// ijkLang (ijkL) - Linear Intermediate Code (.ci)
+// Generated automatically by ijkLang Compiler
+// ==============================================================================
+
+    jump #OnmApp.main;
+
+
+#OnmApp.main_impl:
+#main_impl:
+    alloc_frame 432;
+    r0 := "onm — Object Notation Management";
+    out 0x0001, r0;
+    r0 := " v";
+    out 0x0001, r0;
+    r0 := "1.0.0";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "Type 'help' for instructions.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := 4;
+    push r0;
+    call #ijkL.Collections.createList$int;
+    [ra, 0] := r0;
+    call #Onm.Storage.File.Repository.loadRootNode$void;
+    [ra, 8] := r0;
+    r0 := [ra, 8];
+    [ra, 368] := r0;
+    r1 := null;
+    r0 := [ra, 368];
+    r0 := r0 <> r1;
+    jump_if r0, #se_verdadeiro_1;
+    jump #se_fim_2;
+#se_verdadeiro_1:
+    r0 := [ra, 8];
+    push r0;
+    call #Onm.Core.Json.Model.freeNode$type_JsonNode;
+#se_fim_2:
+#enquanto_inicio_3:
+    r0 := true;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_4;
+    r0 := [ra, 0];
+    push r0;
+    call #Onm.Cli.Path.Navigator.formatPath$type_List;
+    [ra, 16] := r0;
+    r0 := "onm:";
+    out 0x0001, r0;
+    r0 := [ra, 16];
+    out 0x0001, r0;
+    r0 := "> ";
+    out 0x0001, r0;
+    call #ijkL.IO.Console.readLine$void;
+    [ra, 24] := r0;
+    r0 := [ra, 24];
+    [ra, 368] := r0;
+    r1 := null;
+    r0 := [ra, 368];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_5;
+    jump #se_fim_6;
+#se_verdadeiro_5:
+    jump #enquanto_fim_4;
+#se_fim_6:
+    r0 := [ra, 24];
+    push r0;
+    call #ijkL.Text.trim$string;
+    [ra, 32] := r0;
+    r0 := [ra, 32];
+    push r0;
+    call #ijkL.Text.length$string;
+    [ra, 368] := r0;
+    r1 := 0;
+    r0 := [ra, 368];
+    r0 := r0 > r1;
+    jump_if r0, #se_verdadeiro_7;
+    jump #se_fim_8;
+#se_verdadeiro_7:
+    r0 := [ra, 32];
+    push r0;
+    call #Onm.Cli.Input.Tokenizer.tokenizeLine$string;
+    [ra, 40] := r0;
+    r0 := [ra, 40];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 368] := r0;
+    r1 := 0;
+    r0 := [ra, 368];
+    r0 := r0 > r1;
+    jump_if r0, #se_verdadeiro_9;
+    r0 := [ra, 40];
+    push r0;
+    call #ijkL.Collections.destroyList$type_List;
+    jump #se_fim_10;
+#se_verdadeiro_9:
+    r0 := [ra, 40];
+    push r0;
+    r0 := 0;
+    push r0;
+    call #ijkL.Collections.get$type_List_int;
+    [ra, 48] := r0;
+    r0 := [ra, 48];
+    push r0;
+    r0 := "exit";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    jump_if r0, #se_verdadeiro_11;
+    r0 := [ra, 48];
+    push r0;
+    r0 := "help";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    jump_if r0, #se_verdadeiro_13;
+    r0 := [ra, 48];
+    push r0;
+    r0 := "close";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    jump_if r0, #se_verdadeiro_15;
+    call #Onm.Storage.File.Repository.loadRootNode$void;
+    [ra, 88] := r0;
+    r0 := [ra, 88];
+    [ra, 368] := r0;
+    r1 := null;
+    r0 := [ra, 368];
+    r0 := r0 <> r1;
+    jump_if r0, #se_verdadeiro_17;
+    jump #se_fim_18;
+#se_verdadeiro_17:
+    r0 := [ra, 88];
+    push r0;
+    r0 := [ra, 0];
+    push r0;
+    call #Onm.Cli.Path.Navigator.resolveNodeAtPath$type_JsonNode_type_List;
+    [ra, 96] := r0;
+    r0 := [ra, 96];
+    [ra, 368] := r0;
+    r1 := null;
+    r0 := [ra, 368];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_19;
+    jump #se_fim_20;
+#se_verdadeiro_19:
+    r0 := [ra, 0];
+    push r0;
+    call #ijkL.Collections.clear$type_List;
+    r0 := "Current location was modified externally. Returned to root.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := [ra, 88];
+    [ra, 96] := r0;
+#se_fim_20:
+    r0 := [ra, 48];
+    push r0;
+    r0 := "open";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    jump_if r0, #se_verdadeiro_21;
+    r0 := [ra, 48];
+    push r0;
+    r0 := "list";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    jump_if r0, #se_verdadeiro_23;
+    r0 := [ra, 48];
+    push r0;
+    r0 := "add";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    jump_if r0, #se_verdadeiro_25;
+    r0 := [ra, 48];
+    push r0;
+    r0 := "update";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    jump_if r0, #se_verdadeiro_27;
+    r0 := [ra, 48];
+    push r0;
+    r0 := "ren";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    jump_if r0, #se_verdadeiro_29;
+    r0 := [ra, 48];
+    push r0;
+    r0 := "del";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    jump_if r0, #se_verdadeiro_31;
+    r0 := [ra, 48];
+    push r0;
+    r0 := "show";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    jump_if r0, #se_verdadeiro_33;
+    r0 := "Unrecognized command '";
+    out 0x0001, r0;
+    r0 := [ra, 48];
+    out 0x0001, r0;
+    r0 := "'. Type 'help' for instructions.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    jump #se_fim_34;
+#se_verdadeiro_33:
+    r0 := "";
+    [ra, 312] := r0;
+    r0 := [ra, 40];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 368] := r0;
+    r1 := 2;
+    r0 := [ra, 368];
+    r0 := r0 >= r1;
+    jump_if r0, #se_verdadeiro_35;
+    r0 := "Show target ('node'): ";
+    push r0;
+    call #Onm.Cli.Input.Tokenizer.promptRequired$string;
+    [ra, 312] := r0;
+    jump #se_fim_36;
+#se_verdadeiro_35:
+    r0 := [ra, 40];
+    push r0;
+    r0 := 1;
+    push r0;
+    call #ijkL.Collections.get$type_List_int;
+    [ra, 312] := r0;
+#se_fim_36:
+    r0 := [ra, 312];
+    push r0;
+    r0 := "node";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    jump_if r0, #se_verdadeiro_37;
+    r0 := "Error: Invalid show command. Use 'show node <name> [recursive]' or 'show node . [recursive]'.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    jump #se_fim_38;
+#se_verdadeiro_37:
+    r0 := "";
+    [ra, 320] := r0;
+    r0 := [ra, 40];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 368] := r0;
+    r1 := 3;
+    r0 := [ra, 368];
+    r0 := r0 >= r1;
+    jump_if r0, #se_verdadeiro_39;
+    r0 := "Node name (or '.' for current): ";
+    push r0;
+    call #Onm.Cli.Input.Tokenizer.promptRequired$string;
+    [ra, 320] := r0;
+    jump #se_fim_40;
+#se_verdadeiro_39:
+    r0 := [ra, 40];
+    push r0;
+    r0 := 2;
+    push r0;
+    call #ijkL.Collections.get$type_List_int;
+    [ra, 320] := r0;
+#se_fim_40:
+    r0 := false;
+    [ra, 328] := r0;
+    r0 := [ra, 40];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 368] := r0;
+    r1 := 4;
+    r0 := [ra, 368];
+    r0 := r0 >= r1;
+    jump_if r0, #se_verdadeiro_41;
+    jump #se_fim_42;
+#se_verdadeiro_41:
+    r0 := [ra, 40];
+    push r0;
+    r0 := 3;
+    push r0;
+    call #ijkL.Collections.get$type_List_int;
+    [ra, 336] := r0;
+    r0 := [ra, 336];
+    push r0;
+    r0 := "recursive";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    jump_if r0, #se_verdadeiro_43;
+    jump #se_fim_44;
+#se_verdadeiro_43:
+    r0 := true;
+    [ra, 328] := r0;
+#se_fim_44:
+#se_fim_42:
+    r0 := null;
+    [ra, 344] := r0;
+    r0 := [ra, 320];
+    push r0;
+    r0 := ".";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    jump_if r0, #se_verdadeiro_45;
+    r0 := [ra, 96];
+    push r0;
+    r0 := [ra, 320];
+    push r0;
+    call #Onm.Core.Json.Model.findProperty$type_JsonNode_string;
+    [ra, 352] := r0;
+    r0 := [ra, 352];
+    [ra, 368] := r0;
+    r1 := null;
+    r0 := [ra, 368];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_47;
+    r0 := [ra, 352];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    r0 := not r0;
+    jump_if r0, #se_verdadeiro_49;
+    r0 := [ra, 352];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 344] := r0;
+    jump #se_fim_50;
+#se_verdadeiro_49:
+    r0 := "Error: '";
+    out 0x0001, r0;
+    r0 := [ra, 320];
+    out 0x0001, r0;
+    r0 := "' is a key, not a node.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_50:
+    jump #se_fim_48;
+#se_verdadeiro_47:
+    r0 := "Error: Node '";
+    out 0x0001, r0;
+    r0 := [ra, 320];
+    out 0x0001, r0;
+    r0 := "' does not exist.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_48:
+    jump #se_fim_46;
+#se_verdadeiro_45:
+    r0 := [ra, 96];
+    [ra, 344] := r0;
+#se_fim_46:
+    r0 := [ra, 344];
+    [ra, 368] := r0;
+    r1 := null;
+    r0 := [ra, 368];
+    r0 := r0 <> r1;
+    jump_if r0, #se_verdadeiro_51;
+    jump #se_fim_52;
+#se_verdadeiro_51:
+    r0 := [ra, 344];
+    push r0;
+    r0 := 0;
+    push r0;
+    r0 := [ra, 328];
+    push r0;
+    call #Onm.Core.Json.Serializer.serializeNode$type_JsonNode_int_bool;
+    [ra, 360] := r0;
+    r0 := [ra, 360];
+    out 0x0001, r0;
+#se_fim_52:
+#se_fim_38:
+#se_fim_34:
+    jump #se_fim_32;
+#se_verdadeiro_31:
+    r0 := "";
+    [ra, 272] := r0;
+    r0 := [ra, 40];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 368] := r0;
+    r1 := 2;
+    r0 := [ra, 368];
+    r0 := r0 >= r1;
+    jump_if r0, #se_verdadeiro_53;
+    r0 := "Delete target ('node' or 'key'): ";
+    push r0;
+    call #Onm.Cli.Input.Tokenizer.promptRequired$string;
+    [ra, 272] := r0;
+    jump #se_fim_54;
+#se_verdadeiro_53:
+    r0 := [ra, 40];
+    push r0;
+    r0 := 1;
+    push r0;
+    call #ijkL.Collections.get$type_List_int;
+    [ra, 272] := r0;
+#se_fim_54:
+    r0 := [ra, 272];
+    push r0;
+    r0 := "node";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    jump_if r0, #se_verdadeiro_55;
+    r0 := [ra, 272];
+    push r0;
+    r0 := "key";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    jump_if r0, #se_verdadeiro_57;
+    r0 := "Error: Invalid delete command. Use 'del node <name>' or 'del key <name>'.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    jump #se_fim_58;
+#se_verdadeiro_57:
+    r0 := "";
+    [ra, 296] := r0;
+    r0 := [ra, 40];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 368] := r0;
+    r1 := 3;
+    r0 := [ra, 368];
+    r0 := r0 >= r1;
+    jump_if r0, #se_verdadeiro_59;
+    r0 := "Key name to delete: ";
+    push r0;
+    call #Onm.Cli.Input.Tokenizer.promptRequired$string;
+    [ra, 296] := r0;
+    jump #se_fim_60;
+#se_verdadeiro_59:
+    r0 := [ra, 40];
+    push r0;
+    r0 := 2;
+    push r0;
+    call #ijkL.Collections.get$type_List_int;
+    [ra, 296] := r0;
+#se_fim_60:
+    r0 := [ra, 96];
+    push r0;
+    r0 := [ra, 296];
+    push r0;
+    call #Onm.Core.Json.Model.findProperty$type_JsonNode_string;
+    [ra, 304] := r0;
+    r0 := [ra, 304];
+    [ra, 368] := r0;
+    r1 := null;
+    r0 := [ra, 368];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_61;
+    r0 := [ra, 304];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    jump_if r0, #se_verdadeiro_63;
+    r0 := [ra, 96];
+    push r0;
+    r0 := [ra, 296];
+    push r0;
+    call #Onm.Core.Json.Model.removeProperty$type_JsonNode_string;
+    r0 := [ra, 88];
+    push r0;
+    call #Onm.Storage.File.Repository.saveRootNode$type_JsonNode;
+    jump_if r0, #se_verdadeiro_65;
+    jump #se_fim_66;
+#se_verdadeiro_65:
+    r0 := "Key '";
+    out 0x0001, r0;
+    r0 := [ra, 296];
+    out 0x0001, r0;
+    r0 := "' deleted.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_66:
+    jump #se_fim_64;
+#se_verdadeiro_63:
+    r0 := "Error: '";
+    out 0x0001, r0;
+    r0 := [ra, 296];
+    out 0x0001, r0;
+    r0 := "' is a node, not a key.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_64:
+    jump #se_fim_62;
+#se_verdadeiro_61:
+    r0 := "Error: Key '";
+    out 0x0001, r0;
+    r0 := [ra, 296];
+    out 0x0001, r0;
+    r0 := "' does not exist.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_62:
+#se_fim_58:
+    jump #se_fim_56;
+#se_verdadeiro_55:
+    r0 := "";
+    [ra, 280] := r0;
+    r0 := [ra, 40];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 368] := r0;
+    r1 := 3;
+    r0 := [ra, 368];
+    r0 := r0 >= r1;
+    jump_if r0, #se_verdadeiro_67;
+    r0 := "Node name to delete: ";
+    push r0;
+    call #Onm.Cli.Input.Tokenizer.promptRequired$string;
+    [ra, 280] := r0;
+    jump #se_fim_68;
+#se_verdadeiro_67:
+    r0 := [ra, 40];
+    push r0;
+    r0 := 2;
+    push r0;
+    call #ijkL.Collections.get$type_List_int;
+    [ra, 280] := r0;
+#se_fim_68:
+    r0 := [ra, 96];
+    push r0;
+    r0 := [ra, 280];
+    push r0;
+    call #Onm.Core.Json.Model.findProperty$type_JsonNode_string;
+    [ra, 288] := r0;
+    r0 := [ra, 288];
+    [ra, 368] := r0;
+    r1 := null;
+    r0 := [ra, 368];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_69;
+    r0 := [ra, 288];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    r0 := not r0;
+    jump_if r0, #se_verdadeiro_71;
+    r0 := [ra, 96];
+    push r0;
+    r0 := [ra, 280];
+    push r0;
+    call #Onm.Core.Json.Model.removeProperty$type_JsonNode_string;
+    r0 := [ra, 88];
+    push r0;
+    call #Onm.Storage.File.Repository.saveRootNode$type_JsonNode;
+    jump_if r0, #se_verdadeiro_73;
+    jump #se_fim_74;
+#se_verdadeiro_73:
+    r0 := "Node '";
+    out 0x0001, r0;
+    r0 := [ra, 280];
+    out 0x0001, r0;
+    r0 := "' deleted.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_74:
+    jump #se_fim_72;
+#se_verdadeiro_71:
+    r0 := "Error: '";
+    out 0x0001, r0;
+    r0 := [ra, 280];
+    out 0x0001, r0;
+    r0 := "' is a key, not a node.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_72:
+    jump #se_fim_70;
+#se_verdadeiro_69:
+    r0 := "Error: Node '";
+    out 0x0001, r0;
+    r0 := [ra, 280];
+    out 0x0001, r0;
+    r0 := "' does not exist.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_70:
+#se_fim_56:
+#se_fim_32:
+    jump #se_fim_30;
+#se_verdadeiro_29:
+    r0 := "";
+    [ra, 216] := r0;
+    r0 := [ra, 40];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 368] := r0;
+    r1 := 2;
+    r0 := [ra, 368];
+    r0 := r0 >= r1;
+    jump_if r0, #se_verdadeiro_75;
+    r0 := "Rename target ('node' or 'key'): ";
+    push r0;
+    call #Onm.Cli.Input.Tokenizer.promptRequired$string;
+    [ra, 216] := r0;
+    jump #se_fim_76;
+#se_verdadeiro_75:
+    r0 := [ra, 40];
+    push r0;
+    r0 := 1;
+    push r0;
+    call #ijkL.Collections.get$type_List_int;
+    [ra, 216] := r0;
+#se_fim_76:
+    r0 := [ra, 216];
+    push r0;
+    r0 := "node";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    jump_if r0, #se_verdadeiro_77;
+    r0 := [ra, 216];
+    push r0;
+    r0 := "key";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    jump_if r0, #se_verdadeiro_79;
+    r0 := "Error: Invalid rename command. Use 'ren node <name> <new_name>' or 'ren key <name> <new_name>'.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    jump #se_fim_80;
+#se_verdadeiro_79:
+    r0 := "";
+    [ra, 248] := r0;
+    r0 := [ra, 40];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 368] := r0;
+    r1 := 3;
+    r0 := [ra, 368];
+    r0 := r0 >= r1;
+    jump_if r0, #se_verdadeiro_81;
+    r0 := "Current key name: ";
+    push r0;
+    call #Onm.Cli.Input.Tokenizer.promptRequired$string;
+    [ra, 248] := r0;
+    jump #se_fim_82;
+#se_verdadeiro_81:
+    r0 := [ra, 40];
+    push r0;
+    r0 := 2;
+    push r0;
+    call #ijkL.Collections.get$type_List_int;
+    [ra, 248] := r0;
+#se_fim_82:
+    r0 := [ra, 96];
+    push r0;
+    r0 := [ra, 248];
+    push r0;
+    call #Onm.Core.Json.Model.findProperty$type_JsonNode_string;
+    [ra, 256] := r0;
+    r0 := [ra, 256];
+    [ra, 368] := r0;
+    r1 := null;
+    r0 := [ra, 368];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_83;
+    r0 := [ra, 256];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    jump_if r0, #se_verdadeiro_85;
+    r0 := "";
+    [ra, 264] := r0;
+    r0 := [ra, 40];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 368] := r0;
+    r1 := 4;
+    r0 := [ra, 368];
+    r0 := r0 >= r1;
+    jump_if r0, #se_verdadeiro_87;
+    r0 := "New key name: ";
+    push r0;
+    call #Onm.Cli.Input.Tokenizer.promptRequired$string;
+    [ra, 264] := r0;
+    jump #se_fim_88;
+#se_verdadeiro_87:
+    r0 := [ra, 40];
+    push r0;
+    r0 := 3;
+    push r0;
+    call #ijkL.Collections.get$type_List_int;
+    [ra, 264] := r0;
+#se_fim_88:
+    r0 := [ra, 264];
+    push r0;
+    call #ijkL.Text.length$string;
+    [ra, 368] := r0;
+    r1 := 0;
+    r0 := [ra, 368];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_89;
+    r0 := [ra, 264];
+    push r0;
+    r0 := ".";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    jump_if r0, #se_verdadeiro_91;
+    r0 := [ra, 96];
+    push r0;
+    r0 := [ra, 264];
+    push r0;
+    call #Onm.Core.Json.Model.findProperty$type_JsonNode_string;
+    [ra, 368] := r0;
+    r1 := null;
+    r0 := [ra, 368];
+    r0 := r0 <> r1;
+    jump_if r0, #se_verdadeiro_93;
+    r0 := [ra, 264];
+    [ra, 368] := r0;
+    r1 := [ra, 256];
+    r0 := [ra, 368];
+    [r1, 0] := r0;
+    r0 := [ra, 88];
+    push r0;
+    call #Onm.Storage.File.Repository.saveRootNode$type_JsonNode;
+    jump_if r0, #se_verdadeiro_95;
+    jump #se_fim_96;
+#se_verdadeiro_95:
+    r0 := "Key '";
+    out 0x0001, r0;
+    r0 := [ra, 248];
+    out 0x0001, r0;
+    r0 := "' renamed to '";
+    out 0x0001, r0;
+    r0 := [ra, 264];
+    out 0x0001, r0;
+    r0 := "'.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_96:
+    jump #se_fim_94;
+#se_verdadeiro_93:
+    r0 := "Error: An element named '";
+    out 0x0001, r0;
+    r0 := [ra, 264];
+    out 0x0001, r0;
+    r0 := "' already exists in this node.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_94:
+    jump #se_fim_92;
+#se_verdadeiro_91:
+    r0 := "Error: '.' is reserved and cannot be used as a name.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_92:
+    jump #se_fim_90;
+#se_verdadeiro_89:
+    r0 := "Error: New key name cannot be empty.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_90:
+    jump #se_fim_86;
+#se_verdadeiro_85:
+    r0 := "Error: '";
+    out 0x0001, r0;
+    r0 := [ra, 248];
+    out 0x0001, r0;
+    r0 := "' is a node, not a key.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_86:
+    jump #se_fim_84;
+#se_verdadeiro_83:
+    r0 := "Error: Key '";
+    out 0x0001, r0;
+    r0 := [ra, 248];
+    out 0x0001, r0;
+    r0 := "' does not exist.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_84:
+#se_fim_80:
+    jump #se_fim_78;
+#se_verdadeiro_77:
+    r0 := "";
+    [ra, 224] := r0;
+    r0 := [ra, 40];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 368] := r0;
+    r1 := 3;
+    r0 := [ra, 368];
+    r0 := r0 >= r1;
+    jump_if r0, #se_verdadeiro_97;
+    r0 := "Current node name: ";
+    push r0;
+    call #Onm.Cli.Input.Tokenizer.promptRequired$string;
+    [ra, 224] := r0;
+    jump #se_fim_98;
+#se_verdadeiro_97:
+    r0 := [ra, 40];
+    push r0;
+    r0 := 2;
+    push r0;
+    call #ijkL.Collections.get$type_List_int;
+    [ra, 224] := r0;
+#se_fim_98:
+    r0 := [ra, 96];
+    push r0;
+    r0 := [ra, 224];
+    push r0;
+    call #Onm.Core.Json.Model.findProperty$type_JsonNode_string;
+    [ra, 232] := r0;
+    r0 := [ra, 232];
+    [ra, 368] := r0;
+    r1 := null;
+    r0 := [ra, 368];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_99;
+    r0 := [ra, 232];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    r0 := not r0;
+    jump_if r0, #se_verdadeiro_101;
+    r0 := "";
+    [ra, 240] := r0;
+    r0 := [ra, 40];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 368] := r0;
+    r1 := 4;
+    r0 := [ra, 368];
+    r0 := r0 >= r1;
+    jump_if r0, #se_verdadeiro_103;
+    r0 := "New node name: ";
+    push r0;
+    call #Onm.Cli.Input.Tokenizer.promptRequired$string;
+    [ra, 240] := r0;
+    jump #se_fim_104;
+#se_verdadeiro_103:
+    r0 := [ra, 40];
+    push r0;
+    r0 := 3;
+    push r0;
+    call #ijkL.Collections.get$type_List_int;
+    [ra, 240] := r0;
+#se_fim_104:
+    r0 := [ra, 240];
+    push r0;
+    call #ijkL.Text.length$string;
+    [ra, 368] := r0;
+    r1 := 0;
+    r0 := [ra, 368];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_105;
+    r0 := [ra, 240];
+    push r0;
+    r0 := ".";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    jump_if r0, #se_verdadeiro_107;
+    r0 := [ra, 96];
+    push r0;
+    r0 := [ra, 240];
+    push r0;
+    call #Onm.Core.Json.Model.findProperty$type_JsonNode_string;
+    [ra, 368] := r0;
+    r1 := null;
+    r0 := [ra, 368];
+    r0 := r0 <> r1;
+    jump_if r0, #se_verdadeiro_109;
+    r0 := [ra, 240];
+    [ra, 368] := r0;
+    r1 := [ra, 232];
+    r0 := [ra, 368];
+    [r1, 0] := r0;
+    r0 := [ra, 88];
+    push r0;
+    call #Onm.Storage.File.Repository.saveRootNode$type_JsonNode;
+    jump_if r0, #se_verdadeiro_111;
+    jump #se_fim_112;
+#se_verdadeiro_111:
+    r0 := "Node '";
+    out 0x0001, r0;
+    r0 := [ra, 224];
+    out 0x0001, r0;
+    r0 := "' renamed to '";
+    out 0x0001, r0;
+    r0 := [ra, 240];
+    out 0x0001, r0;
+    r0 := "'.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_112:
+    jump #se_fim_110;
+#se_verdadeiro_109:
+    r0 := "Error: An element named '";
+    out 0x0001, r0;
+    r0 := [ra, 240];
+    out 0x0001, r0;
+    r0 := "' already exists in this node.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_110:
+    jump #se_fim_108;
+#se_verdadeiro_107:
+    r0 := "Error: '.' is reserved and cannot be used as a name.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_108:
+    jump #se_fim_106;
+#se_verdadeiro_105:
+    r0 := "Error: New node name cannot be empty.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_106:
+    jump #se_fim_102;
+#se_verdadeiro_101:
+    r0 := "Error: '";
+    out 0x0001, r0;
+    r0 := [ra, 224];
+    out 0x0001, r0;
+    r0 := "' is a key, not a node.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_102:
+    jump #se_fim_100;
+#se_verdadeiro_99:
+    r0 := "Error: Node '";
+    out 0x0001, r0;
+    r0 := [ra, 224];
+    out 0x0001, r0;
+    r0 := "' does not exist.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_100:
+#se_fim_78:
+#se_fim_30:
+    jump #se_fim_28;
+#se_verdadeiro_27:
+    r0 := "";
+    [ra, 192] := r0;
+    r0 := [ra, 40];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 368] := r0;
+    r1 := 2;
+    r0 := [ra, 368];
+    r0 := r0 >= r1;
+    jump_if r0, #se_verdadeiro_113;
+    r0 := "Key name: ";
+    push r0;
+    call #Onm.Cli.Input.Tokenizer.promptRequired$string;
+    [ra, 192] := r0;
+    jump #se_fim_114;
+#se_verdadeiro_113:
+    r0 := [ra, 40];
+    push r0;
+    r0 := 1;
+    push r0;
+    call #ijkL.Collections.get$type_List_int;
+    [ra, 192] := r0;
+#se_fim_114:
+    r0 := [ra, 192];
+    push r0;
+    call #ijkL.Text.length$string;
+    [ra, 368] := r0;
+    r1 := 0;
+    r0 := [ra, 368];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_115;
+    r0 := [ra, 96];
+    push r0;
+    r0 := [ra, 192];
+    push r0;
+    call #Onm.Core.Json.Model.findProperty$type_JsonNode_string;
+    [ra, 200] := r0;
+    r0 := [ra, 200];
+    [ra, 368] := r0;
+    r1 := null;
+    r0 := [ra, 368];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_117;
+    r0 := [ra, 200];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    jump_if r0, #se_verdadeiro_119;
+    r0 := "";
+    [ra, 208] := r0;
+    r0 := [ra, 40];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 368] := r0;
+    r1 := 3;
+    r0 := [ra, 368];
+    r0 := r0 >= r1;
+    jump_if r0, #se_verdadeiro_121;
+    r0 := "New value: ";
+    push r0;
+    call #Onm.Cli.Input.Tokenizer.promptRequired$string;
+    [ra, 208] := r0;
+    jump #se_fim_122;
+#se_verdadeiro_121:
+    r0 := [ra, 40];
+    push r0;
+    r0 := 2;
+    push r0;
+    call #ijkL.Collections.get$type_List_int;
+    [ra, 208] := r0;
+#se_fim_122:
+    r0 := [ra, 208];
+    [ra, 368] := r0;
+    r1 := [ra, 200];
+    r1 := r1 + 24;
+    r0 := [ra, 368];
+    [r1, 0] := r0;
+    r0 := [ra, 88];
+    push r0;
+    call #Onm.Storage.File.Repository.saveRootNode$type_JsonNode;
+    jump_if r0, #se_verdadeiro_123;
+    jump #se_fim_124;
+#se_verdadeiro_123:
+    r0 := "Key '";
+    out 0x0001, r0;
+    r0 := [ra, 192];
+    out 0x0001, r0;
+    r0 := "' updated.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_124:
+    jump #se_fim_120;
+#se_verdadeiro_119:
+    r0 := "Error: '";
+    out 0x0001, r0;
+    r0 := [ra, 192];
+    out 0x0001, r0;
+    r0 := "' is a node, not a key. Nodes cannot be updated with values.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_120:
+    jump #se_fim_118;
+#se_verdadeiro_117:
+    r0 := "Error: Key '";
+    out 0x0001, r0;
+    r0 := [ra, 192];
+    out 0x0001, r0;
+    r0 := "' does not exist.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_118:
+    jump #se_fim_116;
+#se_verdadeiro_115:
+    r0 := "Error: Key name cannot be empty.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_116:
+#se_fim_28:
+    jump #se_fim_26;
+#se_verdadeiro_25:
+    r0 := "";
+    [ra, 160] := r0;
+    r0 := [ra, 40];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 368] := r0;
+    r1 := 2;
+    r0 := [ra, 368];
+    r0 := r0 >= r1;
+    jump_if r0, #se_verdadeiro_125;
+    r0 := "Add target ('node' or 'key'): ";
+    push r0;
+    call #Onm.Cli.Input.Tokenizer.promptRequired$string;
+    [ra, 160] := r0;
+    jump #se_fim_126;
+#se_verdadeiro_125:
+    r0 := [ra, 40];
+    push r0;
+    r0 := 1;
+    push r0;
+    call #ijkL.Collections.get$type_List_int;
+    [ra, 160] := r0;
+#se_fim_126:
+    r0 := [ra, 160];
+    push r0;
+    r0 := "node";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    jump_if r0, #se_verdadeiro_127;
+    r0 := [ra, 160];
+    push r0;
+    r0 := "key";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    jump_if r0, #se_verdadeiro_129;
+    r0 := "Error: Invalid add command. Use 'add node <name>' or 'add key <name> [value]'.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    jump #se_fim_130;
+#se_verdadeiro_129:
+    r0 := "";
+    [ra, 176] := r0;
+    r0 := [ra, 40];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 368] := r0;
+    r1 := 3;
+    r0 := [ra, 368];
+    r0 := r0 >= r1;
+    jump_if r0, #se_verdadeiro_131;
+    r0 := "Key name: ";
+    push r0;
+    call #Onm.Cli.Input.Tokenizer.promptRequired$string;
+    [ra, 176] := r0;
+    jump #se_fim_132;
+#se_verdadeiro_131:
+    r0 := [ra, 40];
+    push r0;
+    r0 := 2;
+    push r0;
+    call #ijkL.Collections.get$type_List_int;
+    [ra, 176] := r0;
+#se_fim_132:
+    r0 := [ra, 176];
+    push r0;
+    call #ijkL.Text.length$string;
+    [ra, 368] := r0;
+    r1 := 0;
+    r0 := [ra, 368];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_133;
+    r0 := [ra, 176];
+    push r0;
+    r0 := ".";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    jump_if r0, #se_verdadeiro_135;
+    r0 := [ra, 96];
+    push r0;
+    r0 := [ra, 176];
+    push r0;
+    call #Onm.Core.Json.Model.findProperty$type_JsonNode_string;
+    [ra, 368] := r0;
+    r1 := null;
+    r0 := [ra, 368];
+    r0 := r0 <> r1;
+    jump_if r0, #se_verdadeiro_137;
+    r0 := "";
+    [ra, 184] := r0;
+    r0 := [ra, 40];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 368] := r0;
+    r1 := 4;
+    r0 := [ra, 368];
+    r0 := r0 >= r1;
+    jump_if r0, #se_verdadeiro_139;
+    jump #se_fim_140;
+#se_verdadeiro_139:
+    r0 := [ra, 40];
+    push r0;
+    r0 := 3;
+    push r0;
+    call #ijkL.Collections.get$type_List_int;
+    [ra, 184] := r0;
+#se_fim_140:
+    r0 := [ra, 96];
+    push r0;
+    r0 := [ra, 176];
+    push r0;
+    r0 := [ra, 184];
+    push r0;
+    call #Onm.Core.Json.Model.addKeyProperty$type_JsonNode_string_string;
+    r0 := [ra, 88];
+    push r0;
+    call #Onm.Storage.File.Repository.saveRootNode$type_JsonNode;
+    jump_if r0, #se_verdadeiro_141;
+    jump #se_fim_142;
+#se_verdadeiro_141:
+    r0 := "Key '";
+    out 0x0001, r0;
+    r0 := [ra, 176];
+    out 0x0001, r0;
+    r0 := "' created.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_142:
+    jump #se_fim_138;
+#se_verdadeiro_137:
+    r0 := "Error: An element named '";
+    out 0x0001, r0;
+    r0 := [ra, 176];
+    out 0x0001, r0;
+    r0 := "' already exists in this node.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_138:
+    jump #se_fim_136;
+#se_verdadeiro_135:
+    r0 := "Error: '.' is reserved and cannot be used as a key name.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_136:
+    jump #se_fim_134;
+#se_verdadeiro_133:
+    r0 := "Error: Key name cannot be empty.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_134:
+#se_fim_130:
+    jump #se_fim_128;
+#se_verdadeiro_127:
+    r0 := "";
+    [ra, 168] := r0;
+    r0 := [ra, 40];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 368] := r0;
+    r1 := 3;
+    r0 := [ra, 368];
+    r0 := r0 >= r1;
+    jump_if r0, #se_verdadeiro_143;
+    r0 := "Node name: ";
+    push r0;
+    call #Onm.Cli.Input.Tokenizer.promptRequired$string;
+    [ra, 168] := r0;
+    jump #se_fim_144;
+#se_verdadeiro_143:
+    r0 := [ra, 40];
+    push r0;
+    r0 := 2;
+    push r0;
+    call #ijkL.Collections.get$type_List_int;
+    [ra, 168] := r0;
+#se_fim_144:
+    r0 := [ra, 168];
+    push r0;
+    call #ijkL.Text.length$string;
+    [ra, 368] := r0;
+    r1 := 0;
+    r0 := [ra, 368];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_145;
+    r0 := [ra, 168];
+    push r0;
+    r0 := ".";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    jump_if r0, #se_verdadeiro_147;
+    r0 := [ra, 96];
+    push r0;
+    r0 := [ra, 168];
+    push r0;
+    call #Onm.Core.Json.Model.findProperty$type_JsonNode_string;
+    [ra, 368] := r0;
+    r1 := null;
+    r0 := [ra, 368];
+    r0 := r0 <> r1;
+    jump_if r0, #se_verdadeiro_149;
+    r0 := [ra, 96];
+    push r0;
+    r0 := [ra, 168];
+    push r0;
+    call #Onm.Core.Json.Model.addNodeProperty$type_JsonNode_string;
+    r0 := [ra, 88];
+    push r0;
+    call #Onm.Storage.File.Repository.saveRootNode$type_JsonNode;
+    jump_if r0, #se_verdadeiro_151;
+    jump #se_fim_152;
+#se_verdadeiro_151:
+    r0 := "Node '";
+    out 0x0001, r0;
+    r0 := [ra, 168];
+    out 0x0001, r0;
+    r0 := "' created.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_152:
+    jump #se_fim_150;
+#se_verdadeiro_149:
+    r0 := "Error: An element named '";
+    out 0x0001, r0;
+    r0 := [ra, 168];
+    out 0x0001, r0;
+    r0 := "' already exists in this node.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_150:
+    jump #se_fim_148;
+#se_verdadeiro_147:
+    r0 := "Error: '.' is reserved and cannot be used as a node name.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_148:
+    jump #se_fim_146;
+#se_verdadeiro_145:
+    r0 := "Error: Node name cannot be empty.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_146:
+#se_fim_128:
+#se_fim_26:
+    jump #se_fim_24;
+#se_verdadeiro_23:
+    r0 := "";
+    [ra, 120] := r0;
+    r0 := [ra, 40];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 368] := r0;
+    r1 := 2;
+    r0 := [ra, 368];
+    r0 := r0 >= r1;
+    jump_if r0, #se_verdadeiro_153;
+    r0 := "List target ('nodes' or 'keys'): ";
+    push r0;
+    call #Onm.Cli.Input.Tokenizer.promptRequired$string;
+    [ra, 120] := r0;
+    jump #se_fim_154;
+#se_verdadeiro_153:
+    r0 := [ra, 40];
+    push r0;
+    r0 := 1;
+    push r0;
+    call #ijkL.Collections.get$type_List_int;
+    [ra, 120] := r0;
+#se_fim_154:
+    r0 := [ra, 120];
+    push r0;
+    r0 := "nodes";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    jump_if r0, #se_verdadeiro_155;
+    r0 := [ra, 120];
+    push r0;
+    r0 := "keys";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    jump_if r0, #se_verdadeiro_157;
+    r0 := "Error: Invalid list command. Use 'list nodes' or 'list keys'.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    jump #se_fim_158;
+#se_verdadeiro_157:
+    r0 := 0;
+    [ra, 144] := r0;
+    r0 := [ra, 96];
+    r0 := [r0, 0];
+    [ra, 152] := r0;
+#enquanto_inicio_159:
+    r0 := [ra, 152];
+    [ra, 368] := r0;
+    r1 := null;
+    r0 := [ra, 368];
+    r0 := r0 <> r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_160;
+    r0 := [ra, 152];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    r0 := not r0;
+    jump_if r0, #se_verdadeiro_161;
+    jump #se_fim_162;
+#se_verdadeiro_161:
+    r0 := "  ";
+    out 0x0001, r0;
+    r0 := [ra, 152];
+    r0 := [r0, 0];
+    out 0x0001, r0;
+    r0 := " = \"";
+    out 0x0001, r0;
+    r0 := [ra, 152];
+    r0 := r0 + 24;
+    r0 := [r0, 0];
+    out 0x0001, r0;
+    r0 := "\"";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := [ra, 144];
+    [ra, 368] := r0;
+    r1 := 1;
+    r0 := [ra, 368];
+    r0 := r0 + r1;
+    [ra, 144] := r0;
+#se_fim_162:
+    r0 := [ra, 152];
+    r0 := r0 + 32;
+    r0 := [r0, 0];
+    [ra, 152] := r0;
+    jump #enquanto_inicio_159;
+#enquanto_fim_160:
+    r0 := [ra, 144];
+    [ra, 368] := r0;
+    r1 := 0;
+    r0 := [ra, 368];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_163;
+    jump #se_fim_164;
+#se_verdadeiro_163:
+    r0 := "No keys found.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_164:
+#se_fim_158:
+    jump #se_fim_156;
+#se_verdadeiro_155:
+    r0 := 0;
+    [ra, 128] := r0;
+    r0 := [ra, 96];
+    r0 := [r0, 0];
+    [ra, 136] := r0;
+#enquanto_inicio_165:
+    r0 := [ra, 136];
+    [ra, 368] := r0;
+    r1 := null;
+    r0 := [ra, 368];
+    r0 := r0 <> r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_166;
+    r0 := [ra, 136];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    jump_if r0, #se_verdadeiro_167;
+    jump #se_fim_168;
+#se_verdadeiro_167:
+    r0 := "  ";
+    out 0x0001, r0;
+    r0 := [ra, 136];
+    r0 := [r0, 0];
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := [ra, 128];
+    [ra, 368] := r0;
+    r1 := 1;
+    r0 := [ra, 368];
+    r0 := r0 + r1;
+    [ra, 128] := r0;
+#se_fim_168:
+    r0 := [ra, 136];
+    r0 := r0 + 32;
+    r0 := [r0, 0];
+    [ra, 136] := r0;
+    jump #enquanto_inicio_165;
+#enquanto_fim_166:
+    r0 := [ra, 128];
+    [ra, 368] := r0;
+    r1 := 0;
+    r0 := [ra, 368];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_169;
+    jump #se_fim_170;
+#se_verdadeiro_169:
+    r0 := "No child nodes found.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_170:
+#se_fim_156:
+#se_fim_24:
+    jump #se_fim_22;
+#se_verdadeiro_21:
+    r0 := "";
+    [ra, 104] := r0;
+    r0 := [ra, 40];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 368] := r0;
+    r1 := 2;
+    r0 := [ra, 368];
+    r0 := r0 >= r1;
+    jump_if r0, #se_verdadeiro_171;
+    r0 := "Node name: ";
+    push r0;
+    call #Onm.Cli.Input.Tokenizer.promptRequired$string;
+    [ra, 104] := r0;
+    jump #se_fim_172;
+#se_verdadeiro_171:
+    r0 := [ra, 40];
+    push r0;
+    r0 := 1;
+    push r0;
+    call #ijkL.Collections.get$type_List_int;
+    [ra, 104] := r0;
+#se_fim_172:
+    r0 := [ra, 104];
+    push r0;
+    call #ijkL.Text.length$string;
+    [ra, 368] := r0;
+    r1 := 0;
+    r0 := [ra, 368];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_173;
+    r0 := [ra, 96];
+    push r0;
+    r0 := [ra, 104];
+    push r0;
+    call #Onm.Core.Json.Model.findProperty$type_JsonNode_string;
+    [ra, 112] := r0;
+    r0 := [ra, 112];
+    [ra, 368] := r0;
+    r1 := null;
+    r0 := [ra, 368];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_175;
+    r0 := [ra, 112];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    r0 := not r0;
+    jump_if r0, #se_verdadeiro_177;
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 104];
+    push r0;
+    call #ijkL.Collections.add$type_List_ptr_unknown;
+    jump #se_fim_178;
+#se_verdadeiro_177:
+    r0 := "Error: '";
+    out 0x0001, r0;
+    r0 := [ra, 104];
+    out 0x0001, r0;
+    r0 := "' is a key, not a node.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_178:
+    jump #se_fim_176;
+#se_verdadeiro_175:
+    r0 := "Error: Node '";
+    out 0x0001, r0;
+    r0 := [ra, 104];
+    out 0x0001, r0;
+    r0 := "' does not exist.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_176:
+    jump #se_fim_174;
+#se_verdadeiro_173:
+    r0 := "Error: Node name cannot be empty.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_174:
+#se_fim_22:
+    r0 := [ra, 88];
+    push r0;
+    call #Onm.Core.Json.Model.freeNode$type_JsonNode;
+#se_fim_18:
+    jump #se_fim_16;
+#se_verdadeiro_15:
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 368] := r0;
+    r1 := 0;
+    r0 := [ra, 368];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_179;
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 368] := r0;
+    r1 := 1;
+    r0 := [ra, 368];
+    r0 := r0 - r1;
+    push r0;
+    call #ijkL.Collections.removeAt$type_List_int;
+    jump #se_fim_180;
+#se_verdadeiro_179:
+    r0 := "Session is already at root.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_180:
+#se_fim_16:
+    jump #se_fim_14;
+#se_verdadeiro_13:
+    r0 := [ra, 40];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 368] := r0;
+    r1 := 3;
+    r0 := [ra, 368];
+    r0 := r0 >= r1;
+    jump_if r0, #se_verdadeiro_181;
+    r0 := [ra, 40];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 368] := r0;
+    r1 := 2;
+    r0 := [ra, 368];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_183;
+    call #Onm.Cli.Command.Help.printGeneralHelp$void;
+    jump #se_fim_184;
+#se_verdadeiro_183:
+    r0 := [ra, 40];
+    push r0;
+    r0 := 1;
+    push r0;
+    call #ijkL.Collections.get$type_List_int;
+    [ra, 80] := r0;
+    r0 := [ra, 80];
+    push r0;
+    call #Onm.Cli.Command.Help.printCommandHelp$string;
+#se_fim_184:
+    jump #se_fim_182;
+#se_verdadeiro_181:
+    r0 := [ra, 40];
+    push r0;
+    r0 := 1;
+    push r0;
+    call #ijkL.Collections.get$type_List_int;
+    [ra, 56] := r0;
+    r0 := [ra, 40];
+    push r0;
+    r0 := 2;
+    push r0;
+    call #ijkL.Collections.get$type_List_int;
+    [ra, 64] := r0;
+    r0 := [ra, 56];
+    push r0;
+    r0 := " ";
+    push r0;
+    call #ijkL.Text.concat$string_string;
+    [ra, 72] := r0;
+    r0 := [ra, 72];
+    push r0;
+    r0 := [ra, 64];
+    push r0;
+    call #ijkL.Text.concat$string_string;
+    [ra, 72] := r0;
+    r0 := [ra, 72];
+    push r0;
+    call #Onm.Cli.Command.Help.printCommandHelp$string;
+#se_fim_182:
+#se_fim_14:
+    jump #se_fim_12;
+#se_verdadeiro_11:
+    r0 := [ra, 40];
+    push r0;
+    call #ijkL.Collections.destroyList$type_List;
+    jump #enquanto_fim_4;
+#se_fim_12:
+    r0 := [ra, 40];
+    push r0;
+    call #ijkL.Collections.destroyList$type_List;
+#se_fim_10:
+#se_fim_8:
+    jump #enquanto_inicio_3;
+#enquanto_fim_4:
+    r0 := [ra, 0];
+    push r0;
+    call #ijkL.Collections.destroyList$type_List;
+    r0 := 0;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+// --- Module: ijkL.Text ---
+
+#ijkL.Text.create$int:
+#create$int:
+#ijkL.Text.create:
+#create:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    push r0;
+    call #__builtin_str_create;
+    free_frame;
+    return r0;
+
+#ijkL.Text.get$string_int:
+#get$string_int:
+#ijkL.Text.get:
+#get:
+    alloc_frame 80;
+    r1 := [ra, 0];
+    r2 := [ra, 8];
+    r4 := r1 = 0;
+    jump_if r4, #ijkL_Text_get_oob;
+    r4 := r2 < 0;
+    jump_if r4, #ijkL_Text_get_oob;
+    r3 := 0;
+#ijkL_Text_get_find_len:
+    r0 := byte [r1, r3];
+    r4 := r0 = 0;
+    jump_if r4, #ijkL_Text_get_oob;
+    r4 := r3 = r2;
+    jump_if r4, #ijkL_Text_get_found;
+    r3 := r3 + 1;
+    jump #ijkL_Text_get_find_len;
+#ijkL_Text_get_found:
+    free_frame;
+    return r0;
+#ijkL_Text_get_oob:
+    r0 := 0;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Text.change$string_int_char:
+#change$string_int_char:
+#ijkL.Text.change:
+#change:
+    alloc_frame 88;
+    r1 := [ra, 0];
+    r2 := [ra, 8];
+    r3 := [ra, 16];
+    r0 := 0;
+#ijkL_Text_change_len_loop:
+    r4 := byte [r1, r0];
+    r4 := r4 = 0;
+    jump_if r4, #ijkL_Text_change_len_done;
+    r0 := r0 + 1;
+    jump #ijkL_Text_change_len_loop;
+#ijkL_Text_change_len_done:
+    [ra, 24] := r0;
+    r0 := r0 + 1;
+    r0 := alloc(r0);
+    [ra, 32] := r0;
+    r4 := 0;
+#ijkL_Text_change_copy_loop:
+    r0 := [ra, 24];
+    r0 := r4 < r0;
+    r0 := not r0;
+    jump_if r0, #ijkL_Text_change_copy_end;
+    r0 := r4 = r2;
+    jump_if r0, #ijkL_Text_change_copy_replace;
+    r1 := [ra, 0];
+    r0 := byte [r1, r4];
+    jump #ijkL_Text_change_copy_store;
+#ijkL_Text_change_copy_replace:
+    r0 := [ra, 16];
+#ijkL_Text_change_copy_store:
+    r1 := [ra, 32];
+    byte [r1, r4] := r0;
+    r4 := r4 + 1;
+    jump #ijkL_Text_change_copy_loop;
+#ijkL_Text_change_copy_end:
+    r1 := [ra, 32];
+    r0 := 0;
+    byte [r1, r4] := r0;
+    r0 := [ra, 32];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Text.length$string:
+#length$string:
+#ijkL.Text.length:
+#length:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    push r0;
+    call #__builtin_str_len;
+    free_frame;
+    return r0;
+
+#ijkL.Text.compare$string_string:
+#compare$string_string:
+#ijkL.Text.compare:
+#compare:
+    alloc_frame 80;
+    r1 := [ra, 0];
+    r2 := [ra, 8];
+    r4 := r1 = r2;
+    jump_if r4, #ijkL_Text_compare_same;
+    r4 := r1 = 0;
+    jump_if r4, #ijkL_Text_compare_first_null;
+    r4 := r2 = 0;
+    jump_if r4, #ijkL_Text_compare_second_null;
+    r3 := 0;
+#ijkL_Text_compare_loop:
+    r0 := byte [r1, r3];
+    r4 := byte [r2, r3];
+    r0 := r0 - r4;
+    jump_if r0, #ijkL_Text_compare_diff;
+    r4 := byte [r1, r3];
+    r4 := r4 = 0;
+    jump_if r4, #ijkL_Text_compare_same;
+    r3 := r3 + 1;
+    jump #ijkL_Text_compare_loop;
+#ijkL_Text_compare_first_null:
+    r0 := -1;
+    free_frame;
+    return r0;
+#ijkL_Text_compare_second_null:
+    r0 := 1;
+    free_frame;
+    return r0;
+#ijkL_Text_compare_diff:
+    free_frame;
+    return r0;
+#ijkL_Text_compare_same:
+    r0 := 0;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Text.concat$string_string:
+#concat$string_string:
+#ijkL.Text.concat:
+#concat:
+    alloc_frame 80;
+    r0 := [ra, 0];
+    push r0;
+    call #ijkL.Text.length$string;
+    [ra, 16] := r0;
+    r0 := [ra, 8];
+    push r0;
+    call #ijkL.Text.length$string;
+    [ra, 24] := r0;
+    r1 := [ra, 16];
+    r0 := r1 + r0;
+    r0 := r0 + 1;
+    r0 := alloc(r0);
+    [ra, 32] := r0;
+    r4 := [ra, 16];
+    r3 := r4 = 0;
+    jump_if r3, #ijkL_Text_concat_second_seg;
+    r0 := [ra, 0];
+    out 0x0020, r0;
+    r0 := [ra, 32];
+    out 0x0021, r0;
+    r0 := [ra, 16];
+    out 0x0022, r0;
+    r0 := 1;
+    out 0x0023, r0;
+#ijkL_Text_concat_second_seg:
+    r4 := [ra, 24];
+    r3 := r4 = 0;
+    jump_if r3, #ijkL_Text_concat_term;
+    r0 := [ra, 8];
+    out 0x0020, r0;
+    r1 := [ra, 32];
+    r2 := [ra, 16];
+    r0 := r1 + r2;
+    out 0x0021, r0;
+    r0 := [ra, 24];
+    out 0x0022, r0;
+    r0 := 1;
+    out 0x0023, r0;
+#ijkL_Text_concat_term:
+    r1 := [ra, 16];
+    r2 := [ra, 24];
+    r1 := r1 + r2;
+    r2 := [ra, 32];
+    r0 := 0;
+    byte [r2, r1] := r0;
+    r0 := [ra, 32];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Text.substring$string_int_int:
+#substring$string_int_int:
+#ijkL.Text.substring:
+#substring:
+    alloc_frame 88;
+    r1 := [ra, 0];
+    r4 := r1 = 0;
+    jump_if r4, #ijkL_Text_sub_empty;
+    r2 := [ra, 8];
+    r3 := [ra, 16];
+    r4 := r2 < 0;
+    jump_if r4, #ijkL_Text_sub_clamp_start;
+    jump #ijkL_Text_sub_check_len;
+#ijkL_Text_sub_clamp_start:
+    r2 := 0;
+#ijkL_Text_sub_check_len:
+    r4 := r3 <= 0;
+    jump_if r4, #ijkL_Text_sub_empty;
+    r0 := 0;
+#ijkL_Text_sub_skip_loop:
+    r4 := r0 = r2;
+    jump_if r4, #ijkL_Text_sub_start_reached;
+    r4 := byte [r1, r0];
+    r4 := r4 = 0;
+    jump_if r4, #ijkL_Text_sub_empty;
+    r0 := r0 + 1;
+    jump #ijkL_Text_sub_skip_loop;
+#ijkL_Text_sub_start_reached:
+    r4 := 0;
+#ijkL_Text_sub_count_avail:
+    r0 := r4 = r3;
+    jump_if r0, #ijkL_Text_sub_alloc;
+    r0 := r2 + r4;
+    r0 := byte [r1, r0];
+    r0 := r0 = 0;
+    jump_if r0, #ijkL_Text_sub_alloc;
+    r4 := r4 + 1;
+    jump #ijkL_Text_sub_count_avail;
+#ijkL_Text_sub_alloc:
+    [ra, 24] := r4;
+    r0 := r4 + 1;
+    r0 := alloc(r0);
+    [ra, 32] := r0;
+    r4 := [ra, 24];
+    r3 := r4 = 0;
+    jump_if r3, #ijkL_Text_sub_term;
+    r1 := [ra, 0];
+    r2 := [ra, 8];
+    r0 := r1 + r2;
+    out 0x0020, r0;
+    r0 := [ra, 32];
+    out 0x0021, r0;
+    r0 := [ra, 24];
+    out 0x0022, r0;
+    r0 := 1;
+    out 0x0023, r0;
+#ijkL_Text_sub_term:
+    r1 := [ra, 32];
+    r2 := [ra, 24];
+    r0 := 0;
+    byte [r1, r2] := r0;
+    r0 := [ra, 32];
+    free_frame;
+    return r0;
+#ijkL_Text_sub_empty:
+    r0 := alloc(1);
+    r4 := 0;
+    byte [r0, 0] := r4;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Text.equals$string_string:
+#equals$string_string:
+#ijkL.Text.equals:
+#equals:
+    alloc_frame 80;
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 8];
+    push r0;
+    call #ijkL.Text.compare$string_string;
+    [ra, 16] := r0;
+    r1 := 0;
+    r0 := [ra, 16];
+    r0 := r0 = r1;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Text.indexOf$string_string:
+#indexOf$string_string:
+#ijkL.Text.indexOf:
+#indexOf:
+    alloc_frame 120;
+    r0 := [ra, 0];
+    push r0;
+    call #ijkL.Text.length$string;
+    [ra, 16] := r0;
+    r0 := [ra, 8];
+    push r0;
+    call #ijkL.Text.length$string;
+    [ra, 24] := r0;
+    r0 := [ra, 24];
+    [ra, 56] := r0;
+    r1 := 0;
+    r0 := [ra, 56];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_185;
+    jump #se_fim_186;
+#se_verdadeiro_185:
+    r0 := 0;
+    free_frame;
+    return r0;
+#se_fim_186:
+    r0 := [ra, 24];
+    [ra, 56] := r0;
+    r1 := [ra, 16];
+    r0 := [ra, 56];
+    r0 := r0 > r1;
+    jump_if r0, #se_verdadeiro_187;
+    jump #se_fim_188;
+#se_verdadeiro_187:
+    r0 := 1;
+    r0 := -r0;
+    free_frame;
+    return r0;
+#se_fim_188:
+    r0 := [ra, 16];
+    [ra, 56] := r0;
+    r1 := [ra, 24];
+    r0 := [ra, 56];
+    r0 := r0 - r1;
+    [ra, 32] := r0;
+    r0 := 0;
+    [ra, 40] := r0;
+#enquanto_inicio_189:
+    r0 := [ra, 40];
+    [ra, 56] := r0;
+    r1 := [ra, 32];
+    r0 := [ra, 56];
+    r0 := r0 <= r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_190;
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 40];
+    push r0;
+    r0 := [ra, 24];
+    push r0;
+    call #ijkL.Text.substring$string_int_int;
+    [ra, 48] := r0;
+    r0 := [ra, 48];
+    push r0;
+    r0 := [ra, 8];
+    push r0;
+    call #ijkL.Text.compare$string_string;
+    [ra, 56] := r0;
+    r1 := 0;
+    r0 := [ra, 56];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_191;
+    jump #se_fim_192;
+#se_verdadeiro_191:
+    r0 := [ra, 40];
+    free_frame;
+    return r0;
+#se_fim_192:
+    r0 := [ra, 40];
+    [ra, 56] := r0;
+    r1 := 1;
+    r0 := [ra, 56];
+    r0 := r0 + r1;
+    [ra, 40] := r0;
+    jump #enquanto_inicio_189;
+#enquanto_fim_190:
+    r0 := 1;
+    r0 := -r0;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Text.contains$string_string:
+#contains$string_string:
+#ijkL.Text.contains:
+#contains:
+    alloc_frame 80;
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 8];
+    push r0;
+    call #ijkL.Text.indexOf$string_string;
+    [ra, 16] := r0;
+    r1 := 0;
+    r0 := [ra, 16];
+    r0 := r0 >= r1;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Text.startsWith$string_string:
+#startsWith$string_string:
+#ijkL.Text.startsWith:
+#startsWith:
+    alloc_frame 104;
+    r0 := [ra, 8];
+    push r0;
+    call #ijkL.Text.length$string;
+    [ra, 16] := r0;
+    r0 := [ra, 16];
+    [ra, 40] := r0;
+    r1 := 0;
+    r0 := [ra, 40];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_193;
+    jump #se_fim_194;
+#se_verdadeiro_193:
+    r0 := true;
+    free_frame;
+    return r0;
+#se_fim_194:
+    r0 := [ra, 0];
+    push r0;
+    call #ijkL.Text.length$string;
+    [ra, 24] := r0;
+    r0 := [ra, 16];
+    [ra, 40] := r0;
+    r1 := [ra, 24];
+    r0 := [ra, 40];
+    r0 := r0 > r1;
+    jump_if r0, #se_verdadeiro_195;
+    jump #se_fim_196;
+#se_verdadeiro_195:
+    r0 := false;
+    free_frame;
+    return r0;
+#se_fim_196:
+    r0 := [ra, 0];
+    push r0;
+    r0 := 0;
+    push r0;
+    r0 := [ra, 16];
+    push r0;
+    call #ijkL.Text.substring$string_int_int;
+    [ra, 32] := r0;
+    r0 := [ra, 32];
+    push r0;
+    r0 := [ra, 8];
+    push r0;
+    call #ijkL.Text.compare$string_string;
+    [ra, 40] := r0;
+    r1 := 0;
+    r0 := [ra, 40];
+    r0 := r0 = r1;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Text.endsWith$string_string:
+#endsWith$string_string:
+#ijkL.Text.endsWith:
+#endsWith:
+    alloc_frame 104;
+    r0 := [ra, 8];
+    push r0;
+    call #ijkL.Text.length$string;
+    [ra, 16] := r0;
+    r0 := [ra, 16];
+    [ra, 40] := r0;
+    r1 := 0;
+    r0 := [ra, 40];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_197;
+    jump #se_fim_198;
+#se_verdadeiro_197:
+    r0 := true;
+    free_frame;
+    return r0;
+#se_fim_198:
+    r0 := [ra, 0];
+    push r0;
+    call #ijkL.Text.length$string;
+    [ra, 24] := r0;
+    r0 := [ra, 16];
+    [ra, 40] := r0;
+    r1 := [ra, 24];
+    r0 := [ra, 40];
+    r0 := r0 > r1;
+    jump_if r0, #se_verdadeiro_199;
+    jump #se_fim_200;
+#se_verdadeiro_199:
+    r0 := false;
+    free_frame;
+    return r0;
+#se_fim_200:
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 24];
+    [ra, 40] := r0;
+    r1 := [ra, 16];
+    r0 := [ra, 40];
+    r0 := r0 - r1;
+    push r0;
+    r0 := [ra, 16];
+    push r0;
+    call #ijkL.Text.substring$string_int_int;
+    [ra, 32] := r0;
+    r0 := [ra, 32];
+    push r0;
+    r0 := [ra, 8];
+    push r0;
+    call #ijkL.Text.compare$string_string;
+    [ra, 40] := r0;
+    r1 := 0;
+    r0 := [ra, 40];
+    r0 := r0 = r1;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Text.trim$string:
+#trim$string:
+#ijkL.Text.trim:
+#trim:
+    alloc_frame 120;
+    r0 := [ra, 0];
+    push r0;
+    call #ijkL.Text.length$string;
+    [ra, 8] := r0;
+    r0 := [ra, 8];
+    [ra, 56] := r0;
+    r1 := 0;
+    r0 := [ra, 56];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_201;
+    jump #se_fim_202;
+#se_verdadeiro_201:
+    r0 := "";
+    free_frame;
+    return r0;
+#se_fim_202:
+    r0 := 0;
+    [ra, 16] := r0;
+#enquanto_inicio_203:
+    r0 := [ra, 16];
+    [ra, 56] := r0;
+    r1 := [ra, 8];
+    r0 := [ra, 56];
+    r0 := r0 < r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_204;
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 16];
+    push r0;
+    call #ijkL.Text.get$string_int;
+    [ra, 24] := r0;
+    r0 := [ra, 24];
+    [ra, 56] := r0;
+    r1 := ' ';
+    r0 := [ra, 56];
+    r0 := r0 <> r1;
+    [ra, 56] := r0;
+    r0 := [ra, 24];
+    [ra, 64] := r0;
+    r1 := '\t';
+    r0 := [ra, 64];
+    r1 := r0 <> r1;
+    r0 := [ra, 56];
+    r0 := r0 and r1;
+    [ra, 56] := r0;
+    r0 := [ra, 24];
+    [ra, 64] := r0;
+    r1 := '\n';
+    r0 := [ra, 64];
+    r1 := r0 <> r1;
+    r0 := [ra, 56];
+    r0 := r0 and r1;
+    [ra, 56] := r0;
+    r0 := [ra, 24];
+    [ra, 64] := r0;
+    r1 := '\r';
+    r0 := [ra, 64];
+    r1 := r0 <> r1;
+    r0 := [ra, 56];
+    r0 := r0 and r1;
+    jump_if r0, #se_verdadeiro_205;
+    jump #se_fim_206;
+#se_verdadeiro_205:
+    jump #enquanto_fim_204;
+#se_fim_206:
+    r0 := [ra, 16];
+    [ra, 56] := r0;
+    r1 := 1;
+    r0 := [ra, 56];
+    r0 := r0 + r1;
+    [ra, 16] := r0;
+    jump #enquanto_inicio_203;
+#enquanto_fim_204:
+    r0 := [ra, 16];
+    [ra, 56] := r0;
+    r1 := [ra, 8];
+    r0 := [ra, 56];
+    r0 := r0 >= r1;
+    jump_if r0, #se_verdadeiro_207;
+    jump #se_fim_208;
+#se_verdadeiro_207:
+    r0 := "";
+    free_frame;
+    return r0;
+#se_fim_208:
+    r0 := [ra, 8];
+    [ra, 56] := r0;
+    r1 := 1;
+    r0 := [ra, 56];
+    r0 := r0 - r1;
+    [ra, 32] := r0;
+#enquanto_inicio_209:
+    r0 := [ra, 32];
+    [ra, 56] := r0;
+    r1 := [ra, 16];
+    r0 := [ra, 56];
+    r0 := r0 >= r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_210;
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 32];
+    push r0;
+    call #ijkL.Text.get$string_int;
+    [ra, 40] := r0;
+    r0 := [ra, 40];
+    [ra, 56] := r0;
+    r1 := ' ';
+    r0 := [ra, 56];
+    r0 := r0 <> r1;
+    [ra, 56] := r0;
+    r0 := [ra, 40];
+    [ra, 64] := r0;
+    r1 := '\t';
+    r0 := [ra, 64];
+    r1 := r0 <> r1;
+    r0 := [ra, 56];
+    r0 := r0 and r1;
+    [ra, 56] := r0;
+    r0 := [ra, 40];
+    [ra, 64] := r0;
+    r1 := '\n';
+    r0 := [ra, 64];
+    r1 := r0 <> r1;
+    r0 := [ra, 56];
+    r0 := r0 and r1;
+    [ra, 56] := r0;
+    r0 := [ra, 40];
+    [ra, 64] := r0;
+    r1 := '\r';
+    r0 := [ra, 64];
+    r1 := r0 <> r1;
+    r0 := [ra, 56];
+    r0 := r0 and r1;
+    jump_if r0, #se_verdadeiro_211;
+    jump #se_fim_212;
+#se_verdadeiro_211:
+    jump #enquanto_fim_210;
+#se_fim_212:
+    r0 := [ra, 32];
+    [ra, 56] := r0;
+    r1 := 1;
+    r0 := [ra, 56];
+    r0 := r0 - r1;
+    [ra, 32] := r0;
+    jump #enquanto_inicio_209;
+#enquanto_fim_210:
+    r0 := [ra, 32];
+    [ra, 56] := r0;
+    r1 := [ra, 16];
+    r0 := [ra, 56];
+    r0 := r0 - r1;
+    [ra, 56] := r0;
+    r1 := 1;
+    r0 := [ra, 56];
+    r0 := r0 + r1;
+    [ra, 48] := r0;
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 16];
+    push r0;
+    r0 := [ra, 48];
+    push r0;
+    call #ijkL.Text.substring$string_int_int;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+// --- Module: ijkL.Collections ---
+
+#ijkL.Collections.createList$int:
+#createList$int:
+#ijkL.Collections.createList:
+#createList:
+    alloc_frame 80;
+    r0 := [ra, 0];
+    [ra, 16] := r0;
+    r1 := 0;
+    r0 := [ra, 16];
+    r0 := r0 <= r1;
+    jump_if r0, #se_verdadeiro_213;
+    jump #se_fim_214;
+#se_verdadeiro_213:
+    r0 := 4;
+    [ra, 0] := r0;
+#se_fim_214:
+    r0 := 24;
+    r0 := alloc(r0);
+    [ra, 8] := r0;
+    r0 := [ra, 0];
+    [ra, 16] := r0;
+    r1 := [ra, 8];
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := 0;
+    [ra, 16] := r0;
+    r1 := [ra, 8];
+    r1 := r1 + 8;
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := 8;
+    [ra, 16] := r0;
+    r1 := [ra, 0];
+    r0 := [ra, 16];
+    r0 := r0 * r1;
+    r0 := alloc(r0);
+    [ra, 16] := r0;
+    r1 := [ra, 8];
+    r1 := r1 + 16;
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := [ra, 8];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.add$type_List_ptr_unknown:
+#add$type_List_ptr_unknown:
+#ijkL.Collections.add:
+#add:
+    alloc_frame 96;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r1 := [r1, 0];
+    r0 := [ra, 32];
+    r0 := r0 >= r1;
+    jump_if r0, #se_verdadeiro_215;
+    jump #se_fim_216;
+#se_verdadeiro_215:
+    r0 := [ra, 0];
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r1 := 2;
+    r0 := [ra, 32];
+    r0 := r0 * r1;
+    [ra, 16] := r0;
+    r0 := [ra, 16];
+    [ra, 32] := r0;
+    r1 := 0;
+    r0 := [ra, 32];
+    r0 := r0 <= r1;
+    jump_if r0, #se_verdadeiro_217;
+    jump #se_fim_218;
+#se_verdadeiro_217:
+    r0 := 4;
+    [ra, 16] := r0;
+#se_fim_218:
+    r0 := 8;
+    [ra, 32] := r0;
+    r1 := [ra, 16];
+    r0 := [ra, 32];
+    r0 := r0 * r1;
+    r0 := alloc(r0);
+    [ra, 24] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r1 := 0;
+    r0 := [ra, 32];
+    r0 := r0 > r1;
+    jump_if r0, #se_verdadeiro_219;
+    jump #se_fim_220;
+#se_verdadeiro_219:
+    r0 := [ra, 24];
+    push r0;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    push r0;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r1 := 8;
+    r0 := [ra, 32];
+    r0 := r0 * r1;
+    push r0;
+    call #ijkL.Memory.copy$ptr_unknown_ptr_unknown_int;
+#se_fim_220:
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    free(r0);
+    r0 := [ra, 24];
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r0 := [ra, 32];
+    [r1, 0] := r0;
+    r0 := [ra, 16];
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r0 := [ra, 32];
+    [r1, 0] := r0;
+#se_fim_216:
+    r0 := [ra, 8];
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r1 := [r1, 0];
+    [ra, 40] := r1;
+    r3 := [ra, 0];
+    r3 := r3 + 8;
+    r3 := [r3, 0];
+    r1 := [ra, 40];
+    r3 := r3 * 8;
+    r1 := r1 + r3;
+    r0 := [ra, 32];
+    [r1, 0] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r1 := 1;
+    r0 := [ra, 32];
+    r0 := r0 + r1;
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r0 := [ra, 32];
+    [r1, 0] := r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.get$type_List_int:
+#get$type_List_int:
+    alloc_frame 80;
+    r0 := [ra, 8];
+    [ra, 16] := r0;
+    r1 := 0;
+    r0 := [ra, 16];
+    r0 := r0 < r1;
+    [ra, 16] := r0;
+    r0 := [ra, 8];
+    [ra, 24] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r1 := [r1, 0];
+    r0 := [ra, 24];
+    r1 := r0 >= r1;
+    r0 := [ra, 16];
+    r0 := r0 or r1;
+    jump_if r0, #se_verdadeiro_221;
+    jump #se_fim_222;
+#se_verdadeiro_221:
+    r0 := null;
+    free_frame;
+    return r0;
+#se_fim_222:
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 16] := r0;
+    r3 := [ra, 8];
+    r0 := [ra, 16];
+    r3 := r3 * 8;
+    r0 := r0 + r3;
+    r0 := [r0, 0];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.set$type_List_int_ptr_unknown:
+#set$type_List_int_ptr_unknown:
+#ijkL.Collections.set:
+#set:
+    alloc_frame 88;
+    r0 := [ra, 8];
+    [ra, 24] := r0;
+    r1 := 0;
+    r0 := [ra, 24];
+    r0 := r0 < r1;
+    [ra, 24] := r0;
+    r0 := [ra, 8];
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r1 := [r1, 0];
+    r0 := [ra, 32];
+    r1 := r0 >= r1;
+    r0 := [ra, 24];
+    r0 := r0 or r1;
+    jump_if r0, #se_verdadeiro_223;
+    jump #se_fim_224;
+#se_verdadeiro_223:
+    r0 := false;
+    free_frame;
+    return r0;
+#se_fim_224:
+    r0 := [ra, 16];
+    [ra, 24] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r1 := [r1, 0];
+    [ra, 32] := r1;
+    r3 := [ra, 8];
+    r1 := [ra, 32];
+    r3 := r3 * 8;
+    r1 := r1 + r3;
+    r0 := [ra, 24];
+    [r1, 0] := r0;
+    r0 := true;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.removeAt$type_List_int:
+#removeAt$type_List_int:
+#ijkL.Collections.removeAt:
+#removeAt:
+    alloc_frame 96;
+    r0 := [ra, 8];
+    [ra, 32] := r0;
+    r1 := 0;
+    r0 := [ra, 32];
+    r0 := r0 < r1;
+    [ra, 32] := r0;
+    r0 := [ra, 8];
+    [ra, 40] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r1 := [r1, 0];
+    r0 := [ra, 40];
+    r1 := r0 >= r1;
+    r0 := [ra, 32];
+    r0 := r0 or r1;
+    jump_if r0, #se_verdadeiro_225;
+    jump #se_fim_226;
+#se_verdadeiro_225:
+    r0 := null;
+    free_frame;
+    return r0;
+#se_fim_226:
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r3 := [ra, 8];
+    r0 := [ra, 32];
+    r3 := r3 * 8;
+    r0 := r0 + r3;
+    r0 := [r0, 0];
+    [ra, 16] := r0;
+    r0 := [ra, 8];
+    [ra, 24] := r0;
+#enquanto_inicio_227:
+    r0 := [ra, 24];
+    [ra, 32] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 40] := r0;
+    r1 := 1;
+    r0 := [ra, 40];
+    r1 := r0 - r1;
+    r0 := [ra, 32];
+    r0 := r0 < r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_228;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r0 := [ra, 24];
+    [ra, 40] := r0;
+    r1 := 1;
+    r0 := [ra, 40];
+    r3 := r0 + r1;
+    r0 := [ra, 32];
+    r3 := r3 * 8;
+    r0 := r0 + r3;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r1 := [r1, 0];
+    [ra, 40] := r1;
+    r3 := [ra, 24];
+    r1 := [ra, 40];
+    r3 := r3 * 8;
+    r1 := r1 + r3;
+    r0 := [ra, 32];
+    [r1, 0] := r0;
+    r0 := [ra, 24];
+    [ra, 32] := r0;
+    r1 := 1;
+    r0 := [ra, 32];
+    r0 := r0 + r1;
+    [ra, 24] := r0;
+    jump #enquanto_inicio_227;
+#enquanto_fim_228:
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r1 := 1;
+    r0 := [ra, 32];
+    r0 := r0 - r1;
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r0 := [ra, 32];
+    [r1, 0] := r0;
+    r0 := [ra, 16];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.size$type_List:
+#size$type_List:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.length$type_List:
+#length$type_List:
+#ijkL.Collections.length:
+#length:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.clear$type_List:
+#clear$type_List:
+    alloc_frame 72;
+    r0 := 0;
+    [ra, 8] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r0 := [ra, 8];
+    [r1, 0] := r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.destroyList$type_List:
+#destroyList$type_List:
+#ijkL.Collections.destroyList:
+#destroyList:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 8] := r0;
+    r1 := null;
+    r0 := [ra, 8];
+    r0 := r0 <> r1;
+    jump_if r0, #se_verdadeiro_229;
+    jump #se_fim_230;
+#se_verdadeiro_229:
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    free(r0);
+    r0 := null;
+    [ra, 8] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r0 := [ra, 8];
+    [r1, 0] := r0;
+#se_fim_230:
+    r0 := [ra, 0];
+    free(r0);
+    free_frame;
+    return;
+
+#ijkL.Collections.createStack$int:
+#createStack$int:
+#ijkL.Collections.createStack:
+#createStack:
+    alloc_frame 80;
+    r0 := [ra, 0];
+    [ra, 16] := r0;
+    r1 := 0;
+    r0 := [ra, 16];
+    r0 := r0 <= r1;
+    jump_if r0, #se_verdadeiro_231;
+    jump #se_fim_232;
+#se_verdadeiro_231:
+    r0 := 4;
+    [ra, 0] := r0;
+#se_fim_232:
+    r0 := 24;
+    r0 := alloc(r0);
+    [ra, 8] := r0;
+    r0 := [ra, 0];
+    [ra, 16] := r0;
+    r1 := [ra, 8];
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := 0;
+    [ra, 16] := r0;
+    r1 := [ra, 8];
+    r1 := r1 + 8;
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := 8;
+    [ra, 16] := r0;
+    r1 := [ra, 0];
+    r0 := [ra, 16];
+    r0 := r0 * r1;
+    r0 := alloc(r0);
+    [ra, 16] := r0;
+    r1 := [ra, 8];
+    r1 := r1 + 16;
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := [ra, 8];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.push$type_Stack_ptr_unknown:
+#push$type_Stack_ptr_unknown:
+#ijkL.Collections.push:
+#push:
+    alloc_frame 96;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r1 := [r1, 0];
+    r0 := [ra, 32];
+    r0 := r0 >= r1;
+    jump_if r0, #se_verdadeiro_233;
+    jump #se_fim_234;
+#se_verdadeiro_233:
+    r0 := [ra, 0];
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r1 := 2;
+    r0 := [ra, 32];
+    r0 := r0 * r1;
+    [ra, 16] := r0;
+    r0 := [ra, 16];
+    [ra, 32] := r0;
+    r1 := 0;
+    r0 := [ra, 32];
+    r0 := r0 <= r1;
+    jump_if r0, #se_verdadeiro_235;
+    jump #se_fim_236;
+#se_verdadeiro_235:
+    r0 := 4;
+    [ra, 16] := r0;
+#se_fim_236:
+    r0 := 8;
+    [ra, 32] := r0;
+    r1 := [ra, 16];
+    r0 := [ra, 32];
+    r0 := r0 * r1;
+    r0 := alloc(r0);
+    [ra, 24] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r1 := 0;
+    r0 := [ra, 32];
+    r0 := r0 > r1;
+    jump_if r0, #se_verdadeiro_237;
+    jump #se_fim_238;
+#se_verdadeiro_237:
+    r0 := [ra, 24];
+    push r0;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    push r0;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r1 := 8;
+    r0 := [ra, 32];
+    r0 := r0 * r1;
+    push r0;
+    call #ijkL.Memory.copy$ptr_unknown_ptr_unknown_int;
+#se_fim_238:
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    free(r0);
+    r0 := [ra, 24];
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r0 := [ra, 32];
+    [r1, 0] := r0;
+    r0 := [ra, 16];
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r0 := [ra, 32];
+    [r1, 0] := r0;
+#se_fim_234:
+    r0 := [ra, 8];
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r1 := [r1, 0];
+    [ra, 40] := r1;
+    r3 := [ra, 0];
+    r3 := r3 + 8;
+    r3 := [r3, 0];
+    r1 := [ra, 40];
+    r3 := r3 * 8;
+    r1 := r1 + r3;
+    r0 := [ra, 32];
+    [r1, 0] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r1 := 1;
+    r0 := [ra, 32];
+    r0 := r0 + r1;
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r0 := [ra, 32];
+    [r1, 0] := r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.pop$type_Stack:
+#pop$type_Stack:
+#ijkL.Collections.pop:
+#pop:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 8] := r0;
+    r1 := 0;
+    r0 := [ra, 8];
+    r0 := r0 <= r1;
+    jump_if r0, #se_verdadeiro_239;
+    jump #se_fim_240;
+#se_verdadeiro_239:
+    r0 := null;
+    free_frame;
+    return r0;
+#se_fim_240:
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 8] := r0;
+    r1 := 1;
+    r0 := [ra, 8];
+    r0 := r0 - r1;
+    [ra, 8] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r0 := [ra, 8];
+    [r1, 0] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 8] := r0;
+    r3 := [ra, 0];
+    r3 := r3 + 8;
+    r3 := [r3, 0];
+    r0 := [ra, 8];
+    r3 := r3 * 8;
+    r0 := r0 + r3;
+    r0 := [r0, 0];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.peek$type_Stack:
+#peek$type_Stack:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 8] := r0;
+    r1 := 0;
+    r0 := [ra, 8];
+    r0 := r0 <= r1;
+    jump_if r0, #se_verdadeiro_241;
+    jump #se_fim_242;
+#se_verdadeiro_241:
+    r0 := null;
+    free_frame;
+    return r0;
+#se_fim_242:
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 8] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 16] := r0;
+    r1 := 1;
+    r0 := [ra, 16];
+    r3 := r0 - r1;
+    r0 := [ra, 8];
+    r3 := r3 * 8;
+    r0 := r0 + r3;
+    r0 := [r0, 0];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.isEmpty$type_Stack:
+#isEmpty$type_Stack:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 8] := r0;
+    r1 := 0;
+    r0 := [ra, 8];
+    r0 := r0 = r1;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.size$type_Stack:
+#size$type_Stack:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.clear$type_Stack:
+#clear$type_Stack:
+    alloc_frame 72;
+    r0 := 0;
+    [ra, 8] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r0 := [ra, 8];
+    [r1, 0] := r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.destroyStack$type_Stack:
+#destroyStack$type_Stack:
+#ijkL.Collections.destroyStack:
+#destroyStack:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 8] := r0;
+    r1 := null;
+    r0 := [ra, 8];
+    r0 := r0 <> r1;
+    jump_if r0, #se_verdadeiro_243;
+    jump #se_fim_244;
+#se_verdadeiro_243:
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    free(r0);
+    r0 := null;
+    [ra, 8] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r0 := [ra, 8];
+    [r1, 0] := r0;
+#se_fim_244:
+    r0 := [ra, 0];
+    free(r0);
+    free_frame;
+    return;
+
+#ijkL.Collections.createQueue$int:
+#createQueue$int:
+#ijkL.Collections.createQueue:
+#createQueue:
+    alloc_frame 80;
+    r0 := [ra, 0];
+    [ra, 16] := r0;
+    r1 := 0;
+    r0 := [ra, 16];
+    r0 := r0 <= r1;
+    jump_if r0, #se_verdadeiro_245;
+    jump #se_fim_246;
+#se_verdadeiro_245:
+    r0 := 4;
+    [ra, 0] := r0;
+#se_fim_246:
+    r0 := 40;
+    r0 := alloc(r0);
+    [ra, 8] := r0;
+    r0 := [ra, 0];
+    [ra, 16] := r0;
+    r1 := [ra, 8];
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := 0;
+    [ra, 16] := r0;
+    r1 := [ra, 8];
+    r1 := r1 + 8;
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := 0;
+    [ra, 16] := r0;
+    r1 := [ra, 8];
+    r1 := r1 + 16;
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := 0;
+    [ra, 16] := r0;
+    r1 := [ra, 8];
+    r1 := r1 + 24;
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := 8;
+    [ra, 16] := r0;
+    r1 := [ra, 0];
+    r0 := [ra, 16];
+    r0 := r0 * r1;
+    r0 := alloc(r0);
+    [ra, 16] := r0;
+    r1 := [ra, 8];
+    r1 := r1 + 32;
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := [ra, 8];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.enqueue$type_Queue_ptr_unknown:
+#enqueue$type_Queue_ptr_unknown:
+#ijkL.Collections.enqueue:
+#enqueue:
+    alloc_frame 112;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 48] := r0;
+    r1 := [ra, 0];
+    r1 := [r1, 0];
+    r0 := [ra, 48];
+    r0 := r0 >= r1;
+    jump_if r0, #se_verdadeiro_247;
+    jump #se_fim_248;
+#se_verdadeiro_247:
+    r0 := [ra, 0];
+    r0 := [r0, 0];
+    [ra, 48] := r0;
+    r1 := 2;
+    r0 := [ra, 48];
+    r0 := r0 * r1;
+    [ra, 16] := r0;
+    r0 := [ra, 16];
+    [ra, 48] := r0;
+    r1 := 0;
+    r0 := [ra, 48];
+    r0 := r0 <= r1;
+    jump_if r0, #se_verdadeiro_249;
+    jump #se_fim_250;
+#se_verdadeiro_249:
+    r0 := 4;
+    [ra, 16] := r0;
+#se_fim_250:
+    r0 := 8;
+    [ra, 48] := r0;
+    r1 := [ra, 16];
+    r0 := [ra, 48];
+    r0 := r0 * r1;
+    r0 := alloc(r0);
+    [ra, 24] := r0;
+    r0 := 0;
+    [ra, 32] := r0;
+#enquanto_inicio_251:
+    r0 := [ra, 32];
+    [ra, 48] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r1 := [r1, 0];
+    r0 := [ra, 48];
+    r0 := r0 < r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_252;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 48] := r0;
+    r1 := [ra, 32];
+    r0 := [ra, 48];
+    r0 := r0 + r1;
+    [ra, 48] := r0;
+    r1 := [ra, 0];
+    r1 := [r1, 0];
+    r0 := [ra, 48];
+    r0 := r0 mod r1;
+    [ra, 40] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 32;
+    r0 := [r0, 0];
+    [ra, 48] := r0;
+    r3 := [ra, 40];
+    r0 := [ra, 48];
+    r3 := r3 * 8;
+    r0 := r0 + r3;
+    r0 := [r0, 0];
+    [ra, 48] := r0;
+    r1 := [ra, 24];
+    [ra, 56] := r1;
+    r3 := [ra, 32];
+    r1 := [ra, 56];
+    r3 := r3 * 8;
+    r1 := r1 + r3;
+    r0 := [ra, 48];
+    [r1, 0] := r0;
+    r0 := [ra, 32];
+    [ra, 48] := r0;
+    r1 := 1;
+    r0 := [ra, 48];
+    r0 := r0 + r1;
+    [ra, 32] := r0;
+    jump #enquanto_inicio_251;
+#enquanto_fim_252:
+    r0 := [ra, 0];
+    r0 := r0 + 32;
+    r0 := [r0, 0];
+    free(r0);
+    r0 := [ra, 24];
+    [ra, 48] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 32;
+    r0 := [ra, 48];
+    [r1, 0] := r0;
+    r0 := 0;
+    [ra, 48] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r0 := [ra, 48];
+    [r1, 0] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 48] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 24;
+    r0 := [ra, 48];
+    [r1, 0] := r0;
+    r0 := [ra, 16];
+    [ra, 48] := r0;
+    r1 := [ra, 0];
+    r0 := [ra, 48];
+    [r1, 0] := r0;
+#se_fim_248:
+    r0 := [ra, 8];
+    [ra, 48] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 32;
+    r1 := [r1, 0];
+    [ra, 56] := r1;
+    r3 := [ra, 0];
+    r3 := r3 + 24;
+    r3 := [r3, 0];
+    r1 := [ra, 56];
+    r3 := r3 * 8;
+    r1 := r1 + r3;
+    r0 := [ra, 48];
+    [r1, 0] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 24;
+    r0 := [r0, 0];
+    [ra, 48] := r0;
+    r1 := 1;
+    r0 := [ra, 48];
+    r0 := r0 + r1;
+    [ra, 48] := r0;
+    r1 := [ra, 0];
+    r1 := [r1, 0];
+    r0 := [ra, 48];
+    r0 := r0 mod r1;
+    [ra, 48] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 24;
+    r0 := [ra, 48];
+    [r1, 0] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 48] := r0;
+    r1 := 1;
+    r0 := [ra, 48];
+    r0 := r0 + r1;
+    [ra, 48] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r0 := [ra, 48];
+    [r1, 0] := r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.dequeue$type_Queue:
+#dequeue$type_Queue:
+#ijkL.Collections.dequeue:
+#dequeue:
+    alloc_frame 80;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 16] := r0;
+    r1 := 0;
+    r0 := [ra, 16];
+    r0 := r0 <= r1;
+    jump_if r0, #se_verdadeiro_253;
+    jump #se_fim_254;
+#se_verdadeiro_253:
+    r0 := null;
+    free_frame;
+    return r0;
+#se_fim_254:
+    r0 := [ra, 0];
+    r0 := r0 + 32;
+    r0 := [r0, 0];
+    [ra, 16] := r0;
+    r3 := [ra, 0];
+    r3 := r3 + 16;
+    r3 := [r3, 0];
+    r0 := [ra, 16];
+    r3 := r3 * 8;
+    r0 := r0 + r3;
+    r0 := [r0, 0];
+    [ra, 8] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 16] := r0;
+    r1 := 1;
+    r0 := [ra, 16];
+    r0 := r0 + r1;
+    [ra, 16] := r0;
+    r1 := [ra, 0];
+    r1 := [r1, 0];
+    r0 := [ra, 16];
+    r0 := r0 mod r1;
+    [ra, 16] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 16] := r0;
+    r1 := 1;
+    r0 := [ra, 16];
+    r0 := r0 - r1;
+    [ra, 16] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := [ra, 8];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.peek$type_Queue:
+#peek$type_Queue:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 8] := r0;
+    r1 := 0;
+    r0 := [ra, 8];
+    r0 := r0 <= r1;
+    jump_if r0, #se_verdadeiro_255;
+    jump #se_fim_256;
+#se_verdadeiro_255:
+    r0 := null;
+    free_frame;
+    return r0;
+#se_fim_256:
+    r0 := [ra, 0];
+    r0 := r0 + 32;
+    r0 := [r0, 0];
+    [ra, 8] := r0;
+    r3 := [ra, 0];
+    r3 := r3 + 16;
+    r3 := [r3, 0];
+    r0 := [ra, 8];
+    r3 := r3 * 8;
+    r0 := r0 + r3;
+    r0 := [r0, 0];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.isEmpty$type_Queue:
+#isEmpty$type_Queue:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 8] := r0;
+    r1 := 0;
+    r0 := [ra, 8];
+    r0 := r0 = r1;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.size$type_Queue:
+#size$type_Queue:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.clear$type_Queue:
+#clear$type_Queue:
+    alloc_frame 72;
+    r0 := 0;
+    [ra, 8] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r0 := [ra, 8];
+    [r1, 0] := r0;
+    r0 := 0;
+    [ra, 8] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r0 := [ra, 8];
+    [r1, 0] := r0;
+    r0 := 0;
+    [ra, 8] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 24;
+    r0 := [ra, 8];
+    [r1, 0] := r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.destroyQueue$type_Queue:
+#destroyQueue$type_Queue:
+#ijkL.Collections.destroyQueue:
+#destroyQueue:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    r0 := r0 + 32;
+    r0 := [r0, 0];
+    [ra, 8] := r0;
+    r1 := null;
+    r0 := [ra, 8];
+    r0 := r0 <> r1;
+    jump_if r0, #se_verdadeiro_257;
+    jump #se_fim_258;
+#se_verdadeiro_257:
+    r0 := [ra, 0];
+    r0 := r0 + 32;
+    r0 := [r0, 0];
+    free(r0);
+    r0 := null;
+    [ra, 8] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 32;
+    r0 := [ra, 8];
+    [r1, 0] := r0;
+#se_fim_258:
+    r0 := [ra, 0];
+    free(r0);
+    free_frame;
+    return;
+
+#ijkL.Collections.createMap$int:
+#createMap$int:
+#ijkL.Collections.createMap:
+#createMap:
+    alloc_frame 80;
+    r0 := [ra, 0];
+    [ra, 16] := r0;
+    r1 := 0;
+    r0 := [ra, 16];
+    r0 := r0 <= r1;
+    jump_if r0, #se_verdadeiro_259;
+    jump #se_fim_260;
+#se_verdadeiro_259:
+    r0 := 16;
+    [ra, 0] := r0;
+#se_fim_260:
+    r0 := 24;
+    r0 := alloc(r0);
+    [ra, 8] := r0;
+    r0 := [ra, 0];
+    [ra, 16] := r0;
+    r1 := [ra, 8];
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := 0;
+    [ra, 16] := r0;
+    r1 := [ra, 8];
+    r1 := r1 + 8;
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := 8;
+    [ra, 16] := r0;
+    r1 := [ra, 0];
+    r0 := [ra, 16];
+    r0 := r0 * r1;
+    r0 := alloc(r0);
+    [ra, 16] := r0;
+    r1 := [ra, 8];
+    r1 := r1 + 16;
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := [ra, 8];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    push r0;
+    r0 := 0;
+    push r0;
+    r0 := [ra, 0];
+    [ra, 16] := r0;
+    r1 := 8;
+    r0 := [ra, 16];
+    r0 := r0 * r1;
+    push r0;
+    call #ijkL.Memory.fill$ptr_unknown_int_int;
+    r0 := [ra, 8];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.hashString$string_int:
+#hashString$string_int:
+#ijkL.Collections.hashString:
+#hashString:
+    alloc_frame 112;
+    r0 := 5381;
+    [ra, 16] := r0;
+    r0 := [ra, 0];
+    push r0;
+    call #ijkL.Text.length$string;
+    [ra, 24] := r0;
+    r0 := 0;
+    [ra, 32] := r0;
+#enquanto_inicio_261:
+    r0 := [ra, 32];
+    [ra, 48] := r0;
+    r1 := [ra, 24];
+    r0 := [ra, 48];
+    r0 := r0 < r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_262;
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 32];
+    push r0;
+    call #ijkL.Text.get$string_int;
+    [ra, 40] := r0;
+    r0 := [ra, 16];
+    [ra, 48] := r0;
+    r1 := 33;
+    r0 := [ra, 48];
+    r0 := r0 * r1;
+    [ra, 48] := r0;
+    r1 := [ra, 40];
+    r0 := [ra, 48];
+    r0 := r0 + r1;
+    [ra, 16] := r0;
+    r0 := [ra, 32];
+    [ra, 48] := r0;
+    r1 := 1;
+    r0 := [ra, 48];
+    r0 := r0 + r1;
+    [ra, 32] := r0;
+    jump #enquanto_inicio_261;
+#enquanto_fim_262:
+    r0 := [ra, 16];
+    [ra, 48] := r0;
+    r1 := 0;
+    r0 := [ra, 48];
+    r0 := r0 < r1;
+    jump_if r0, #se_verdadeiro_263;
+    jump #se_fim_264;
+#se_verdadeiro_263:
+    r0 := 0;
+    [ra, 48] := r0;
+    r1 := [ra, 16];
+    r0 := [ra, 48];
+    r0 := r0 - r1;
+    [ra, 16] := r0;
+#se_fim_264:
+    r0 := [ra, 16];
+    [ra, 48] := r0;
+    r1 := [ra, 8];
+    r0 := [ra, 48];
+    r0 := r0 mod r1;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.put$type_Map_string_ptr_unknown:
+#put$type_Map_string_ptr_unknown:
+#ijkL.Collections.put:
+#put:
+    alloc_frame 112;
+    r0 := [ra, 8];
+    push r0;
+    r0 := [ra, 0];
+    r0 := [r0, 0];
+    push r0;
+    call #ijkL.Collections.hashString$string_int;
+    [ra, 24] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 48] := r0;
+    r3 := [ra, 24];
+    r0 := [ra, 48];
+    r3 := r3 * 8;
+    r0 := r0 + r3;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+#enquanto_inicio_265:
+    r0 := [ra, 32];
+    [ra, 48] := r0;
+    r1 := null;
+    r0 := [ra, 48];
+    r0 := r0 <> r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_266;
+    r0 := [ra, 32];
+    r0 := [r0, 0];
+    push r0;
+    r0 := [ra, 8];
+    push r0;
+    call #ijkL.Text.compare$string_string;
+    [ra, 48] := r0;
+    r1 := 0;
+    r0 := [ra, 48];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_267;
+    jump #se_fim_268;
+#se_verdadeiro_267:
+    r0 := [ra, 16];
+    [ra, 48] := r0;
+    r1 := [ra, 32];
+    r1 := r1 + 8;
+    r0 := [ra, 48];
+    [r1, 0] := r0;
+    free_frame;
+    return;
+#se_fim_268:
+    r0 := [ra, 32];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    jump #enquanto_inicio_265;
+#enquanto_fim_266:
+    r0 := 24;
+    r0 := alloc(r0);
+    [ra, 40] := r0;
+    r0 := [ra, 8];
+    [ra, 48] := r0;
+    r1 := [ra, 40];
+    r0 := [ra, 48];
+    [r1, 0] := r0;
+    r0 := [ra, 16];
+    [ra, 48] := r0;
+    r1 := [ra, 40];
+    r1 := r1 + 8;
+    r0 := [ra, 48];
+    [r1, 0] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 48] := r0;
+    r3 := [ra, 24];
+    r0 := [ra, 48];
+    r3 := r3 * 8;
+    r0 := r0 + r3;
+    r0 := [r0, 0];
+    [ra, 48] := r0;
+    r1 := [ra, 40];
+    r1 := r1 + 16;
+    r0 := [ra, 48];
+    [r1, 0] := r0;
+    r0 := [ra, 40];
+    [ra, 48] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r1 := [r1, 0];
+    [ra, 56] := r1;
+    r3 := [ra, 24];
+    r1 := [ra, 56];
+    r3 := r3 * 8;
+    r1 := r1 + r3;
+    r0 := [ra, 48];
+    [r1, 0] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 48] := r0;
+    r1 := 1;
+    r0 := [ra, 48];
+    r0 := r0 + r1;
+    [ra, 48] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r0 := [ra, 48];
+    [r1, 0] := r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.get$type_Map_string:
+#get$type_Map_string:
+    alloc_frame 96;
+    r0 := [ra, 8];
+    push r0;
+    r0 := [ra, 0];
+    r0 := [r0, 0];
+    push r0;
+    call #ijkL.Collections.hashString$string_int;
+    [ra, 16] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r3 := [ra, 16];
+    r0 := [ra, 32];
+    r3 := r3 * 8;
+    r0 := r0 + r3;
+    r0 := [r0, 0];
+    [ra, 24] := r0;
+#enquanto_inicio_269:
+    r0 := [ra, 24];
+    [ra, 32] := r0;
+    r1 := null;
+    r0 := [ra, 32];
+    r0 := r0 <> r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_270;
+    r0 := [ra, 24];
+    r0 := [r0, 0];
+    push r0;
+    r0 := [ra, 8];
+    push r0;
+    call #ijkL.Text.compare$string_string;
+    [ra, 32] := r0;
+    r1 := 0;
+    r0 := [ra, 32];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_271;
+    jump #se_fim_272;
+#se_verdadeiro_271:
+    r0 := [ra, 24];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    free_frame;
+    return r0;
+#se_fim_272:
+    r0 := [ra, 24];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 24] := r0;
+    jump #enquanto_inicio_269;
+#enquanto_fim_270:
+    r0 := null;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.containsKey$type_Map_string:
+#containsKey$type_Map_string:
+#ijkL.Collections.containsKey:
+#containsKey:
+    alloc_frame 80;
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 8];
+    push r0;
+    call #ijkL.Collections.get$type_Map_string;
+    [ra, 16] := r0;
+    r1 := null;
+    r0 := [ra, 16];
+    r0 := r0 <> r1;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.remove$type_Map_string:
+#remove$type_Map_string:
+#ijkL.Collections.remove:
+#remove:
+    alloc_frame 104;
+    r0 := [ra, 8];
+    push r0;
+    r0 := [ra, 0];
+    r0 := [r0, 0];
+    push r0;
+    call #ijkL.Collections.hashString$string_int;
+    [ra, 16] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 40] := r0;
+    r3 := [ra, 16];
+    r0 := [ra, 40];
+    r3 := r3 * 8;
+    r0 := r0 + r3;
+    r0 := [r0, 0];
+    [ra, 24] := r0;
+    r0 := null;
+    [ra, 32] := r0;
+#enquanto_inicio_273:
+    r0 := [ra, 24];
+    [ra, 40] := r0;
+    r1 := null;
+    r0 := [ra, 40];
+    r0 := r0 <> r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_274;
+    r0 := [ra, 24];
+    r0 := [r0, 0];
+    push r0;
+    r0 := [ra, 8];
+    push r0;
+    call #ijkL.Text.compare$string_string;
+    [ra, 40] := r0;
+    r1 := 0;
+    r0 := [ra, 40];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_275;
+    jump #se_fim_276;
+#se_verdadeiro_275:
+    r0 := [ra, 32];
+    [ra, 40] := r0;
+    r1 := null;
+    r0 := [ra, 40];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_277;
+    r0 := [ra, 24];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 40] := r0;
+    r1 := [ra, 32];
+    r1 := r1 + 16;
+    r0 := [ra, 40];
+    [r1, 0] := r0;
+    jump #se_fim_278;
+#se_verdadeiro_277:
+    r0 := [ra, 24];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 40] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r1 := [r1, 0];
+    [ra, 48] := r1;
+    r3 := [ra, 16];
+    r1 := [ra, 48];
+    r3 := r3 * 8;
+    r1 := r1 + r3;
+    r0 := [ra, 40];
+    [r1, 0] := r0;
+#se_fim_278:
+    r0 := [ra, 24];
+    free(r0);
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 40] := r0;
+    r1 := 1;
+    r0 := [ra, 40];
+    r0 := r0 - r1;
+    [ra, 40] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r0 := [ra, 40];
+    [r1, 0] := r0;
+    r0 := true;
+    free_frame;
+    return r0;
+#se_fim_276:
+    r0 := [ra, 24];
+    [ra, 32] := r0;
+    r0 := [ra, 24];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 24] := r0;
+    jump #enquanto_inicio_273;
+#enquanto_fim_274:
+    r0 := false;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.size$type_Map:
+#size$type_Map:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Collections.destroyMap$type_Map:
+#destroyMap$type_Map:
+#ijkL.Collections.destroyMap:
+#destroyMap:
+    alloc_frame 96;
+    r0 := 0;
+    [ra, 8] := r0;
+#enquanto_inicio_279:
+    r0 := [ra, 8];
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r1 := [r1, 0];
+    r0 := [ra, 32];
+    r0 := r0 < r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_280;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r3 := [ra, 8];
+    r0 := [ra, 32];
+    r3 := r3 * 8;
+    r0 := r0 + r3;
+    r0 := [r0, 0];
+    [ra, 16] := r0;
+#enquanto_inicio_281:
+    r0 := [ra, 16];
+    [ra, 32] := r0;
+    r1 := null;
+    r0 := [ra, 32];
+    r0 := r0 <> r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_282;
+    r0 := [ra, 16];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 24] := r0;
+    r0 := [ra, 16];
+    free(r0);
+    r0 := [ra, 24];
+    [ra, 16] := r0;
+    jump #enquanto_inicio_281;
+#enquanto_fim_282:
+    r0 := [ra, 8];
+    [ra, 32] := r0;
+    r1 := 1;
+    r0 := [ra, 32];
+    r0 := r0 + r1;
+    [ra, 8] := r0;
+    jump #enquanto_inicio_279;
+#enquanto_fim_280:
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    free(r0);
+    r0 := [ra, 0];
+    free(r0);
+    free_frame;
+    return;
+
+// --- Module: ijkL.Memory ---
+
+#ijkL.Memory.copy$ptr_unknown_ptr_unknown_int:
+#copy$ptr_unknown_ptr_unknown_int:
+#ijkL.Memory.copy:
+#copy:
+    alloc_frame 88;
+    r0 := [ra, 16];
+    [ra, 24] := r0;
+    r1 := 0;
+    r0 := [ra, 24];
+    r0 := r0 > r1;
+    jump_if r0, #se_verdadeiro_283;
+    jump #se_fim_284;
+#se_verdadeiro_283:
+    r0 := [ra, 8];
+    out 0x0020, r0;
+    r0 := [ra, 0];
+    out 0x0021, r0;
+    r0 := [ra, 16];
+    out 0x0022, r0;
+    r0 := 1;
+    out 0x0023, r0;
+#se_fim_284:
+    r0 := [ra, 0];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Memory.fill$ptr_unknown_int_int:
+#fill$ptr_unknown_int_int:
+#ijkL.Memory.fill:
+#fill:
+    alloc_frame 88;
+    r0 := [ra, 16];
+    [ra, 24] := r0;
+    r1 := 0;
+    r0 := [ra, 24];
+    r0 := r0 > r1;
+    jump_if r0, #se_verdadeiro_285;
+    jump #se_fim_286;
+#se_verdadeiro_285:
+    r0 := [ra, 8];
+    out 0x0020, r0;
+    r0 := [ra, 0];
+    out 0x0021, r0;
+    r0 := [ra, 16];
+    out 0x0022, r0;
+    r0 := 2;
+    out 0x0023, r0;
+#se_fim_286:
+    r0 := [ra, 0];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Memory.compare$ptr_unknown_ptr_unknown_int:
+#compare$ptr_unknown_ptr_unknown_int:
+#ijkL.Memory.compare:
+#compare:
+    alloc_frame 96;
+    r0 := [ra, 16];
+    [ra, 32] := r0;
+    r1 := 0;
+    r0 := [ra, 32];
+    r0 := r0 <= r1;
+    jump_if r0, #se_verdadeiro_287;
+    jump #se_fim_288;
+#se_verdadeiro_287:
+    r0 := 0;
+    free_frame;
+    return r0;
+#se_fim_288:
+    r0 := 0;
+    [ra, 24] := r0;
+    r0 := [ra, 0];
+    out 0x0020, r0;
+    r0 := [ra, 8];
+    out 0x0021, r0;
+    r0 := [ra, 16];
+    out 0x0022, r0;
+    r0 := 3;
+    out 0x0023, r0;
+    in 0x0023, r0;
+    [ra, 24] := r0;
+    r0 := [ra, 24];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+// --- Module: ijkL.IO.Console ---
+
+#ijkL.IO.Console.write$string:
+#write$string:
+    alloc_frame 72;
+    r1 := [ra, 0];
+    out 0x0001, r1;
+    free_frame;
+    return;
+
+#ijkL.IO.Console.write$int:
+#write$int:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    push r0;
+    call #ijkL.Convert.toString$int;
+    out 0x0001, r0;
+    free_frame;
+    return;
+
+#ijkL.IO.Console.write$real:
+#write$real:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    push r0;
+    call #ijkL.Convert.toString$real;
+    out 0x0001, r0;
+    free_frame;
+    return;
+
+#ijkL.IO.Console.write$bool:
+#write$bool:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    push r0;
+    call #ijkL.Convert.toString$bool;
+    out 0x0001, r0;
+    free_frame;
+    return;
+
+#ijkL.IO.Console.write$char:
+#write$char:
+    alloc_frame 72;
+    r1 := [ra, 0];
+    out 0x0000, r1;
+    free_frame;
+    return;
+
+#ijkL.IO.Console.writeLine$void:
+#writeLine$void:
+    alloc_frame 64;
+    out 0x0000, '\n';
+    free_frame;
+    return;
+
+#ijkL.IO.Console.writeLine$string:
+#writeLine$string:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    out 0x0001, r0;
+    call #ijkL.IO.Console.writeLine$void;
+    free_frame;
+    return;
+
+#ijkL.IO.Console.writeLine$int:
+#writeLine$int:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    out 0x0001, r0;
+    call #ijkL.IO.Console.writeLine$void;
+    free_frame;
+    return;
+
+#ijkL.IO.Console.writeLine$real:
+#writeLine$real:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    out 0x0001, r0;
+    call #ijkL.IO.Console.writeLine$void;
+    free_frame;
+    return;
+
+#ijkL.IO.Console.writeLine$bool:
+#writeLine$bool:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    out 0x0001, r0;
+    call #ijkL.IO.Console.writeLine$void;
+    free_frame;
+    return;
+
+#ijkL.IO.Console.writeLine$char:
+#writeLine$char:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    out 0x0001, r0;
+    call #ijkL.IO.Console.writeLine$void;
+    free_frame;
+    return;
+
+#ijkL.IO.Console.readLine$void:
+#readLine$void:
+#ijkL.IO.Console.readLine:
+#readLine:
+    alloc_frame 64;
+    in 0x0004, r0;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.IO.Console.readKey$void:
+#readKey$void:
+#ijkL.IO.Console.readKey:
+#readKey:
+    alloc_frame 64;
+    in 0x0000, r0;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.IO.Console.readInt$void:
+#readInt$void:
+#ijkL.IO.Console.readInt:
+#readInt:
+    alloc_frame 72;
+    call #ijkL.IO.Console.readLine$void;
+    [ra, 0] := r0;
+    r0 := [ra, 0];
+    push r0;
+    call #ijkL.Convert.toInt$string;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.IO.Console.readReal$void:
+#readReal$void:
+#ijkL.IO.Console.readReal:
+#readReal:
+    alloc_frame 72;
+    call #ijkL.IO.Console.readLine$void;
+    [ra, 0] := r0;
+    r0 := [ra, 0];
+    push r0;
+    call #ijkL.Convert.toReal$string;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.IO.Console.clear$void:
+#clear$void:
+#ijkL.IO.Console.clear:
+#clear:
+    alloc_frame 64;
+    r0 := "\033[2J\033[H";
+    out 0x0001, r0;
+    free_frame;
+    return;
+
+// --- Module: ijkL.Convert ---
+
+#ijkL.Convert.toInt$string:
+#toInt$string:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    push r0;
+    call #__builtin_str_to_int;
+    free_frame;
+    return r0;
+
+#ijkL.Convert.toInt$bool:
+#toInt$bool:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    jump_if r0, #se_verdadeiro_289;
+    jump #se_fim_290;
+#se_verdadeiro_289:
+    r0 := 1;
+    free_frame;
+    return r0;
+#se_fim_290:
+    r0 := 0;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Convert.toReal$string:
+#toReal$string:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    push r0;
+    call #__builtin_str_to_real;
+    free_frame;
+    return r0;
+
+#ijkL.Convert.toReal$int:
+#toReal$int:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    [ra, 8] := r0;
+    r1 := 0.000000;
+    r0 := [ra, 8];
+    r0 := r0 + r1;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Convert.toFloat$string:
+#toFloat$string:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    push r0;
+    call #ijkL.Convert.toReal$string;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Convert.toFloat$int:
+#toFloat$int:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    [ra, 8] := r0;
+    r1 := 0.000000;
+    r0 := [ra, 8];
+    r0 := r0 + r1;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Convert.toString$int:
+#toString$int:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    push r0;
+    call #__builtin_int_to_str;
+    free_frame;
+    return r0;
+
+#ijkL.Convert.toString$real:
+#toString$real:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    push r0;
+    call #__builtin_real_to_str;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Convert.toString$bool:
+#toString$bool:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    push r0;
+    call #__builtin_bool_to_str;
+    free_frame;
+    return r0;
+
+#ijkL.Convert.toString$char:
+#toString$char:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    push r0;
+    call #__builtin_char_to_str;
+    free_frame;
+    return r0;
+
+#ijkL.Convert.toString$string:
+#toString$string:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.Convert.toBool$string:
+#toBool$string:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    push r0;
+    call #__builtin_str_to_bool;
+    free_frame;
+    return r0;
+
+#ijkL.Convert.toBool$int:
+#toBool$int:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    [ra, 8] := r0;
+    r1 := 0;
+    r0 := [ra, 8];
+    r0 := r0 <> r1;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+// --- Module: Onm.Core.Json.Model ---
+
+#Onm.Core.Json.Model.createNode$void:
+#createNode$void:
+#Onm.Core.Json.Model.createNode:
+#createNode:
+    alloc_frame 72;
+    r0 := 24;
+    r0 := alloc(r0);
+    [ra, 0] := r0;
+    r0 := null;
+    [ra, 8] := r0;
+    r1 := [ra, 0];
+    r0 := [ra, 8];
+    [r1, 0] := r0;
+    r0 := null;
+    [ra, 8] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r0 := [ra, 8];
+    [r1, 0] := r0;
+    r0 := 0;
+    [ra, 8] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r0 := [ra, 8];
+    [r1, 0] := r0;
+    r0 := [ra, 0];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#Onm.Core.Json.Model.freeNode$type_JsonNode:
+#freeNode$type_JsonNode:
+#Onm.Core.Json.Model.freeNode:
+#freeNode:
+    alloc_frame 88;
+    r0 := [ra, 0];
+    [ra, 24] := r0;
+    r1 := null;
+    r0 := [ra, 24];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_291;
+    jump #se_fim_292;
+#se_verdadeiro_291:
+    free_frame;
+    return;
+#se_fim_292:
+    r0 := [ra, 0];
+    r0 := [r0, 0];
+    [ra, 8] := r0;
+#enquanto_inicio_293:
+    r0 := [ra, 8];
+    [ra, 24] := r0;
+    r1 := null;
+    r0 := [ra, 24];
+    r0 := r0 <> r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_294;
+    r0 := [ra, 8];
+    r0 := r0 + 32;
+    r0 := [r0, 0];
+    [ra, 16] := r0;
+    r0 := [ra, 8];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 24] := r0;
+    r0 := [ra, 8];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r1 := null;
+    r0 := [ra, 32];
+    r1 := r0 <> r1;
+    r0 := [ra, 24];
+    r0 := r0 and r1;
+    jump_if r0, #se_verdadeiro_295;
+    jump #se_fim_296;
+#se_verdadeiro_295:
+    r0 := [ra, 8];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    push r0;
+    call #Onm.Core.Json.Model.freeNode$type_JsonNode;
+#se_fim_296:
+    r0 := [ra, 8];
+    free(r0);
+    r0 := [ra, 16];
+    [ra, 8] := r0;
+    jump #enquanto_inicio_293;
+#enquanto_fim_294:
+    r0 := [ra, 0];
+    free(r0);
+    free_frame;
+    return;
+
+#Onm.Core.Json.Model.findProperty$type_JsonNode_string:
+#findProperty$type_JsonNode_string:
+#Onm.Core.Json.Model.findProperty:
+#findProperty:
+    alloc_frame 88;
+    r0 := [ra, 0];
+    [ra, 24] := r0;
+    r1 := null;
+    r0 := [ra, 24];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_297;
+    jump #se_fim_298;
+#se_verdadeiro_297:
+    r0 := null;
+    free_frame;
+    return r0;
+#se_fim_298:
+    r0 := [ra, 0];
+    r0 := [r0, 0];
+    [ra, 16] := r0;
+#enquanto_inicio_299:
+    r0 := [ra, 16];
+    [ra, 24] := r0;
+    r1 := null;
+    r0 := [ra, 24];
+    r0 := r0 <> r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_300;
+    r0 := [ra, 16];
+    r0 := [r0, 0];
+    push r0;
+    r0 := [ra, 8];
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    jump_if r0, #se_verdadeiro_301;
+    jump #se_fim_302;
+#se_verdadeiro_301:
+    r0 := [ra, 16];
+    free_frame;
+    return r0;
+#se_fim_302:
+    r0 := [ra, 16];
+    r0 := r0 + 32;
+    r0 := [r0, 0];
+    [ra, 16] := r0;
+    jump #enquanto_inicio_299;
+#enquanto_fim_300:
+    r0 := null;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#Onm.Core.Json.Model.addNodeProperty$type_JsonNode_string:
+#addNodeProperty$type_JsonNode_string:
+#Onm.Core.Json.Model.addNodeProperty:
+#addNodeProperty:
+    alloc_frame 96;
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 8];
+    push r0;
+    call #Onm.Core.Json.Model.findProperty$type_JsonNode_string;
+    [ra, 32] := r0;
+    r1 := null;
+    r0 := [ra, 32];
+    r0 := r0 <> r1;
+    jump_if r0, #se_verdadeiro_303;
+    jump #se_fim_304;
+#se_verdadeiro_303:
+    r0 := false;
+    free_frame;
+    return r0;
+#se_fim_304:
+    r0 := 40;
+    r0 := alloc(r0);
+    [ra, 16] := r0;
+    r0 := [ra, 8];
+    [ra, 32] := r0;
+    r1 := [ra, 16];
+    r0 := [ra, 32];
+    [r1, 0] := r0;
+    r0 := true;
+    [ra, 32] := r0;
+    r1 := [ra, 16];
+    r1 := r1 + 8;
+    r0 := [ra, 32];
+    [r1, 0] := r0;
+    call #Onm.Core.Json.Model.createNode$void;
+    [ra, 32] := r0;
+    r1 := [ra, 16];
+    r1 := r1 + 16;
+    r0 := [ra, 32];
+    [r1, 0] := r0;
+    r0 := "";
+    [ra, 32] := r0;
+    r1 := [ra, 16];
+    r1 := r1 + 24;
+    r0 := [ra, 32];
+    [r1, 0] := r0;
+    r0 := null;
+    [ra, 32] := r0;
+    r1 := [ra, 16];
+    r1 := r1 + 32;
+    r0 := [ra, 32];
+    [r1, 0] := r0;
+    r0 := [ra, 0];
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r1 := null;
+    r0 := [ra, 32];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_305;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 24] := r0;
+    r0 := [ra, 16];
+    [ra, 32] := r0;
+    r1 := [ra, 24];
+    r1 := r1 + 32;
+    r0 := [ra, 32];
+    [r1, 0] := r0;
+    r0 := [ra, 16];
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r0 := [ra, 32];
+    [r1, 0] := r0;
+    jump #se_fim_306;
+#se_verdadeiro_305:
+    r0 := [ra, 16];
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r0 := [ra, 32];
+    [r1, 0] := r0;
+    r0 := [ra, 16];
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r0 := [ra, 32];
+    [r1, 0] := r0;
+#se_fim_306:
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r1 := 1;
+    r0 := [ra, 32];
+    r0 := r0 + r1;
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r0 := [ra, 32];
+    [r1, 0] := r0;
+    r0 := true;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#Onm.Core.Json.Model.addKeyProperty$type_JsonNode_string_string:
+#addKeyProperty$type_JsonNode_string_string:
+#Onm.Core.Json.Model.addKeyProperty:
+#addKeyProperty:
+    alloc_frame 104;
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 8];
+    push r0;
+    call #Onm.Core.Json.Model.findProperty$type_JsonNode_string;
+    [ra, 40] := r0;
+    r1 := null;
+    r0 := [ra, 40];
+    r0 := r0 <> r1;
+    jump_if r0, #se_verdadeiro_307;
+    jump #se_fim_308;
+#se_verdadeiro_307:
+    r0 := false;
+    free_frame;
+    return r0;
+#se_fim_308:
+    r0 := 40;
+    r0 := alloc(r0);
+    [ra, 24] := r0;
+    r0 := [ra, 8];
+    [ra, 40] := r0;
+    r1 := [ra, 24];
+    r0 := [ra, 40];
+    [r1, 0] := r0;
+    r0 := false;
+    [ra, 40] := r0;
+    r1 := [ra, 24];
+    r1 := r1 + 8;
+    r0 := [ra, 40];
+    [r1, 0] := r0;
+    r0 := null;
+    [ra, 40] := r0;
+    r1 := [ra, 24];
+    r1 := r1 + 16;
+    r0 := [ra, 40];
+    [r1, 0] := r0;
+    r0 := [ra, 16];
+    [ra, 40] := r0;
+    r1 := [ra, 24];
+    r1 := r1 + 24;
+    r0 := [ra, 40];
+    [r1, 0] := r0;
+    r0 := null;
+    [ra, 40] := r0;
+    r1 := [ra, 24];
+    r1 := r1 + 32;
+    r0 := [ra, 40];
+    [r1, 0] := r0;
+    r0 := [ra, 0];
+    r0 := [r0, 0];
+    [ra, 40] := r0;
+    r1 := null;
+    r0 := [ra, 40];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_309;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r0 := [ra, 24];
+    [ra, 40] := r0;
+    r1 := [ra, 32];
+    r1 := r1 + 32;
+    r0 := [ra, 40];
+    [r1, 0] := r0;
+    r0 := [ra, 24];
+    [ra, 40] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r0 := [ra, 40];
+    [r1, 0] := r0;
+    jump #se_fim_310;
+#se_verdadeiro_309:
+    r0 := [ra, 24];
+    [ra, 40] := r0;
+    r1 := [ra, 0];
+    r0 := [ra, 40];
+    [r1, 0] := r0;
+    r0 := [ra, 24];
+    [ra, 40] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r0 := [ra, 40];
+    [r1, 0] := r0;
+#se_fim_310:
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 40] := r0;
+    r1 := 1;
+    r0 := [ra, 40];
+    r0 := r0 + r1;
+    [ra, 40] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r0 := [ra, 40];
+    [r1, 0] := r0;
+    r0 := true;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#Onm.Core.Json.Model.removeProperty$type_JsonNode_string:
+#removeProperty$type_JsonNode_string:
+#Onm.Core.Json.Model.removeProperty:
+#removeProperty:
+    alloc_frame 96;
+    r0 := [ra, 0];
+    [ra, 32] := r0;
+    r1 := null;
+    r0 := [ra, 32];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_311;
+    jump #se_fim_312;
+#se_verdadeiro_311:
+    r0 := false;
+    free_frame;
+    return r0;
+#se_fim_312:
+    r0 := [ra, 0];
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r1 := null;
+    r0 := [ra, 32];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_313;
+    jump #se_fim_314;
+#se_verdadeiro_313:
+    r0 := false;
+    free_frame;
+    return r0;
+#se_fim_314:
+    r0 := null;
+    [ra, 16] := r0;
+    r0 := [ra, 0];
+    r0 := [r0, 0];
+    [ra, 24] := r0;
+#enquanto_inicio_315:
+    r0 := [ra, 24];
+    [ra, 32] := r0;
+    r1 := null;
+    r0 := [ra, 32];
+    r0 := r0 <> r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_316;
+    r0 := [ra, 24];
+    r0 := [r0, 0];
+    push r0;
+    r0 := [ra, 8];
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    jump_if r0, #se_verdadeiro_317;
+    jump #se_fim_318;
+#se_verdadeiro_317:
+    r0 := [ra, 16];
+    [ra, 32] := r0;
+    r1 := null;
+    r0 := [ra, 32];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_319;
+    r0 := [ra, 24];
+    r0 := r0 + 32;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r1 := [ra, 16];
+    r1 := r1 + 32;
+    r0 := [ra, 32];
+    [r1, 0] := r0;
+    jump #se_fim_320;
+#se_verdadeiro_319:
+    r0 := [ra, 24];
+    r0 := r0 + 32;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r0 := [ra, 32];
+    [r1, 0] := r0;
+#se_fim_320:
+    r0 := [ra, 24];
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r1 := [r1, 0];
+    r0 := [ra, 32];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_321;
+    jump #se_fim_322;
+#se_verdadeiro_321:
+    r0 := [ra, 16];
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r0 := [ra, 32];
+    [r1, 0] := r0;
+#se_fim_322:
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r1 := 1;
+    r0 := [ra, 32];
+    r0 := r0 - r1;
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r0 := [ra, 32];
+    [r1, 0] := r0;
+    r0 := [ra, 24];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r0 := [ra, 24];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 40] := r0;
+    r1 := null;
+    r0 := [ra, 40];
+    r1 := r0 <> r1;
+    r0 := [ra, 32];
+    r0 := r0 and r1;
+    jump_if r0, #se_verdadeiro_323;
+    jump #se_fim_324;
+#se_verdadeiro_323:
+    r0 := [ra, 24];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    push r0;
+    call #Onm.Core.Json.Model.freeNode$type_JsonNode;
+#se_fim_324:
+    r0 := [ra, 24];
+    free(r0);
+    r0 := true;
+    free_frame;
+    return r0;
+#se_fim_318:
+    r0 := [ra, 24];
+    [ra, 16] := r0;
+    r0 := [ra, 24];
+    r0 := r0 + 32;
+    r0 := [r0, 0];
+    [ra, 24] := r0;
+    jump #enquanto_inicio_315;
+#enquanto_fim_316:
+    r0 := false;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+// --- Module: Onm.Core.Json.Parser ---
+
+#Onm.Core.Json.Parser.createParser$string:
+#createParser$string:
+#Onm.Core.Json.Parser.createParser:
+#createParser:
+    alloc_frame 80;
+    r0 := 40;
+    r0 := alloc(r0);
+    [ra, 8] := r0;
+    r0 := [ra, 0];
+    [ra, 16] := r0;
+    r1 := [ra, 8];
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := [ra, 0];
+    push r0;
+    call #ijkL.Text.length$string;
+    [ra, 16] := r0;
+    r1 := [ra, 8];
+    r1 := r1 + 8;
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := 0;
+    [ra, 16] := r0;
+    r1 := [ra, 8];
+    r1 := r1 + 16;
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := false;
+    [ra, 16] := r0;
+    r1 := [ra, 8];
+    r1 := r1 + 24;
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := "";
+    [ra, 16] := r0;
+    r1 := [ra, 8];
+    r1 := r1 + 32;
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+    r0 := [ra, 8];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#Onm.Core.Json.Parser.skipWhitespace$type_JsonParser:
+#skipWhitespace$type_JsonParser:
+#Onm.Core.Json.Parser.skipWhitespace:
+#skipWhitespace:
+    alloc_frame 80;
+#enquanto_inicio_325:
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 16] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r1 := [r1, 0];
+    r0 := [ra, 16];
+    r0 := r0 < r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_326;
+    r0 := [ra, 0];
+    r0 := [r0, 0];
+    push r0;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    push r0;
+    call #ijkL.Text.get$string_int;
+    [ra, 8] := r0;
+    r0 := [ra, 8];
+    [ra, 16] := r0;
+    r1 := ' ';
+    r0 := [ra, 16];
+    r0 := r0 = r1;
+    [ra, 16] := r0;
+    r0 := [ra, 8];
+    [ra, 24] := r0;
+    r1 := '\t';
+    r0 := [ra, 24];
+    r1 := r0 = r1;
+    r0 := [ra, 16];
+    r0 := r0 or r1;
+    [ra, 16] := r0;
+    r0 := [ra, 8];
+    [ra, 24] := r0;
+    r1 := '\n';
+    r0 := [ra, 24];
+    r1 := r0 = r1;
+    r0 := [ra, 16];
+    r0 := r0 or r1;
+    [ra, 16] := r0;
+    r0 := [ra, 8];
+    [ra, 24] := r0;
+    r1 := '\r';
+    r0 := [ra, 24];
+    r1 := r0 = r1;
+    r0 := [ra, 16];
+    r0 := r0 or r1;
+    jump_if r0, #se_verdadeiro_327;
+    jump #enquanto_fim_326;
+    jump #se_fim_328;
+#se_verdadeiro_327:
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 16] := r0;
+    r1 := 1;
+    r0 := [ra, 16];
+    r0 := r0 + r1;
+    [ra, 16] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r0 := [ra, 16];
+    [r1, 0] := r0;
+#se_fim_328:
+    jump #enquanto_inicio_325;
+#enquanto_fim_326:
+    free_frame;
+    return;
+
+#Onm.Core.Json.Parser.peekChar$type_JsonParser:
+#peekChar$type_JsonParser:
+#Onm.Core.Json.Parser.peekChar:
+#peekChar:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    push r0;
+    call #Onm.Core.Json.Parser.skipWhitespace$type_JsonParser;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 8] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r1 := [r1, 0];
+    r0 := [ra, 8];
+    r0 := r0 >= r1;
+    jump_if r0, #se_verdadeiro_329;
+    jump #se_fim_330;
+#se_verdadeiro_329:
+    r0 := '\0';
+    free_frame;
+    return r0;
+#se_fim_330:
+    r0 := [ra, 0];
+    r0 := [r0, 0];
+    push r0;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    push r0;
+    call #ijkL.Text.get$string_int;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#Onm.Core.Json.Parser.parseStringLiteral$type_JsonParser:
+#parseStringLiteral$type_JsonParser:
+#Onm.Core.Json.Parser.parseStringLiteral:
+#parseStringLiteral:
+    alloc_frame 152;
+    r0 := [ra, 0];
+    push r0;
+    call #Onm.Core.Json.Parser.skipWhitespace$type_JsonParser;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 88] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r1 := [r1, 0];
+    r0 := [ra, 88];
+    r0 := r0 >= r1;
+    [ra, 88] := r0;
+    r0 := [ra, 0];
+    r0 := [r0, 0];
+    push r0;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    push r0;
+    call #ijkL.Text.get$string_int;
+    [ra, 96] := r0;
+    r1 := '"';
+    r0 := [ra, 96];
+    r1 := r0 <> r1;
+    r0 := [ra, 88];
+    r0 := r0 or r1;
+    jump_if r0, #se_verdadeiro_331;
+    jump #se_fim_332;
+#se_verdadeiro_331:
+    r0 := true;
+    [ra, 88] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 24;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := "Expected '\"' at start of string literal.";
+    [ra, 88] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 32;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := "";
+    free_frame;
+    return r0;
+#se_fim_332:
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 88] := r0;
+    r1 := 1;
+    r0 := [ra, 88];
+    r0 := r0 + r1;
+    [ra, 88] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 8] := r0;
+    r0 := false;
+    [ra, 16] := r0;
+#enquanto_inicio_333:
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 88] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r1 := [r1, 0];
+    r0 := [ra, 88];
+    r0 := r0 < r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_334;
+    r0 := [ra, 0];
+    r0 := [r0, 0];
+    push r0;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    push r0;
+    call #ijkL.Text.get$string_int;
+    [ra, 24] := r0;
+    r0 := [ra, 24];
+    [ra, 88] := r0;
+    r1 := '"';
+    r0 := [ra, 88];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_335;
+    jump #se_fim_336;
+#se_verdadeiro_335:
+    jump #enquanto_fim_334;
+#se_fim_336:
+    r0 := [ra, 24];
+    [ra, 88] := r0;
+    r1 := '\\';
+    r0 := [ra, 88];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_337;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 88] := r0;
+    r1 := 1;
+    r0 := [ra, 88];
+    r0 := r0 + r1;
+    [ra, 88] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    jump #se_fim_338;
+#se_verdadeiro_337:
+    r0 := true;
+    [ra, 16] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 88] := r0;
+    r1 := 2;
+    r0 := [ra, 88];
+    r0 := r0 + r1;
+    [ra, 88] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+#se_fim_338:
+    jump #enquanto_inicio_333;
+#enquanto_fim_334:
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 88] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r1 := [r1, 0];
+    r0 := [ra, 88];
+    r0 := r0 >= r1;
+    jump_if r0, #se_verdadeiro_339;
+    jump #se_fim_340;
+#se_verdadeiro_339:
+    r0 := true;
+    [ra, 88] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 24;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := "Unterminated string literal.";
+    [ra, 88] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 32;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := "";
+    free_frame;
+    return r0;
+#se_fim_340:
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 88] := r0;
+    r1 := 1;
+    r0 := [ra, 88];
+    r0 := r0 + r1;
+    [ra, 88] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := [ra, 16];
+    r0 := not r0;
+    jump_if r0, #se_verdadeiro_341;
+    jump #se_fim_342;
+#se_verdadeiro_341:
+    r0 := [ra, 0];
+    r0 := [r0, 0];
+    push r0;
+    r0 := [ra, 8];
+    push r0;
+    r0 := [ra, 32];
+    [ra, 88] := r0;
+    r1 := [ra, 8];
+    r0 := [ra, 88];
+    r0 := r0 - r1;
+    push r0;
+    call #ijkL.Text.substring$string_int_int;
+    free_frame;
+    return r0;
+#se_fim_342:
+    r0 := "";
+    [ra, 40] := r0;
+    r0 := [ra, 8];
+    [ra, 48] := r0;
+#enquanto_inicio_343:
+    r0 := [ra, 48];
+    [ra, 88] := r0;
+    r1 := [ra, 32];
+    r0 := [ra, 88];
+    r0 := r0 < r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_344;
+    r0 := [ra, 0];
+    r0 := [r0, 0];
+    push r0;
+    r0 := [ra, 48];
+    push r0;
+    call #ijkL.Text.get$string_int;
+    [ra, 56] := r0;
+    r0 := [ra, 56];
+    [ra, 88] := r0;
+    r1 := '\\';
+    r0 := [ra, 88];
+    r0 := r0 = r1;
+    [ra, 88] := r0;
+    r0 := [ra, 48];
+    [ra, 96] := r0;
+    r1 := 1;
+    r0 := [ra, 96];
+    r0 := r0 + r1;
+    [ra, 96] := r0;
+    r1 := [ra, 32];
+    r0 := [ra, 96];
+    r1 := r0 < r1;
+    r0 := [ra, 88];
+    r0 := r0 and r1;
+    jump_if r0, #se_verdadeiro_345;
+    r0 := [ra, 0];
+    r0 := [r0, 0];
+    push r0;
+    r0 := [ra, 48];
+    push r0;
+    r0 := 1;
+    push r0;
+    call #ijkL.Text.substring$string_int_int;
+    [ra, 80] := r0;
+    r0 := [ra, 40];
+    push r0;
+    r0 := [ra, 80];
+    push r0;
+    call #ijkL.Text.concat$string_string;
+    [ra, 40] := r0;
+    r0 := [ra, 48];
+    [ra, 88] := r0;
+    r1 := 1;
+    r0 := [ra, 88];
+    r0 := r0 + r1;
+    [ra, 48] := r0;
+    jump #se_fim_346;
+#se_verdadeiro_345:
+    r0 := [ra, 0];
+    r0 := [r0, 0];
+    push r0;
+    r0 := [ra, 48];
+    [ra, 88] := r0;
+    r1 := 1;
+    r0 := [ra, 88];
+    r0 := r0 + r1;
+    push r0;
+    call #ijkL.Text.get$string_int;
+    [ra, 64] := r0;
+    r0 := [ra, 64];
+    [ra, 88] := r0;
+    r1 := '"';
+    r0 := [ra, 88];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_347;
+    r0 := [ra, 64];
+    [ra, 88] := r0;
+    r1 := '\\';
+    r0 := [ra, 88];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_349;
+    r0 := [ra, 64];
+    [ra, 88] := r0;
+    r1 := 'n';
+    r0 := [ra, 88];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_351;
+    r0 := [ra, 64];
+    [ra, 88] := r0;
+    r1 := 'r';
+    r0 := [ra, 88];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_353;
+    r0 := [ra, 64];
+    [ra, 88] := r0;
+    r1 := 't';
+    r0 := [ra, 88];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_355;
+    r0 := [ra, 0];
+    r0 := [r0, 0];
+    push r0;
+    r0 := [ra, 48];
+    [ra, 88] := r0;
+    r1 := 1;
+    r0 := [ra, 88];
+    r0 := r0 + r1;
+    push r0;
+    r0 := 1;
+    push r0;
+    call #ijkL.Text.substring$string_int_int;
+    [ra, 72] := r0;
+    r0 := [ra, 40];
+    push r0;
+    r0 := [ra, 72];
+    push r0;
+    call #ijkL.Text.concat$string_string;
+    [ra, 40] := r0;
+    jump #se_fim_356;
+#se_verdadeiro_355:
+    r0 := [ra, 40];
+    push r0;
+    r0 := "\t";
+    push r0;
+    call #ijkL.Text.concat$string_string;
+    [ra, 40] := r0;
+#se_fim_356:
+    jump #se_fim_354;
+#se_verdadeiro_353:
+    r0 := [ra, 40];
+    push r0;
+    r0 := "\r";
+    push r0;
+    call #ijkL.Text.concat$string_string;
+    [ra, 40] := r0;
+#se_fim_354:
+    jump #se_fim_352;
+#se_verdadeiro_351:
+    r0 := [ra, 40];
+    push r0;
+    r0 := "\n";
+    push r0;
+    call #ijkL.Text.concat$string_string;
+    [ra, 40] := r0;
+#se_fim_352:
+    jump #se_fim_350;
+#se_verdadeiro_349:
+    r0 := [ra, 40];
+    push r0;
+    r0 := "\\";
+    push r0;
+    call #ijkL.Text.concat$string_string;
+    [ra, 40] := r0;
+#se_fim_350:
+    jump #se_fim_348;
+#se_verdadeiro_347:
+    r0 := [ra, 40];
+    push r0;
+    r0 := "\"";
+    push r0;
+    call #ijkL.Text.concat$string_string;
+    [ra, 40] := r0;
+#se_fim_348:
+    r0 := [ra, 48];
+    [ra, 88] := r0;
+    r1 := 2;
+    r0 := [ra, 88];
+    r0 := r0 + r1;
+    [ra, 48] := r0;
+#se_fim_346:
+    jump #enquanto_inicio_343;
+#enquanto_fim_344:
+    r0 := [ra, 40];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#Onm.Core.Json.Parser.parseJsonObject$type_JsonParser:
+#parseJsonObject$type_JsonParser:
+#Onm.Core.Json.Parser.parseJsonObject:
+#parseJsonObject:
+    alloc_frame 152;
+    r0 := [ra, 0];
+    push r0;
+    call #Onm.Core.Json.Parser.skipWhitespace$type_JsonParser;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 88] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r1 := [r1, 0];
+    r0 := [ra, 88];
+    r0 := r0 >= r1;
+    [ra, 88] := r0;
+    r0 := [ra, 0];
+    r0 := [r0, 0];
+    push r0;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    push r0;
+    call #ijkL.Text.get$string_int;
+    [ra, 96] := r0;
+    r1 := '{';
+    r0 := [ra, 96];
+    r1 := r0 <> r1;
+    r0 := [ra, 88];
+    r0 := r0 or r1;
+    jump_if r0, #se_verdadeiro_357;
+    jump #se_fim_358;
+#se_verdadeiro_357:
+    r0 := true;
+    [ra, 88] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 24;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := "Expected '{' at start of JSON object.";
+    [ra, 88] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 32;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := null;
+    free_frame;
+    return r0;
+#se_fim_358:
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 88] := r0;
+    r1 := 1;
+    r0 := [ra, 88];
+    r0 := r0 + r1;
+    [ra, 88] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    call #Onm.Core.Json.Model.createNode$void;
+    [ra, 8] := r0;
+    r0 := [ra, 0];
+    push r0;
+    call #Onm.Core.Json.Parser.skipWhitespace$type_JsonParser;
+    r0 := [ra, 0];
+    push r0;
+    call #Onm.Core.Json.Parser.peekChar$type_JsonParser;
+    [ra, 88] := r0;
+    r1 := '}';
+    r0 := [ra, 88];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_359;
+    jump #se_fim_360;
+#se_verdadeiro_359:
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 88] := r0;
+    r1 := 1;
+    r0 := [ra, 88];
+    r0 := r0 + r1;
+    [ra, 88] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := [ra, 8];
+    free_frame;
+    return r0;
+#se_fim_360:
+#enquanto_inicio_361:
+    r0 := true;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_362;
+    r0 := [ra, 0];
+    push r0;
+    call #Onm.Core.Json.Parser.skipWhitespace$type_JsonParser;
+    r0 := [ra, 0];
+    push r0;
+    call #Onm.Core.Json.Parser.peekChar$type_JsonParser;
+    [ra, 88] := r0;
+    r1 := '"';
+    r0 := [ra, 88];
+    r0 := r0 <> r1;
+    jump_if r0, #se_verdadeiro_363;
+    jump #se_fim_364;
+#se_verdadeiro_363:
+    r0 := true;
+    [ra, 88] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 24;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := "Expected string property name enclosed in '\"'.";
+    [ra, 88] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 32;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := [ra, 8];
+    push r0;
+    call #Onm.Core.Json.Model.freeNode$type_JsonNode;
+    r0 := null;
+    free_frame;
+    return r0;
+#se_fim_364:
+    r0 := [ra, 0];
+    push r0;
+    call #Onm.Core.Json.Parser.parseStringLiteral$type_JsonParser;
+    [ra, 16] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 24;
+    r0 := [r0, 0];
+    jump_if r0, #se_verdadeiro_365;
+    jump #se_fim_366;
+#se_verdadeiro_365:
+    r0 := [ra, 8];
+    push r0;
+    call #Onm.Core.Json.Model.freeNode$type_JsonNode;
+    r0 := null;
+    free_frame;
+    return r0;
+#se_fim_366:
+    r0 := [ra, 8];
+    push r0;
+    r0 := [ra, 16];
+    push r0;
+    call #Onm.Core.Json.Model.findProperty$type_JsonNode_string;
+    [ra, 88] := r0;
+    r1 := null;
+    r0 := [ra, 88];
+    r0 := r0 <> r1;
+    jump_if r0, #se_verdadeiro_367;
+    jump #se_fim_368;
+#se_verdadeiro_367:
+    r0 := true;
+    [ra, 88] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 24;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := "Duplicate property name: ";
+    push r0;
+    r0 := [ra, 16];
+    push r0;
+    call #ijkL.Text.concat$string_string;
+    [ra, 88] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 32;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := [ra, 8];
+    push r0;
+    call #Onm.Core.Json.Model.freeNode$type_JsonNode;
+    r0 := null;
+    free_frame;
+    return r0;
+#se_fim_368:
+    r0 := [ra, 0];
+    push r0;
+    call #Onm.Core.Json.Parser.skipWhitespace$type_JsonParser;
+    r0 := [ra, 0];
+    push r0;
+    call #Onm.Core.Json.Parser.peekChar$type_JsonParser;
+    [ra, 88] := r0;
+    r1 := ':';
+    r0 := [ra, 88];
+    r0 := r0 <> r1;
+    jump_if r0, #se_verdadeiro_369;
+    jump #se_fim_370;
+#se_verdadeiro_369:
+    r0 := true;
+    [ra, 88] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 24;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := "Expected ':' after property name.";
+    [ra, 88] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 32;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := [ra, 8];
+    push r0;
+    call #Onm.Core.Json.Model.freeNode$type_JsonNode;
+    r0 := null;
+    free_frame;
+    return r0;
+#se_fim_370:
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 88] := r0;
+    r1 := 1;
+    r0 := [ra, 88];
+    r0 := r0 + r1;
+    [ra, 88] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := [ra, 0];
+    push r0;
+    call #Onm.Core.Json.Parser.skipWhitespace$type_JsonParser;
+    r0 := [ra, 0];
+    push r0;
+    call #Onm.Core.Json.Parser.peekChar$type_JsonParser;
+    [ra, 24] := r0;
+    r0 := [ra, 24];
+    [ra, 88] := r0;
+    r1 := '{';
+    r0 := [ra, 88];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_371;
+    r0 := [ra, 24];
+    [ra, 88] := r0;
+    r1 := '"';
+    r0 := [ra, 88];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_373;
+    r0 := true;
+    [ra, 88] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 24;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := "Unsupported JSON value type. Only objects (nodes) and strings (keys) are supported.";
+    [ra, 88] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 32;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := [ra, 8];
+    push r0;
+    call #Onm.Core.Json.Model.freeNode$type_JsonNode;
+    r0 := null;
+    free_frame;
+    return r0;
+    jump #se_fim_374;
+#se_verdadeiro_373:
+    r0 := [ra, 0];
+    push r0;
+    call #Onm.Core.Json.Parser.parseStringLiteral$type_JsonParser;
+    [ra, 56] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 24;
+    r0 := [r0, 0];
+    jump_if r0, #se_verdadeiro_375;
+    jump #se_fim_376;
+#se_verdadeiro_375:
+    r0 := [ra, 8];
+    push r0;
+    call #Onm.Core.Json.Model.freeNode$type_JsonNode;
+    r0 := null;
+    free_frame;
+    return r0;
+#se_fim_376:
+    r0 := 40;
+    r0 := alloc(r0);
+    [ra, 64] := r0;
+    r0 := [ra, 16];
+    [ra, 88] := r0;
+    r1 := [ra, 64];
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := false;
+    [ra, 88] := r0;
+    r1 := [ra, 64];
+    r1 := r1 + 8;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := null;
+    [ra, 88] := r0;
+    r1 := [ra, 64];
+    r1 := r1 + 16;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := [ra, 56];
+    [ra, 88] := r0;
+    r1 := [ra, 64];
+    r1 := r1 + 24;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := null;
+    [ra, 88] := r0;
+    r1 := [ra, 64];
+    r1 := r1 + 32;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := [ra, 8];
+    r0 := [r0, 0];
+    [ra, 88] := r0;
+    r1 := null;
+    r0 := [ra, 88];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_377;
+    r0 := [ra, 8];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 72] := r0;
+    r0 := [ra, 64];
+    [ra, 88] := r0;
+    r1 := [ra, 72];
+    r1 := r1 + 32;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := [ra, 64];
+    [ra, 88] := r0;
+    r1 := [ra, 8];
+    r1 := r1 + 8;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    jump #se_fim_378;
+#se_verdadeiro_377:
+    r0 := [ra, 64];
+    [ra, 88] := r0;
+    r1 := [ra, 8];
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := [ra, 64];
+    [ra, 88] := r0;
+    r1 := [ra, 8];
+    r1 := r1 + 8;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+#se_fim_378:
+    r0 := [ra, 8];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 88] := r0;
+    r1 := 1;
+    r0 := [ra, 88];
+    r0 := r0 + r1;
+    [ra, 88] := r0;
+    r1 := [ra, 8];
+    r1 := r1 + 16;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+#se_fim_374:
+    jump #se_fim_372;
+#se_verdadeiro_371:
+    r0 := [ra, 0];
+    push r0;
+    call #Onm.Core.Json.Parser.parseJsonObject$type_JsonParser;
+    [ra, 32] := r0;
+    r0 := [ra, 0];
+    r0 := r0 + 24;
+    r0 := [r0, 0];
+    jump_if r0, #se_verdadeiro_379;
+    jump #se_fim_380;
+#se_verdadeiro_379:
+    r0 := [ra, 8];
+    push r0;
+    call #Onm.Core.Json.Model.freeNode$type_JsonNode;
+    r0 := null;
+    free_frame;
+    return r0;
+#se_fim_380:
+    r0 := 40;
+    r0 := alloc(r0);
+    [ra, 40] := r0;
+    r0 := [ra, 16];
+    [ra, 88] := r0;
+    r1 := [ra, 40];
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := true;
+    [ra, 88] := r0;
+    r1 := [ra, 40];
+    r1 := r1 + 8;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := [ra, 32];
+    [ra, 88] := r0;
+    r1 := [ra, 40];
+    r1 := r1 + 16;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := "";
+    [ra, 88] := r0;
+    r1 := [ra, 40];
+    r1 := r1 + 24;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := null;
+    [ra, 88] := r0;
+    r1 := [ra, 40];
+    r1 := r1 + 32;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := [ra, 8];
+    r0 := [r0, 0];
+    [ra, 88] := r0;
+    r1 := null;
+    r0 := [ra, 88];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_381;
+    r0 := [ra, 8];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 48] := r0;
+    r0 := [ra, 40];
+    [ra, 88] := r0;
+    r1 := [ra, 48];
+    r1 := r1 + 32;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := [ra, 40];
+    [ra, 88] := r0;
+    r1 := [ra, 8];
+    r1 := r1 + 8;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    jump #se_fim_382;
+#se_verdadeiro_381:
+    r0 := [ra, 40];
+    [ra, 88] := r0;
+    r1 := [ra, 8];
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := [ra, 40];
+    [ra, 88] := r0;
+    r1 := [ra, 8];
+    r1 := r1 + 8;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+#se_fim_382:
+    r0 := [ra, 8];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 88] := r0;
+    r1 := 1;
+    r0 := [ra, 88];
+    r0 := r0 + r1;
+    [ra, 88] := r0;
+    r1 := [ra, 8];
+    r1 := r1 + 16;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+#se_fim_372:
+    r0 := [ra, 0];
+    push r0;
+    call #Onm.Core.Json.Parser.skipWhitespace$type_JsonParser;
+    r0 := [ra, 0];
+    push r0;
+    call #Onm.Core.Json.Parser.peekChar$type_JsonParser;
+    [ra, 80] := r0;
+    r0 := [ra, 80];
+    [ra, 88] := r0;
+    r1 := ',';
+    r0 := [ra, 88];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_383;
+    r0 := [ra, 80];
+    [ra, 88] := r0;
+    r1 := '}';
+    r0 := [ra, 88];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_385;
+    r0 := true;
+    [ra, 88] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 24;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := "Expected ',' or '}' inside JSON object.";
+    [ra, 88] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 32;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := [ra, 8];
+    push r0;
+    call #Onm.Core.Json.Model.freeNode$type_JsonNode;
+    r0 := null;
+    free_frame;
+    return r0;
+    jump #se_fim_386;
+#se_verdadeiro_385:
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 88] := r0;
+    r1 := 1;
+    r0 := [ra, 88];
+    r0 := r0 + r1;
+    [ra, 88] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    jump #enquanto_fim_362;
+#se_fim_386:
+    jump #se_fim_384;
+#se_verdadeiro_383:
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 88] := r0;
+    r1 := 1;
+    r0 := [ra, 88];
+    r0 := r0 + r1;
+    [ra, 88] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 16;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := [ra, 0];
+    push r0;
+    call #Onm.Core.Json.Parser.skipWhitespace$type_JsonParser;
+    r0 := [ra, 0];
+    push r0;
+    call #Onm.Core.Json.Parser.peekChar$type_JsonParser;
+    [ra, 88] := r0;
+    r1 := '}';
+    r0 := [ra, 88];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_387;
+    jump #se_fim_388;
+#se_verdadeiro_387:
+    r0 := true;
+    [ra, 88] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 24;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := "Trailing comma before '}' is not allowed in JSON.";
+    [ra, 88] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 32;
+    r0 := [ra, 88];
+    [r1, 0] := r0;
+    r0 := [ra, 8];
+    push r0;
+    call #Onm.Core.Json.Model.freeNode$type_JsonNode;
+    r0 := null;
+    free_frame;
+    return r0;
+#se_fim_388:
+#se_fim_384:
+    jump #enquanto_inicio_361;
+#enquanto_fim_362:
+    r0 := [ra, 8];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+// --- Module: Onm.Core.Json.Serializer ---
+
+#Onm.Core.Json.Serializer.generateIndent$int:
+#generateIndent$int:
+#Onm.Core.Json.Serializer.generateIndent:
+#generateIndent:
+    alloc_frame 88;
+    r0 := "";
+    [ra, 8] := r0;
+    r0 := 0;
+    [ra, 16] := r0;
+#enquanto_inicio_389:
+    r0 := [ra, 16];
+    [ra, 24] := r0;
+    r1 := [ra, 0];
+    r0 := [ra, 24];
+    r0 := r0 < r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_390;
+    r0 := [ra, 8];
+    push r0;
+    r0 := "  ";
+    push r0;
+    call #ijkL.Text.concat$string_string;
+    [ra, 8] := r0;
+    r0 := [ra, 16];
+    [ra, 24] := r0;
+    r1 := 1;
+    r0 := [ra, 24];
+    r0 := r0 + r1;
+    [ra, 16] := r0;
+    jump #enquanto_inicio_389;
+#enquanto_fim_390:
+    r0 := [ra, 8];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#Onm.Core.Json.Serializer.serializeNode$type_JsonNode_int_bool:
+#serializeNode$type_JsonNode_int_bool:
+#Onm.Core.Json.Serializer.serializeNode:
+#serializeNode:
+    alloc_frame 136;
+    r0 := [ra, 0];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 72] := r0;
+    r1 := 0;
+    r0 := [ra, 72];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_391;
+    jump #se_fim_392;
+#se_verdadeiro_391:
+    r0 := [ra, 8];
+    [ra, 72] := r0;
+    r1 := 0;
+    r0 := [ra, 72];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_393;
+    jump #se_fim_394;
+#se_verdadeiro_393:
+    r0 := "{\n}\n";
+    free_frame;
+    return r0;
+#se_fim_394:
+    r0 := "{}";
+    free_frame;
+    return r0;
+#se_fim_392:
+    r0 := "{\n";
+    [ra, 24] := r0;
+    r0 := [ra, 8];
+    [ra, 72] := r0;
+    r1 := 1;
+    r0 := [ra, 72];
+    r0 := r0 + r1;
+    push r0;
+    call #Onm.Core.Json.Serializer.generateIndent$int;
+    [ra, 32] := r0;
+    r0 := [ra, 0];
+    r0 := [r0, 0];
+    [ra, 40] := r0;
+#enquanto_inicio_395:
+    r0 := [ra, 40];
+    [ra, 72] := r0;
+    r1 := null;
+    r0 := [ra, 72];
+    r0 := r0 <> r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_396;
+    r0 := [ra, 24];
+    push r0;
+    r0 := [ra, 32];
+    push r0;
+    call #ijkL.Text.concat$string_string;
+    [ra, 24] := r0;
+    r0 := [ra, 24];
+    push r0;
+    r0 := "\"";
+    push r0;
+    call #ijkL.Text.concat$string_string;
+    [ra, 24] := r0;
+    r0 := [ra, 24];
+    push r0;
+    r0 := [ra, 40];
+    r0 := [r0, 0];
+    push r0;
+    call #ijkL.Text.concat$string_string;
+    [ra, 24] := r0;
+    r0 := [ra, 24];
+    push r0;
+    r0 := "\": ";
+    push r0;
+    call #ijkL.Text.concat$string_string;
+    [ra, 24] := r0;
+    r0 := [ra, 40];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    jump_if r0, #se_verdadeiro_397;
+    r0 := [ra, 24];
+    push r0;
+    r0 := "\"";
+    push r0;
+    call #ijkL.Text.concat$string_string;
+    [ra, 24] := r0;
+    r0 := [ra, 24];
+    push r0;
+    r0 := [ra, 40];
+    r0 := r0 + 24;
+    r0 := [r0, 0];
+    push r0;
+    call #ijkL.Text.concat$string_string;
+    [ra, 24] := r0;
+    r0 := [ra, 24];
+    push r0;
+    r0 := "\"";
+    push r0;
+    call #ijkL.Text.concat$string_string;
+    [ra, 24] := r0;
+    jump #se_fim_398;
+#se_verdadeiro_397:
+    r0 := [ra, 16];
+    jump_if r0, #se_verdadeiro_399;
+    r0 := [ra, 24];
+    push r0;
+    r0 := "{}";
+    push r0;
+    call #ijkL.Text.concat$string_string;
+    [ra, 24] := r0;
+    jump #se_fim_400;
+#se_verdadeiro_399:
+    r0 := [ra, 40];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 48] := r0;
+    r0 := [ra, 48];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 72] := r0;
+    r1 := 0;
+    r0 := [ra, 72];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_401;
+    r0 := [ra, 48];
+    push r0;
+    r0 := [ra, 8];
+    [ra, 72] := r0;
+    r1 := 1;
+    r0 := [ra, 72];
+    r0 := r0 + r1;
+    push r0;
+    r0 := true;
+    push r0;
+    call #Onm.Core.Json.Serializer.serializeNode$type_JsonNode_int_bool;
+    [ra, 56] := r0;
+    r0 := [ra, 24];
+    push r0;
+    r0 := [ra, 56];
+    push r0;
+    call #ijkL.Text.concat$string_string;
+    [ra, 24] := r0;
+    jump #se_fim_402;
+#se_verdadeiro_401:
+    r0 := [ra, 24];
+    push r0;
+    r0 := "{}";
+    push r0;
+    call #ijkL.Text.concat$string_string;
+    [ra, 24] := r0;
+#se_fim_402:
+#se_fim_400:
+#se_fim_398:
+    r0 := [ra, 40];
+    r0 := r0 + 32;
+    r0 := [r0, 0];
+    [ra, 72] := r0;
+    r1 := null;
+    r0 := [ra, 72];
+    r0 := r0 <> r1;
+    jump_if r0, #se_verdadeiro_403;
+    r0 := [ra, 24];
+    push r0;
+    r0 := "\n";
+    push r0;
+    call #ijkL.Text.concat$string_string;
+    [ra, 24] := r0;
+    jump #se_fim_404;
+#se_verdadeiro_403:
+    r0 := [ra, 24];
+    push r0;
+    r0 := ",\n";
+    push r0;
+    call #ijkL.Text.concat$string_string;
+    [ra, 24] := r0;
+#se_fim_404:
+    r0 := [ra, 40];
+    r0 := r0 + 32;
+    r0 := [r0, 0];
+    [ra, 40] := r0;
+    jump #enquanto_inicio_395;
+#enquanto_fim_396:
+    r0 := [ra, 8];
+    push r0;
+    call #Onm.Core.Json.Serializer.generateIndent$int;
+    [ra, 64] := r0;
+    r0 := [ra, 24];
+    push r0;
+    r0 := [ra, 64];
+    push r0;
+    call #ijkL.Text.concat$string_string;
+    [ra, 24] := r0;
+    r0 := [ra, 24];
+    push r0;
+    r0 := "}";
+    push r0;
+    call #ijkL.Text.concat$string_string;
+    [ra, 24] := r0;
+    r0 := [ra, 8];
+    [ra, 72] := r0;
+    r1 := 0;
+    r0 := [ra, 72];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_405;
+    jump #se_fim_406;
+#se_verdadeiro_405:
+    r0 := [ra, 24];
+    push r0;
+    r0 := "\n";
+    push r0;
+    call #ijkL.Text.concat$string_string;
+    [ra, 24] := r0;
+#se_fim_406:
+    r0 := [ra, 24];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+// --- Module: Onm.Storage.File.Repository ---
+
+#Onm.Storage.File.Repository.loadRootNode$void:
+#loadRootNode$void:
+#Onm.Storage.File.Repository.loadRootNode:
+#loadRootNode:
+    alloc_frame 120;
+    r0 := false;
+    [ra, 0] := r0;
+    r0 := "onm.data";
+    push r0;
+    call #ijkL.IO.File.exists$string;
+    r0 := not r0;
+    jump_if r0, #se_verdadeiro_407;
+    r0 := "onm.data";
+    push r0;
+    call #ijkL.IO.File.readAllText$string;
+    [ra, 8] := r0;
+    r0 := [ra, 8];
+    push r0;
+    call #ijkL.Text.trim$string;
+    [ra, 16] := r0;
+    r0 := [ra, 16];
+    push r0;
+    call #ijkL.Text.length$string;
+    [ra, 56] := r0;
+    r1 := 0;
+    r0 := [ra, 56];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_409;
+    jump #se_fim_410;
+#se_verdadeiro_409:
+    r0 := true;
+    [ra, 0] := r0;
+#se_fim_410:
+    jump #se_fim_408;
+#se_verdadeiro_407:
+    r0 := true;
+    [ra, 0] := r0;
+#se_fim_408:
+    r0 := [ra, 0];
+    jump_if r0, #se_verdadeiro_411;
+    jump #se_fim_412;
+#se_verdadeiro_411:
+    r0 := "onm.data";
+    push r0;
+    r0 := "{\n}\n";
+    push r0;
+    call #ijkL.IO.File.writeAllText$string_string;
+#se_fim_412:
+    r0 := "onm.data";
+    push r0;
+    call #ijkL.IO.File.readAllText$string;
+    [ra, 24] := r0;
+    r0 := [ra, 24];
+    push r0;
+    call #ijkL.Text.trim$string;
+    [ra, 32] := r0;
+    r0 := [ra, 32];
+    push r0;
+    call #ijkL.Text.length$string;
+    [ra, 56] := r0;
+    r1 := 0;
+    r0 := [ra, 56];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_413;
+    jump #se_fim_414;
+#se_verdadeiro_413:
+    call #Onm.Core.Json.Model.createNode$void;
+    free_frame;
+    return r0;
+#se_fim_414:
+    r0 := [ra, 24];
+    push r0;
+    call #Onm.Core.Json.Parser.createParser$string;
+    [ra, 40] := r0;
+    r0 := [ra, 40];
+    push r0;
+    call #Onm.Core.Json.Parser.parseJsonObject$type_JsonParser;
+    [ra, 48] := r0;
+    r0 := [ra, 40];
+    r0 := r0 + 24;
+    r0 := [r0, 0];
+    [ra, 56] := r0;
+    r0 := [ra, 48];
+    [ra, 64] := r0;
+    r1 := null;
+    r0 := [ra, 64];
+    r1 := r0 = r1;
+    r0 := [ra, 56];
+    r0 := r0 or r1;
+    jump_if r0, #se_verdadeiro_415;
+    jump #se_fim_416;
+#se_verdadeiro_415:
+    r0 := "Error reading '";
+    out 0x0001, r0;
+    r0 := "onm.data";
+    out 0x0001, r0;
+    r0 := "': ";
+    out 0x0001, r0;
+    r0 := [ra, 40];
+    r0 := r0 + 32;
+    r0 := [r0, 0];
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := [ra, 40];
+    free(r0);
+    r0 := null;
+    free_frame;
+    return r0;
+#se_fim_416:
+    r0 := [ra, 40];
+    push r0;
+    call #Onm.Core.Json.Parser.skipWhitespace$type_JsonParser;
+    r0 := [ra, 40];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 56] := r0;
+    r1 := [ra, 40];
+    r1 := r1 + 8;
+    r1 := [r1, 0];
+    r0 := [ra, 56];
+    r0 := r0 < r1;
+    jump_if r0, #se_verdadeiro_417;
+    jump #se_fim_418;
+#se_verdadeiro_417:
+    r0 := "Error reading '";
+    out 0x0001, r0;
+    r0 := "onm.data";
+    out 0x0001, r0;
+    r0 := "': Extraneous characters after root JSON object.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := [ra, 48];
+    push r0;
+    call #Onm.Core.Json.Model.freeNode$type_JsonNode;
+    r0 := [ra, 40];
+    free(r0);
+    r0 := null;
+    free_frame;
+    return r0;
+#se_fim_418:
+    r0 := [ra, 40];
+    free(r0);
+    r0 := [ra, 48];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#Onm.Storage.File.Repository.saveRootNode$type_JsonNode:
+#saveRootNode$type_JsonNode:
+#Onm.Storage.File.Repository.saveRootNode:
+#saveRootNode:
+    alloc_frame 112;
+    r0 := [ra, 0];
+    push r0;
+    r0 := 0;
+    push r0;
+    r0 := true;
+    push r0;
+    call #Onm.Core.Json.Serializer.serializeNode$type_JsonNode_int_bool;
+    [ra, 8] := r0;
+    r0 := "onm.data.tmp";
+    push r0;
+    call #ijkL.IO.File.exists$string;
+    jump_if r0, #se_verdadeiro_419;
+    jump #se_fim_420;
+#se_verdadeiro_419:
+    r0 := "onm.data.tmp";
+    push r0;
+    call #ijkL.IO.File.delete$string;
+#se_fim_420:
+    r0 := "onm.data.tmp";
+    push r0;
+    r0 := [ra, 8];
+    push r0;
+    call #ijkL.IO.File.writeAllText$string_string;
+    [ra, 16] := r0;
+    r0 := [ra, 16];
+    r0 := not r0;
+    jump_if r0, #se_verdadeiro_421;
+    jump #se_fim_422;
+#se_verdadeiro_421:
+    r0 := "onm.data";
+    push r0;
+    r0 := [ra, 8];
+    push r0;
+    call #ijkL.IO.File.writeAllText$string_string;
+    [ra, 24] := r0;
+    r0 := [ra, 24];
+    r0 := not r0;
+    jump_if r0, #se_verdadeiro_423;
+    jump #se_fim_424;
+#se_verdadeiro_423:
+    r0 := "Error: Failed to write to persistence file '";
+    out 0x0001, r0;
+    r0 := "onm.data";
+    out 0x0001, r0;
+    r0 := "'.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := false;
+    free_frame;
+    return r0;
+#se_fim_424:
+    r0 := true;
+    free_frame;
+    return r0;
+#se_fim_422:
+    r0 := "onm.data.tmp";
+    push r0;
+    r0 := "onm.data";
+    push r0;
+    call #ijkL.IO.File.rename$string_string;
+    [ra, 32] := r0;
+    r0 := [ra, 32];
+    r0 := not r0;
+    jump_if r0, #se_verdadeiro_425;
+    jump #se_fim_426;
+#se_verdadeiro_425:
+    r0 := "onm.data";
+    push r0;
+    call #ijkL.IO.File.exists$string;
+    jump_if r0, #se_verdadeiro_427;
+    jump #se_fim_428;
+#se_verdadeiro_427:
+    r0 := "onm.data";
+    push r0;
+    call #ijkL.IO.File.delete$string;
+    r0 := "onm.data.tmp";
+    push r0;
+    r0 := "onm.data";
+    push r0;
+    call #ijkL.IO.File.rename$string_string;
+    [ra, 32] := r0;
+#se_fim_428:
+    r0 := [ra, 32];
+    r0 := not r0;
+    jump_if r0, #se_verdadeiro_429;
+    jump #se_fim_430;
+#se_verdadeiro_429:
+    r0 := "onm.data";
+    push r0;
+    r0 := [ra, 8];
+    push r0;
+    call #ijkL.IO.File.writeAllText$string_string;
+    [ra, 40] := r0;
+    r0 := "onm.data.tmp";
+    push r0;
+    call #ijkL.IO.File.delete$string;
+    r0 := [ra, 40];
+    r0 := not r0;
+    jump_if r0, #se_verdadeiro_431;
+    jump #se_fim_432;
+#se_verdadeiro_431:
+    r0 := "Error: Failed to atomically replace '";
+    out 0x0001, r0;
+    r0 := "onm.data";
+    out 0x0001, r0;
+    r0 := "'.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := false;
+    free_frame;
+    return r0;
+#se_fim_432:
+    r0 := true;
+    free_frame;
+    return r0;
+#se_fim_430:
+#se_fim_426:
+    r0 := true;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+// --- Module: ijkL.IO.File ---
+
+#ijkL.IO.File.exists$string:
+#exists$string:
+#ijkL.IO.File.exists:
+#exists:
+    alloc_frame 72;
+    r1 := [ra, 0];
+    in 0x0100, r0;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.IO.File.readAllText$string:
+#readAllText$string:
+#ijkL.IO.File.readAllText:
+#readAllText:
+    alloc_frame 72;
+    r1 := [ra, 0];
+    in 0x0101, r0;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.IO.File.writeAllText$string_string:
+#writeAllText$string_string:
+#ijkL.IO.File.writeAllText:
+#writeAllText:
+    alloc_frame 80;
+    r1 := [ra, 0];
+    r2 := [ra, 8];
+    out 0x0102, r2;
+    in 0x0102, r0;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.IO.File.appendText$string_string:
+#appendText$string_string:
+#ijkL.IO.File.appendText:
+#appendText:
+    alloc_frame 80;
+    r1 := [ra, 0];
+    r2 := [ra, 8];
+    out 0x0103, r2;
+    in 0x0103, r0;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.IO.File.delete$string:
+#delete$string:
+#ijkL.IO.File.delete:
+#delete:
+    alloc_frame 72;
+    r1 := [ra, 0];
+    in 0x0104, r0;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.IO.File.rename$string_string:
+#rename$string_string:
+#ijkL.IO.File.rename:
+#rename:
+    alloc_frame 80;
+    r1 := [ra, 0];
+    r2 := [ra, 8];
+    in 0x0105, r0;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#ijkL.IO.File.copy$string_string:
+#copy$string_string:
+#ijkL.IO.File.copy:
+#copy:
+    alloc_frame 80;
+    r1 := [ra, 0];
+    r2 := [ra, 8];
+    in 0x0106, r0;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+// --- Module: Onm.Cli.Input.Tokenizer ---
+
+#Onm.Cli.Input.Tokenizer.tokenizeLine$string:
+#tokenizeLine$string:
+#Onm.Cli.Input.Tokenizer.tokenizeLine:
+#tokenizeLine:
+    alloc_frame 152;
+    r0 := 4;
+    push r0;
+    call #ijkL.Collections.createList$int;
+    [ra, 8] := r0;
+    r0 := [ra, 0];
+    push r0;
+    call #ijkL.Text.length$string;
+    [ra, 16] := r0;
+    r0 := 0;
+    [ra, 24] := r0;
+#enquanto_inicio_433:
+    r0 := [ra, 24];
+    [ra, 88] := r0;
+    r1 := [ra, 16];
+    r0 := [ra, 88];
+    r0 := r0 < r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_434;
+#enquanto_inicio_435:
+    r0 := [ra, 24];
+    [ra, 88] := r0;
+    r1 := [ra, 16];
+    r0 := [ra, 88];
+    r0 := r0 < r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_436;
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 24];
+    push r0;
+    call #ijkL.Text.get$string_int;
+    [ra, 32] := r0;
+    r0 := [ra, 32];
+    [ra, 88] := r0;
+    r1 := ' ';
+    r0 := [ra, 88];
+    r0 := r0 = r1;
+    [ra, 88] := r0;
+    r0 := [ra, 32];
+    [ra, 96] := r0;
+    r1 := '\t';
+    r0 := [ra, 96];
+    r1 := r0 = r1;
+    r0 := [ra, 88];
+    r0 := r0 or r1;
+    [ra, 88] := r0;
+    r0 := [ra, 32];
+    [ra, 96] := r0;
+    r1 := '\n';
+    r0 := [ra, 96];
+    r1 := r0 = r1;
+    r0 := [ra, 88];
+    r0 := r0 or r1;
+    [ra, 88] := r0;
+    r0 := [ra, 32];
+    [ra, 96] := r0;
+    r1 := '\r';
+    r0 := [ra, 96];
+    r1 := r0 = r1;
+    r0 := [ra, 88];
+    r0 := r0 or r1;
+    jump_if r0, #se_verdadeiro_437;
+    jump #enquanto_fim_436;
+    jump #se_fim_438;
+#se_verdadeiro_437:
+    r0 := [ra, 24];
+    [ra, 88] := r0;
+    r1 := 1;
+    r0 := [ra, 88];
+    r0 := r0 + r1;
+    [ra, 24] := r0;
+#se_fim_438:
+    jump #enquanto_inicio_435;
+#enquanto_fim_436:
+    r0 := [ra, 24];
+    [ra, 88] := r0;
+    r1 := [ra, 16];
+    r0 := [ra, 88];
+    r0 := r0 >= r1;
+    jump_if r0, #se_verdadeiro_439;
+    jump #se_fim_440;
+#se_verdadeiro_439:
+    jump #enquanto_fim_434;
+#se_fim_440:
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 24];
+    push r0;
+    call #ijkL.Text.get$string_int;
+    [ra, 40] := r0;
+    r0 := [ra, 40];
+    [ra, 88] := r0;
+    r1 := '"';
+    r0 := [ra, 88];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_441;
+    r0 := [ra, 24];
+    [ra, 64] := r0;
+#enquanto_inicio_443:
+    r0 := [ra, 24];
+    [ra, 88] := r0;
+    r1 := [ra, 16];
+    r0 := [ra, 88];
+    r0 := r0 < r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_444;
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 24];
+    push r0;
+    call #ijkL.Text.get$string_int;
+    [ra, 72] := r0;
+    r0 := [ra, 72];
+    [ra, 88] := r0;
+    r1 := ' ';
+    r0 := [ra, 88];
+    r0 := r0 = r1;
+    [ra, 88] := r0;
+    r0 := [ra, 72];
+    [ra, 96] := r0;
+    r1 := '\t';
+    r0 := [ra, 96];
+    r1 := r0 = r1;
+    r0 := [ra, 88];
+    r0 := r0 or r1;
+    [ra, 88] := r0;
+    r0 := [ra, 72];
+    [ra, 96] := r0;
+    r1 := '\n';
+    r0 := [ra, 96];
+    r1 := r0 = r1;
+    r0 := [ra, 88];
+    r0 := r0 or r1;
+    [ra, 88] := r0;
+    r0 := [ra, 72];
+    [ra, 96] := r0;
+    r1 := '\r';
+    r0 := [ra, 96];
+    r1 := r0 = r1;
+    r0 := [ra, 88];
+    r0 := r0 or r1;
+    jump_if r0, #se_verdadeiro_445;
+    jump #se_fim_446;
+#se_verdadeiro_445:
+    jump #enquanto_fim_444;
+#se_fim_446:
+    r0 := [ra, 24];
+    [ra, 88] := r0;
+    r1 := 1;
+    r0 := [ra, 88];
+    r0 := r0 + r1;
+    [ra, 24] := r0;
+    jump #enquanto_inicio_443;
+#enquanto_fim_444:
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 64];
+    push r0;
+    r0 := [ra, 24];
+    [ra, 88] := r0;
+    r1 := [ra, 64];
+    r0 := [ra, 88];
+    r0 := r0 - r1;
+    push r0;
+    call #ijkL.Text.substring$string_int_int;
+    [ra, 80] := r0;
+    r0 := [ra, 8];
+    push r0;
+    r0 := [ra, 80];
+    push r0;
+    call #ijkL.Collections.add$type_List_ptr_unknown;
+    jump #se_fim_442;
+#se_verdadeiro_441:
+    r0 := [ra, 24];
+    [ra, 88] := r0;
+    r1 := 1;
+    r0 := [ra, 88];
+    r0 := r0 + r1;
+    [ra, 24] := r0;
+    r0 := [ra, 24];
+    [ra, 48] := r0;
+#enquanto_inicio_447:
+    r0 := [ra, 24];
+    [ra, 88] := r0;
+    r1 := [ra, 16];
+    r0 := [ra, 88];
+    r0 := r0 < r1;
+    [ra, 88] := r0;
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 24];
+    push r0;
+    call #ijkL.Text.get$string_int;
+    [ra, 96] := r0;
+    r1 := '"';
+    r0 := [ra, 96];
+    r1 := r0 <> r1;
+    r0 := [ra, 88];
+    r0 := r0 and r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_448;
+    r0 := [ra, 24];
+    [ra, 88] := r0;
+    r1 := 1;
+    r0 := [ra, 88];
+    r0 := r0 + r1;
+    [ra, 24] := r0;
+    jump #enquanto_inicio_447;
+#enquanto_fim_448:
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 48];
+    push r0;
+    r0 := [ra, 24];
+    [ra, 88] := r0;
+    r1 := [ra, 48];
+    r0 := [ra, 88];
+    r0 := r0 - r1;
+    push r0;
+    call #ijkL.Text.substring$string_int_int;
+    [ra, 56] := r0;
+    r0 := [ra, 8];
+    push r0;
+    r0 := [ra, 56];
+    push r0;
+    call #ijkL.Collections.add$type_List_ptr_unknown;
+    r0 := [ra, 24];
+    [ra, 88] := r0;
+    r1 := [ra, 16];
+    r0 := [ra, 88];
+    r0 := r0 < r1;
+    [ra, 88] := r0;
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 24];
+    push r0;
+    call #ijkL.Text.get$string_int;
+    [ra, 96] := r0;
+    r1 := '"';
+    r0 := [ra, 96];
+    r1 := r0 = r1;
+    r0 := [ra, 88];
+    r0 := r0 and r1;
+    jump_if r0, #se_verdadeiro_449;
+    jump #se_fim_450;
+#se_verdadeiro_449:
+    r0 := [ra, 24];
+    [ra, 88] := r0;
+    r1 := 1;
+    r0 := [ra, 88];
+    r0 := r0 + r1;
+    [ra, 24] := r0;
+#se_fim_450:
+#se_fim_442:
+    jump #enquanto_inicio_433;
+#enquanto_fim_434:
+    r0 := [ra, 8];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#Onm.Cli.Input.Tokenizer.promptRequired$string:
+#promptRequired$string:
+#Onm.Cli.Input.Tokenizer.promptRequired:
+#promptRequired:
+    alloc_frame 80;
+    r0 := [ra, 0];
+    out 0x0001, r0;
+    call #ijkL.IO.Console.readLine$void;
+    [ra, 8] := r0;
+    r0 := [ra, 8];
+    push r0;
+    call #ijkL.Text.trim$string;
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+// --- Module: Onm.Cli.Path.Navigator ---
+
+#Onm.Cli.Path.Navigator.formatPath$type_List:
+#formatPath$type_List:
+#Onm.Cli.Path.Navigator.formatPath:
+#formatPath:
+    alloc_frame 96;
+    r0 := [ra, 0];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    [ra, 32] := r0;
+    r1 := 0;
+    r0 := [ra, 32];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_451;
+    jump #se_fim_452;
+#se_verdadeiro_451:
+    r0 := "/";
+    free_frame;
+    return r0;
+#se_fim_452:
+    r0 := "";
+    [ra, 8] := r0;
+    r0 := 0;
+    [ra, 16] := r0;
+#enquanto_inicio_453:
+    r0 := [ra, 16];
+    [ra, 32] := r0;
+    r1 := [ra, 0];
+    r1 := r1 + 8;
+    r1 := [r1, 0];
+    r0 := [ra, 32];
+    r0 := r0 < r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_454;
+    r0 := [ra, 8];
+    push r0;
+    r0 := "/";
+    push r0;
+    call #ijkL.Text.concat$string_string;
+    [ra, 8] := r0;
+    r0 := [ra, 0];
+    push r0;
+    r0 := [ra, 16];
+    push r0;
+    call #ijkL.Collections.get$type_List_int;
+    [ra, 24] := r0;
+    r0 := [ra, 8];
+    push r0;
+    r0 := [ra, 24];
+    push r0;
+    call #ijkL.Text.concat$string_string;
+    [ra, 8] := r0;
+    r0 := [ra, 16];
+    [ra, 32] := r0;
+    r1 := 1;
+    r0 := [ra, 32];
+    r0 := r0 + r1;
+    [ra, 16] := r0;
+    jump #enquanto_inicio_453;
+#enquanto_fim_454:
+    r0 := [ra, 8];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+#Onm.Cli.Path.Navigator.resolveNodeAtPath$type_JsonNode_type_List:
+#resolveNodeAtPath$type_JsonNode_type_List:
+#Onm.Cli.Path.Navigator.resolveNodeAtPath:
+#resolveNodeAtPath:
+    alloc_frame 112;
+    r0 := [ra, 0];
+    [ra, 16] := r0;
+    r0 := 0;
+    [ra, 24] := r0;
+#enquanto_inicio_455:
+    r0 := [ra, 24];
+    [ra, 48] := r0;
+    r1 := [ra, 8];
+    r1 := r1 + 8;
+    r1 := [r1, 0];
+    r0 := [ra, 48];
+    r0 := r0 < r1;
+    r0 := not r0;
+    jump_if r0, #enquanto_fim_456;
+    r0 := [ra, 8];
+    push r0;
+    r0 := [ra, 24];
+    push r0;
+    call #ijkL.Collections.get$type_List_int;
+    [ra, 32] := r0;
+    r0 := [ra, 16];
+    push r0;
+    r0 := [ra, 32];
+    push r0;
+    call #Onm.Core.Json.Model.findProperty$type_JsonNode_string;
+    [ra, 40] := r0;
+    r0 := [ra, 40];
+    [ra, 48] := r0;
+    r1 := null;
+    r0 := [ra, 48];
+    r0 := r0 = r1;
+    jump_if r0, #se_verdadeiro_457;
+    jump #se_fim_458;
+#se_verdadeiro_457:
+    r0 := null;
+    free_frame;
+    return r0;
+#se_fim_458:
+    r0 := [ra, 40];
+    r0 := r0 + 8;
+    r0 := [r0, 0];
+    r0 := not r0;
+    jump_if r0, #se_verdadeiro_459;
+    jump #se_fim_460;
+#se_verdadeiro_459:
+    r0 := null;
+    free_frame;
+    return r0;
+#se_fim_460:
+    r0 := [ra, 40];
+    r0 := r0 + 16;
+    r0 := [r0, 0];
+    [ra, 16] := r0;
+    r0 := [ra, 24];
+    [ra, 48] := r0;
+    r1 := 1;
+    r0 := [ra, 48];
+    r0 := r0 + r1;
+    [ra, 24] := r0;
+    jump #enquanto_inicio_455;
+#enquanto_fim_456:
+    r0 := [ra, 16];
+    free_frame;
+    return r0;
+    free_frame;
+    return;
+
+// --- Module: Onm.Cli.Command.Help ---
+
+#Onm.Cli.Command.Help.printGeneralHelp$void:
+#printGeneralHelp$void:
+#Onm.Cli.Command.Help.printGeneralHelp:
+#printGeneralHelp:
+    alloc_frame 64;
+    r0 := "Available commands in onm:";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "  add node <name>               Create an empty child node.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "  add key <name> [value]        Create a key with an optional string value.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "  list nodes                    List the names of immediate child nodes.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "  list keys                     List the names and values of keys.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "  ren node <name> <new_name>    Rename a child node.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "  ren key <name> <new_name>     Rename a key.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "  update <key> <new_value>      Change the value of an existing key.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "  del node <name>               Physically delete a node and its contents.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "  del key <name>                Physically delete a key.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "  open <name>                   Enter a child node.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "  close                         Return to the parent node.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "  show node <name> [recursive]  Display a child node's contents as JSON.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "  show node . [recursive]       Display the current node's contents as JSON.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "  help [command]                Display help for a specific command.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "  exit                          End the interactive session.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    free_frame;
+    return;
+
+#Onm.Cli.Command.Help.printCommandHelp$string:
+#printCommandHelp$string:
+#Onm.Cli.Command.Help.printCommandHelp:
+#printCommandHelp:
+    alloc_frame 72;
+    r0 := [ra, 0];
+    push r0;
+    r0 := "add";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    [ra, 8] := r0;
+    r0 := [ra, 0];
+    push r0;
+    r0 := "add node";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    r1 := r0;
+    r0 := [ra, 8];
+    r0 := r0 or r1;
+    jump_if r0, #se_verdadeiro_461;
+    r0 := [ra, 0];
+    push r0;
+    r0 := "add key";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    jump_if r0, #se_verdadeiro_463;
+    r0 := [ra, 0];
+    push r0;
+    r0 := "list";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    [ra, 8] := r0;
+    r0 := [ra, 0];
+    push r0;
+    r0 := "list nodes";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    r1 := r0;
+    r0 := [ra, 8];
+    r0 := r0 or r1;
+    jump_if r0, #se_verdadeiro_465;
+    r0 := [ra, 0];
+    push r0;
+    r0 := "list keys";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    jump_if r0, #se_verdadeiro_467;
+    r0 := [ra, 0];
+    push r0;
+    r0 := "ren";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    [ra, 8] := r0;
+    r0 := [ra, 0];
+    push r0;
+    r0 := "ren node";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    r1 := r0;
+    r0 := [ra, 8];
+    r0 := r0 or r1;
+    jump_if r0, #se_verdadeiro_469;
+    r0 := [ra, 0];
+    push r0;
+    r0 := "ren key";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    jump_if r0, #se_verdadeiro_471;
+    r0 := [ra, 0];
+    push r0;
+    r0 := "update";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    jump_if r0, #se_verdadeiro_473;
+    r0 := [ra, 0];
+    push r0;
+    r0 := "del";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    [ra, 8] := r0;
+    r0 := [ra, 0];
+    push r0;
+    r0 := "del node";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    r1 := r0;
+    r0 := [ra, 8];
+    r0 := r0 or r1;
+    jump_if r0, #se_verdadeiro_475;
+    r0 := [ra, 0];
+    push r0;
+    r0 := "del key";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    jump_if r0, #se_verdadeiro_477;
+    r0 := [ra, 0];
+    push r0;
+    r0 := "open";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    jump_if r0, #se_verdadeiro_479;
+    r0 := [ra, 0];
+    push r0;
+    r0 := "close";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    jump_if r0, #se_verdadeiro_481;
+    r0 := [ra, 0];
+    push r0;
+    r0 := "show";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    [ra, 8] := r0;
+    r0 := [ra, 0];
+    push r0;
+    r0 := "show node";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    r1 := r0;
+    r0 := [ra, 8];
+    r0 := r0 or r1;
+    jump_if r0, #se_verdadeiro_483;
+    r0 := [ra, 0];
+    push r0;
+    r0 := "exit";
+    push r0;
+    call #ijkL.Text.equals$string_string;
+    jump_if r0, #se_verdadeiro_485;
+    r0 := "No specific help available for '";
+    out 0x0001, r0;
+    r0 := [ra, 0];
+    out 0x0001, r0;
+    r0 := "'.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    call #Onm.Cli.Command.Help.printGeneralHelp$void;
+    jump #se_fim_486;
+#se_verdadeiro_485:
+    r0 := "Syntax: exit";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "Exits the onm interactive management session.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_486:
+    jump #se_fim_484;
+#se_verdadeiro_483:
+    r0 := "Syntax: show node <name> [recursive]";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "Displays a node formatted as JSON. Use '.' for the current node.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "Without 'recursive', child nodes are represented as {}.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "With 'recursive', the full tree is displayed.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "Example: show node . recursive";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_484:
+    jump #se_fim_482;
+#se_verdadeiro_481:
+    r0 := "Syntax: close";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "Navigates back to the parent node. If already at root, displays a notice.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_482:
+    jump #se_fim_480;
+#se_verdadeiro_479:
+    r0 := "Syntax: open <name>";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "Enters a child node, moving navigation one level deeper.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "Example: open course";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_480:
+    jump #se_fim_478;
+#se_verdadeiro_477:
+    r0 := "Syntax: del key <name>";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "Physically deletes a key from the current node.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_478:
+    jump #se_fim_476;
+#se_verdadeiro_475:
+    r0 := "Syntax: del node <name>";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "Physically deletes a child node and all its contents without confirmation.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_476:
+    jump #se_fim_474;
+#se_verdadeiro_473:
+    r0 := "Syntax: update <key> <new_value>";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "Updates the string value of an existing key.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "Example: update name \"Ana Maria Silva\"";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_474:
+    jump #se_fim_472;
+#se_verdadeiro_471:
+    r0 := "Syntax: ren key <name> <new_name>";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "Renames a key in the current node while preserving its value.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "Example: ren key name full_name";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_472:
+    jump #se_fim_470;
+#se_verdadeiro_469:
+    r0 := "Syntax: ren node <name> <new_name>";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "Renames an immediate child node while preserving its contents.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "Example: ren node old_course new_course";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_470:
+    jump #se_fim_468;
+#se_verdadeiro_467:
+    r0 := "Syntax: list keys";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "Displays all keys and their corresponding string values in the current node.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_468:
+    jump #se_fim_466;
+#se_verdadeiro_465:
+    r0 := "Syntax: list nodes";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "Displays the names of all immediate child nodes in the current node.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_466:
+    jump #se_fim_464;
+#se_verdadeiro_463:
+    r0 := "Syntax: add key <name> [value]";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "Creates a new key with an optional string value. If omitted, default is \"\".";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "Example: add key name \"Ana Silva\"";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_464:
+    jump #se_fim_462;
+#se_verdadeiro_461:
+    r0 := "Syntax: add node <name>";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "Creates a new empty node inside the current node.";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+    r0 := "Example: add node \"personal information\"";
+    out 0x0001, r0;
+    out 0x0000, '\n';
+#se_fim_462:
+    free_frame;
+    return;
+
+// ==============================================================================
+// Bootstrap & Lifecycle Management Sequence
+// ==============================================================================
+#OnmApp.main:
+#main:
+    alloc_frame 80;
+    call #OnmApp.main_impl;
+    r1 := r0;
+    r0 := r1;
+    free_frame;
+    halt;

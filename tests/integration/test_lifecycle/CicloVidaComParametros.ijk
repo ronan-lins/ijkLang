@@ -1,0 +1,9 @@
+// Teste de rejeição de rotina de ciclo de vida com parâmetros
+programa CicloVidaComParametrosApp {
+    privado inicializar(inteiro param) {
+    }
+
+    privado principal(): inteiro {
+        retorne 0;
+    }
+}

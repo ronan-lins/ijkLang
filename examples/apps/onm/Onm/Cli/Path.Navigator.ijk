@@ -1,0 +1,49 @@
+// ==============================================================================
+// Unit: Onm.Cli.Path.Navigator
+// Application: onm — Object Notation Management
+// Language: ijkLang (ijkL)
+// Standard: ISO C11 Alignment, Clean Code (AGENTS.md)
+// Responsibility: Path string formatting and recursive resolution of the
+//                 target JSON node from navigation segments.
+// ==============================================================================
+
+import ijkL.Text;
+import ijkL.Collections;
+import Onm.Core.Json.Model;
+
+unit Onm.Cli.Path.Navigator {
+
+    public formatPath(List path_segments): string {
+        if (path_segments.count == 0) {
+            return "/";
+        }
+        string result = "";
+        int i = 0;
+        while (i < path_segments.count) {
+            result = ijkL.Text.concat(result, "/");
+            string seg = ijkL.Collections.get(path_segments, i);
+            result = ijkL.Text.concat(result, seg);
+            i = i + 1;
+        }
+        return result;
+    }
+
+    public resolveNodeAtPath(JsonNode root, List path_segments): JsonNode {
+        JsonNode current = root;
+        int i = 0;
+        while (i < path_segments.count) {
+            string segment_name = ijkL.Collections.get(path_segments, i);
+            JsonProperty prop = findProperty(current, segment_name);
+            if (prop == null) {
+                return null;
+            }
+            if (!prop.is_node) {
+                return null;
+            }
+            current = prop.node_value;
+            i = i + 1;
+        }
+        return current;
+    }
+
+}

@@ -1,0 +1,25 @@
+// ==============================================================================
+// Exemplo 07: Laço com Variável de Controle (Para / De / Até / Passo)
+// Demonstração de iteração contada com incremento customizado
+// ==============================================================================
+
+programa LacoParaApp {
+    // Ponto de entrada obrigatório da aplicação
+    privado principal(): inteiro {
+        inteiro multiplicador = 7;
+
+        escrevaln("--- Tabuada do numero ", multiplicador, " (1 ate 10) ---");
+
+        para (inteiro indice = 1 ate 10 passo 1) {
+            inteiro resultado = multiplicador * indice;
+            escrevaln(multiplicador, " x ", indice, " = ", resultado);
+        }
+
+        escrevaln("\nContagem regressiva com passo decrescente:");
+        para (inteiro regressivo = 10 ate 2 passo -2) {
+            escrevaln("Contagem: ", regressivo);
+        }
+
+        retorne 0;
+    }
+}

@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{B4450E18-7B8D-4C1F-9E2A-18A34FBC9001}</ProjectGuid>
+    <RootNamespace>ijkl</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>ijkl</ProjectName>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset Condition="'$(PlatformToolset)' == ''">$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset Condition="'$(PlatformToolset)' == ''">$(DefaultPlatformToolset)</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared" />
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(ProjectDir)..\..\bin\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\build\$(Configuration)\</IntDir>
+    <TargetName>ijkl</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(ProjectDir)..\..\bin\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\build\$(Configuration)\</IntDir>
+    <TargetName>ijkl</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard_C>stdc11</LanguageStandard_C>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <PostBuildEvent>
+      <Command>if not exist "$(OutDir)keywords" mkdir "$(OutDir)keywords"
+copy /Y "$(ProjectDir)..\..\ijkl.ini" "$(OutDir)ijkl.ini"
+copy /Y "$(ProjectDir)..\..\keywords\*.words" "$(OutDir)keywords\"
+if not exist "$(OutDir)lib" mkdir "$(OutDir)lib"
+xcopy /E /Y /I "$(ProjectDir)..\..\lib" "$(OutDir)lib\"
+if not exist "$(OutDir)examples" mkdir "$(OutDir)examples"
+xcopy /E /Y /I "$(ProjectDir)..\..\examples" "$(OutDir)examples\"
+</Command>
+      <Message>Copiando ijkl.ini, vocabularios, biblioteca e exemplos para pasta de saida...</Message>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard_C>stdc11</LanguageStandard_C>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Optimization>MaxSpeed</Optimization>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <PostBuildEvent>
+      <Command>if not exist "$(OutDir)keywords" mkdir "$(OutDir)keywords"
+copy /Y "$(ProjectDir)..\..\ijkl.ini" "$(OutDir)ijkl.ini"
+copy /Y "$(ProjectDir)..\..\keywords\*.words" "$(OutDir)keywords\"
+if not exist "$(OutDir)lib" mkdir "$(OutDir)lib"
+xcopy /E /Y /I "$(ProjectDir)..\..\lib" "$(OutDir)lib\"
+if not exist "$(OutDir)examples" mkdir "$(OutDir)examples"
+xcopy /E /Y /I "$(ProjectDir)..\..\examples" "$(OutDir)examples\"
+</Command>
+      <Message>Copiando ijkl.ini, vocabularios, biblioteca e exemplos para pasta de saida...</Message>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="main.c" />
+    <ClCompile Include="config.c" />
+    <ClCompile Include="lexer.c" />
+    <ClCompile Include="token.c" />
+    <ClCompile Include="vocabulary.c" />
+    <ClCompile Include="ast.c" />
+    <ClCompile Include="parser.c" />
+    <ClCompile Include="symtab.c" />
+    <ClCompile Include="semantic.c" />
+    <ClCompile Include="codegen.c" />
+    <ClCompile Include="module_loader.c" />
+    <ClCompile Include="..\common\memory.c" />
+    <ClCompile Include="..\common\utf8.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\common.h" />
+    <ClInclude Include="..\..\include\version.h" />
+    <ClInclude Include="..\..\include\memory.h" />
+    <ClInclude Include="..\..\include\utf8.h" />
+    <ClInclude Include="..\..\include\token.h" />
+    <ClInclude Include="..\..\include\vocabulary.h" />
+    <ClInclude Include="..\..\include\config.h" />
+    <ClInclude Include="..\..\include\lexer.h" />
+    <ClInclude Include="..\..\include\ast.h" />
+    <ClInclude Include="..\..\include\parser.h" />
+    <ClInclude Include="..\..\include\symtab.h" />
+    <ClInclude Include="..\..\include\semantic.h" />
+    <ClInclude Include="..\..\include\codegen.h" />
+    <ClInclude Include="..\..\include\module_loader.h" />
+    <ClInclude Include="..\..\include\ijkl_device_api.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+</Project>

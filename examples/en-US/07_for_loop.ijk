@@ -1,0 +1,25 @@
+// ==============================================================================
+// Example 07: Counted Loop with Control Variable (For / From / To / Step)
+// Demonstration of counted iteration with custom step increments
+// ==============================================================================
+
+program ForLoopApp {
+    // Mandatory entry point for the application
+    private main(): int {
+        int multiplier = 7;
+
+        writeln("--- Multiplication table for number ", multiplier, " (1 to 10) ---");
+
+        for (int index = 1 to 10 step 1) {
+            int result = multiplier * index;
+            writeln(multiplier, " x ", index, " = ", result);
+        }
+
+        writeln("\nCountdown with decreasing step:");
+        for (int countdown = 10 to 2 step -2) {
+            writeln("Count: ", countdown);
+        }
+
+        return 0;
+    }
+}

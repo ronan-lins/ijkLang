@@ -1,0 +1,30 @@
+// ==============================================================================
+// Exemplo 05: Estrutura de Seleção Múltipla (Escolha / Caso / Padrão)
+// Demonstração de desvio condicional por tabela de opções
+// ==============================================================================
+
+programa EscolhaCasoApp {
+    // Ponto de entrada obrigatório da aplicação
+    privado principal(): inteiro {
+        inteiro codigo_opcao = 2;
+
+        escrevaln("Processando codigo de operacao: ", codigo_opcao);
+
+        escolha (codigo_opcao) {
+            caso 1: {
+                escrevaln("Operacao 1: Iniciar novo processamento.");
+            }
+            caso 2: {
+                escrevaln("Operacao 2: Consultar status de execucao.");
+            }
+            caso 3: {
+                escrevaln("Operacao 3: Exportar relatorio consolidado.");
+            }
+            padrao: {
+                escrevaln("Operacao desconhecida: Codigo invalido.");
+            }
+        }
+
+        retorne 0;
+    }
+}

@@ -1,0 +1,30 @@
+// ==============================================================================
+// Example 05: Multi-way Selection Structure (Switch / Case / Default)
+// Demonstration of branch selection based on a table of matching values
+// ==============================================================================
+
+program SwitchCaseApp {
+    // Mandatory entry point for the application
+    private main(): int {
+        int operation_code = 2;
+
+        writeln("Processing operation code: ", operation_code);
+
+        switch (operation_code) {
+            case 1: {
+                writeln("Operation 1: Initialize new processing task.");
+            }
+            case 2: {
+                writeln("Operation 2: Query execution status.");
+            }
+            case 3: {
+                writeln("Operation 3: Export consolidated report.");
+            }
+            default: {
+                writeln("Unknown operation: Invalid code provided.");
+            }
+        }
+
+        return 0;
+    }
+}

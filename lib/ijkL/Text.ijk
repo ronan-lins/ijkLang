@@ -1,0 +1,374 @@
+// ==============================================================================
+// ijkLang (ijkL) Standard Framework - String and Text Utilities
+// Canonical Unit: ijkL.Text (Aliases: ijkL.Texto, ijkL.Texte)
+// ==============================================================================
+
+unit ijkL.Text {
+
+    public create(int length): string {
+        asm __builtin_str_create {
+            r1 := [ra, 0];
+            r4 := r1 <= 0;
+            jump_if r4, #ijkL_Text_create_zero;
+            r0 := r1 + 1;
+            r0 := alloc(r0);
+            [ra, 8] := r0;
+            r2 := 32;
+            out 0x0020, r2;
+            out 0x0021, r0;
+            out 0x0022, r1;
+            r2 := 2;
+            out 0x0023, r2;
+            r2 := 0;
+            byte [r0, r1] := r2;
+            free_frame;
+            return r0;
+#ijkL_Text_create_zero:
+            r0 := alloc(1);
+            r2 := 0;
+            byte [r0, 0] := r2;
+            free_frame;
+            return r0;
+        }
+    }
+
+    public get(string value, int index): char {
+        asm __builtin_str_get_char {
+            r1 := [ra, 0];
+            r2 := [ra, 8];
+            r4 := r1 = 0;
+            jump_if r4, #ijkL_Text_get_oob;
+            r4 := r2 < 0;
+            jump_if r4, #ijkL_Text_get_oob;
+            r3 := 0;
+#ijkL_Text_get_find_len:
+            r0 := byte [r1, r3];
+            r4 := r0 = 0;
+            jump_if r4, #ijkL_Text_get_oob;
+            r4 := r3 = r2;
+            jump_if r4, #ijkL_Text_get_found;
+            r3 := r3 + 1;
+            jump #ijkL_Text_get_find_len;
+#ijkL_Text_get_found:
+            free_frame;
+            return r0;
+#ijkL_Text_get_oob:
+            r0 := 0;
+            free_frame;
+            return r0;
+        }
+    }
+
+    public change(string value, int index, char new_char): string {
+        asm __builtin_str_set_char {
+            r1 := [ra, 0];
+            r2 := [ra, 8];
+            r3 := [ra, 16];
+            r0 := 0;
+#ijkL_Text_change_len_loop:
+            r4 := byte [r1, r0];
+            r4 := r4 = 0;
+            jump_if r4, #ijkL_Text_change_len_done;
+            r0 := r0 + 1;
+            jump #ijkL_Text_change_len_loop;
+#ijkL_Text_change_len_done:
+            [ra, 24] := r0;
+            r0 := r0 + 1;
+            r0 := alloc(r0);
+            [ra, 32] := r0;
+            r4 := 0;
+#ijkL_Text_change_copy_loop:
+            r0 := [ra, 24];
+            r0 := r4 < r0;
+            r0 := not r0;
+            jump_if r0, #ijkL_Text_change_copy_end;
+            r0 := r4 = r2;
+            jump_if r0, #ijkL_Text_change_copy_replace;
+            r1 := [ra, 0];
+            r0 := byte [r1, r4];
+            jump #ijkL_Text_change_copy_store;
+#ijkL_Text_change_copy_replace:
+            r0 := [ra, 16];
+#ijkL_Text_change_copy_store:
+            r1 := [ra, 32];
+            byte [r1, r4] := r0;
+            r4 := r4 + 1;
+            jump #ijkL_Text_change_copy_loop;
+#ijkL_Text_change_copy_end:
+            r1 := [ra, 32];
+            r0 := 0;
+            byte [r1, r4] := r0;
+            r0 := [ra, 32];
+            free_frame;
+            return r0;
+        }
+    }
+
+    public length(string value): int {
+        asm __builtin_str_len {
+            r1 := [ra, 0];
+            r0 := 0;
+            r4 := r1 = 0;
+            jump_if r4, #ijkL_Text_length_end;
+#ijkL_Text_length_loop:
+            r2 := byte [r1, r0];
+            r3 := r2 = 0;
+            jump_if r3, #ijkL_Text_length_end;
+            r0 := r0 + 1;
+            jump #ijkL_Text_length_loop;
+#ijkL_Text_length_end:
+            free_frame;
+            return r0;
+        }
+    }
+
+    public compare(string first_string, string second_string): int {
+        asm __builtin_str_cmp {
+            r1 := [ra, 0];
+            r2 := [ra, 8];
+            r4 := r1 = r2;
+            jump_if r4, #ijkL_Text_compare_same;
+            r4 := r1 = 0;
+            jump_if r4, #ijkL_Text_compare_first_null;
+            r4 := r2 = 0;
+            jump_if r4, #ijkL_Text_compare_second_null;
+            r3 := 0;
+#ijkL_Text_compare_loop:
+            r0 := byte [r1, r3];
+            r4 := byte [r2, r3];
+            r0 := r0 - r4;
+            jump_if r0, #ijkL_Text_compare_diff;
+            r4 := byte [r1, r3];
+            r4 := r4 = 0;
+            jump_if r4, #ijkL_Text_compare_same;
+            r3 := r3 + 1;
+            jump #ijkL_Text_compare_loop;
+#ijkL_Text_compare_first_null:
+            r0 := -1;
+            free_frame;
+            return r0;
+#ijkL_Text_compare_second_null:
+            r0 := 1;
+            free_frame;
+            return r0;
+#ijkL_Text_compare_diff:
+            free_frame;
+            return r0;
+#ijkL_Text_compare_same:
+            r0 := 0;
+            free_frame;
+            return r0;
+        }
+    }
+
+    public concat(string first_string, string second_string): string {
+        asm __builtin_str_concat {
+            r0 := [ra, 0];
+            push r0;
+            call #ijkL.Text.length$string;
+            [ra, 16] := r0;
+            r0 := [ra, 8];
+            push r0;
+            call #ijkL.Text.length$string;
+            [ra, 24] := r0;
+            r1 := [ra, 16];
+            r0 := r1 + r0;
+            r0 := r0 + 1;
+            r0 := alloc(r0);
+            [ra, 32] := r0;
+
+            r4 := [ra, 16];
+            r3 := r4 = 0;
+            jump_if r3, #ijkL_Text_concat_second_seg;
+            r0 := [ra, 0];
+            out 0x0020, r0;
+            r0 := [ra, 32];
+            out 0x0021, r0;
+            r0 := [ra, 16];
+            out 0x0022, r0;
+            r0 := 1;
+            out 0x0023, r0;
+
+#ijkL_Text_concat_second_seg:
+            r4 := [ra, 24];
+            r3 := r4 = 0;
+            jump_if r3, #ijkL_Text_concat_term;
+            r0 := [ra, 8];
+            out 0x0020, r0;
+            r1 := [ra, 32];
+            r2 := [ra, 16];
+            r0 := r1 + r2;
+            out 0x0021, r0;
+            r0 := [ra, 24];
+            out 0x0022, r0;
+            r0 := 1;
+            out 0x0023, r0;
+
+#ijkL_Text_concat_term:
+            r1 := [ra, 16];
+            r2 := [ra, 24];
+            r1 := r1 + r2;
+            r2 := [ra, 32];
+            r0 := 0;
+            byte [r2, r1] := r0;
+            r0 := [ra, 32];
+            free_frame;
+            return r0;
+        }
+    }
+
+    public substring(string value, int start_index, int substring_length): string {
+        asm __builtin_str_sub {
+            r1 := [ra, 0];
+            r4 := r1 = 0;
+            jump_if r4, #ijkL_Text_sub_empty;
+            r2 := [ra, 8];
+            r3 := [ra, 16];
+            r4 := r2 < 0;
+            jump_if r4, #ijkL_Text_sub_clamp_start;
+            jump #ijkL_Text_sub_check_len;
+#ijkL_Text_sub_clamp_start:
+            r2 := 0;
+#ijkL_Text_sub_check_len:
+            r4 := r3 <= 0;
+            jump_if r4, #ijkL_Text_sub_empty;
+            r0 := 0;
+#ijkL_Text_sub_skip_loop:
+            r4 := r0 = r2;
+            jump_if r4, #ijkL_Text_sub_start_reached;
+            r4 := byte [r1, r0];
+            r4 := r4 = 0;
+            jump_if r4, #ijkL_Text_sub_empty;
+            r0 := r0 + 1;
+            jump #ijkL_Text_sub_skip_loop;
+#ijkL_Text_sub_start_reached:
+            r4 := 0;
+#ijkL_Text_sub_count_avail:
+            r0 := r4 = r3;
+            jump_if r0, #ijkL_Text_sub_alloc;
+            r0 := r2 + r4;
+            r0 := byte [r1, r0];
+            r0 := r0 = 0;
+            jump_if r0, #ijkL_Text_sub_alloc;
+            r4 := r4 + 1;
+            jump #ijkL_Text_sub_count_avail;
+#ijkL_Text_sub_alloc:
+            [ra, 24] := r4;
+            r0 := r4 + 1;
+            r0 := alloc(r0);
+            [ra, 32] := r0;
+            r4 := [ra, 24];
+            r3 := r4 = 0;
+            jump_if r3, #ijkL_Text_sub_term;
+
+            r1 := [ra, 0];
+            r2 := [ra, 8];
+            r0 := r1 + r2;
+            out 0x0020, r0;
+            r0 := [ra, 32];
+            out 0x0021, r0;
+            r0 := [ra, 24];
+            out 0x0022, r0;
+            r0 := 1;
+            out 0x0023, r0;
+
+#ijkL_Text_sub_term:
+            r1 := [ra, 32];
+            r2 := [ra, 24];
+            r0 := 0;
+            byte [r1, r2] := r0;
+            r0 := [ra, 32];
+            free_frame;
+            return r0;
+#ijkL_Text_sub_empty:
+            r0 := alloc(1);
+            r4 := 0;
+            byte [r0, 0] := r4;
+            free_frame;
+            return r0;
+        }
+    }
+
+    public equals(string first_string, string second_string): bool {
+        return compare(first_string, second_string) == 0;
+    }
+
+    public indexOf(string source_string, string search_string): int {
+        int source_len = length(source_string);
+        int search_len = length(search_string);
+        if (search_len == 0) {
+            return 0;
+        }
+        if (search_len > source_len) {
+            return -1;
+        }
+        int max_start = source_len - search_len;
+        int current_start = 0;
+        while (current_start <= max_start) {
+            string sub = substring(source_string, current_start, search_len);
+            if (compare(sub, search_string) == 0) {
+                return current_start;
+            }
+            current_start = current_start + 1;
+        }
+        return -1;
+    }
+
+    public contains(string source_string, string search_string): bool {
+        return indexOf(source_string, search_string) >= 0;
+    }
+
+    public startsWith(string source_string, string prefix_string): bool {
+        int prefix_len = length(prefix_string);
+        if (prefix_len == 0) {
+            return true;
+        }
+        int source_len = length(source_string);
+        if (prefix_len > source_len) {
+            return false;
+        }
+        string sub = substring(source_string, 0, prefix_len);
+        return compare(sub, prefix_string) == 0;
+    }
+
+    public endsWith(string source_string, string suffix_string): bool {
+        int suffix_len = length(suffix_string);
+        if (suffix_len == 0) {
+            return true;
+        }
+        int source_len = length(source_string);
+        if (suffix_len > source_len) {
+            return false;
+        }
+        string sub = substring(source_string, source_len - suffix_len, suffix_len);
+        return compare(sub, suffix_string) == 0;
+    }
+
+    public trim(string source_string): string {
+        int source_len = length(source_string);
+        if (source_len == 0) {
+            return "";
+        }
+        int start_index = 0;
+        while (start_index < source_len) {
+            char current_char = get(source_string, start_index);
+            if (current_char != ' ' && current_char != '\t' && current_char != '\n' && current_char != '\r') {
+                break;
+            }
+            start_index = start_index + 1;
+        }
+        if (start_index >= source_len) {
+            return "";
+        }
+        int end_index = source_len - 1;
+        while (end_index >= start_index) {
+            char current_char = get(source_string, end_index);
+            if (current_char != ' ' && current_char != '\t' && current_char != '\n' && current_char != '\r') {
+                break;
+            }
+            end_index = end_index - 1;
+        }
+        int trimmed_len = end_index - start_index + 1;
+        return substring(source_string, start_index, trimmed_len);
+    }
+}

@@ -1,0 +1,47 @@
+// ==============================================================================
+// Demonstracao Quickstart: Processamento de Dados com Funcoes e Ponteiros
+// ==============================================================================
+
+programa DemonstracaoQuickstartApp {
+    // Funcao com retorno tipado
+    privado calcularTermo(inteiro indice, real escala): real {
+        retorne (indice * 10) * escala;
+    }
+
+    // Procedimento com mutacao de valor via ponteiro
+    privado duplicarValor(ponteiro inteiro ptr_item) {
+        @ptr_item = @ptr_item * 2;
+    }
+
+    // Ponto de entrada obrigatório da aplicação
+    privado principal(): inteiro {
+        // Variaveis de controle e acumuladores locais
+        real fator_escala = 1.5;
+        inteiro limite = 5;
+        real acumulador = 0.0;
+        inteiro valor_referencia = 10;
+
+        escrevaln("=== Iniciando Processamento ijkLang ===");
+
+        // Teste de mutacao direta via ponteiro (& e @)
+        duplicarValor(&valor_referencia);
+        escrevaln("Valor de referencia duplicado: ", valor_referencia);
+
+        // Iteracao com laco para e acumulacao
+        para (inteiro i = 1 ate limite passo 1) {
+            real termo = calcularTermo(i, fator_escala);
+            acumulador = acumulador + termo;
+            escrevaln("Passo ", i, " | Termo: ", termo, " | Acumulado: ", acumulador);
+        }
+
+        // Decisao condicional sobre o resultado calculado
+        se (acumulador >= 100.0) {
+            escrevaln("Status: Meta atingida com sucesso (>= 100.0).");
+        } senao {
+            escrevaln("Status: Meta nao atingida (< 100.0).");
+        }
+
+        escrevaln("=== Processamento Concluido ===");
+        retorne 0;
+    }
+}

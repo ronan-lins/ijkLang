@@ -1,0 +1,93 @@
+// ==============================================================================
+// Unit Test: test_navigator
+// Target: Onm.Cli.Path.Navigator
+// Language: ijkLang (ijkL)
+// ==============================================================================
+
+import ijkL.Text;
+import ijkL.Collections;
+import Onm.Core.Json.Model;
+import Onm.Cli.Path.Navigator;
+
+program TestNavigatorApp {
+
+    private main(): int {
+        writeln("Running test_navigator...");
+
+        List segments = ijkL.Collections.createList(4);
+
+        // 1. Root path formatting
+        string root_path = formatPath(segments);
+        if (!ijkL.Text.equals(root_path, "/")) {
+            writeln("[FAIL] Expected '/', got '", root_path, "'");
+            ijkL.Collections.destroyList(segments);
+            return 1;
+        }
+
+        // 2. Multi-level path formatting
+        ijkL.Collections.add(segments, "users");
+        ijkL.Collections.add(segments, "alice");
+        string nested_path = formatPath(segments);
+        if (!ijkL.Text.equals(nested_path, "/users/alice")) {
+            writeln("[FAIL] Expected '/users/alice', got '", nested_path, "'");
+            ijkL.Collections.destroyList(segments);
+            return 1;
+        }
+
+        // 3. Node resolution
+        JsonNode root = createNode();
+        addNodeProperty(root, "users");
+        JsonProperty users_prop = findProperty(root, "users");
+        JsonNode users_node = users_prop.node_value;
+        addNodeProperty(users_node, "alice");
+        JsonProperty alice_prop = findProperty(users_node, "alice");
+        JsonNode alice_node = alice_prop.node_value;
+
+        // Resolve empty path -> root
+        ijkL.Collections.clear(segments);
+        JsonNode res_root = resolveNodeAtPath(root, segments);
+        if (res_root != root) {
+            writeln("[FAIL] Empty path should resolve to root node.");
+            freeNode(root);
+            ijkL.Collections.destroyList(segments);
+            return 1;
+        }
+
+        // Resolve 1 level
+        ijkL.Collections.add(segments, "users");
+        JsonNode res_users = resolveNodeAtPath(root, segments);
+        if (res_users != users_node) {
+            writeln("[FAIL] Resolving ['users'] did not return users_node.");
+            freeNode(root);
+            ijkL.Collections.destroyList(segments);
+            return 1;
+        }
+
+        // Resolve 2 levels
+        ijkL.Collections.add(segments, "alice");
+        JsonNode res_alice = resolveNodeAtPath(root, segments);
+        if (res_alice != alice_node) {
+            writeln("[FAIL] Resolving ['users', 'alice'] did not return alice_node.");
+            freeNode(root);
+            ijkL.Collections.destroyList(segments);
+            return 1;
+        }
+
+        // Resolve invalid path
+        ijkL.Collections.clear(segments);
+        ijkL.Collections.add(segments, "users");
+        ijkL.Collections.add(segments, "bob");
+        JsonNode res_invalid = resolveNodeAtPath(root, segments);
+        if (res_invalid != null) {
+            writeln("[FAIL] Resolving non-existent child returned non-null.");
+            freeNode(root);
+            ijkL.Collections.destroyList(segments);
+            return 1;
+        }
+
+        freeNode(root);
+        ijkL.Collections.destroyList(segments);
+        writeln("[PASS] test_navigator: all assertions passed.");
+        return 0;
+    }
+}

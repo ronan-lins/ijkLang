@@ -1,0 +1,36 @@
+// ==============================================================================
+// Exemplo 13: Ponteiros, Desreferenciação e Custo de Memória
+// Demonstração da regra @ptr.campo equivalente a (@ptr).campo e operador $ (bytes)
+// ==============================================================================
+
+programa PonteirosDesreferenciacaoApp {
+    tipo Ponto = registro {
+        inteiro x;
+        inteiro y;
+    };
+
+    // Ponto de entrada obrigatório da aplicação
+    privado principal(): inteiro {
+        Ponto ponto_origem;
+        ponto_origem.x = 100;
+        ponto_origem.y = 250;
+
+        // Declaração de ponteiro e obtenção do endereço com operador &
+        ponteiro Ponto ptr_ponto = &ponto_origem;
+
+        escrevaln("Valores iniciais: x = ", ponto_origem.x, ", y = ", ponto_origem.y);
+
+        // O operador '@' tem precedência sobre o operador '.', logo @ptr_ponto.x equivale a (@ptr_ponto).x
+        @ptr_ponto.x = 350;
+        @ptr_ponto.y = 500;
+
+        escrevaln("Valores apos mutacao via ponteiro: x = ", ponto_origem.x, ", y = ", ponto_origem.y);
+
+        // Operador $ calcula o custo de memória em bytes
+        inteiro bytes_inteiro = $inteiro;
+        inteiro bytes_ponto = $Ponto;
+        escrevaln("Custo de memoria de um 'inteiro': ", bytes_inteiro, " bytes");
+        escrevaln("Custo de memoria do registro 'Ponto': ", bytes_ponto, " bytes");
+        retorne 0;
+    }
+}

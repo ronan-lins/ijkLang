@@ -1,0 +1,9 @@
+// Teste de rejeição de rotina de ciclo de vida pública
+programa CicloVidaPublicoApp {
+    publico inicializar() {
+    }
+
+    privado principal(): inteiro {
+        retorne 0;
+    }
+}

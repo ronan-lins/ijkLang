@@ -1,0 +1,151 @@
+// ==============================================================================
+// ijkLang (ijkL) Standard Framework - Funções e Constantes Matemáticas
+// Canonical Unit: ijkL.Math (Aliases: ijkL.Matematica, ijkL.Mathematiques)
+// ==============================================================================
+
+unit ijkL.Math {
+
+    // --------------------------------------------------------------------------
+    // Constantes Matemáticas
+    // --------------------------------------------------------------------------
+
+    public pi(): real {
+        return 3.141592653589793;
+    }
+
+    public e(): real {
+        return 2.718281828459045;
+    }
+
+    // --------------------------------------------------------------------------
+    // Operações Matemáticas para Números Inteiros
+    // --------------------------------------------------------------------------
+
+    public abs(int value): int {
+        if (value < 0) {
+            return -value;
+        }
+        return value;
+    }
+
+    public min(int first, int second): int {
+        if (first < second) {
+            return first;
+        }
+        return second;
+    }
+
+    public max(int first, int second): int {
+        if (first > second) {
+            return first;
+        }
+        return second;
+    }
+
+    public clamp(int value, int minimum_value, int maximum_value): int {
+        if (value < minimum_value) {
+            return minimum_value;
+        }
+        if (value > maximum_value) {
+            return maximum_value;
+        }
+        return value;
+    }
+
+    public power(int base_value, int exponent_value): int {
+        if (exponent_value < 0) {
+            return 0;
+        }
+        return base_value ^ exponent_value;
+    }
+
+    public sign(int value): int {
+        if (value < 0) {
+            return -1;
+        }
+        if (value > 0) {
+            return 1;
+        }
+        return 0;
+    }
+
+    // --------------------------------------------------------------------------
+    // Operações Matemáticas para Números Reais (Ponto Flutuante)
+    // --------------------------------------------------------------------------
+
+    public abs(real value): real {
+        if (value < 0.0) {
+            return -value;
+        }
+        return value;
+    }
+
+    public absReal(real value): real {
+        return abs(value);
+    }
+
+    public min(real first, real second): real {
+        if (first < second) {
+            return first;
+        }
+        return second;
+    }
+
+    public minReal(real first, real second): real {
+        return min(first, second);
+    }
+
+    public max(real first, real second): real {
+        if (first > second) {
+            return first;
+        }
+        return second;
+    }
+
+    public maxReal(real first, real second): real {
+        return max(first, second);
+    }
+
+    public clamp(real value, real minimum_value, real maximum_value): real {
+        if (value < minimum_value) {
+            return minimum_value;
+        }
+        if (value > maximum_value) {
+            return maximum_value;
+        }
+        return value;
+    }
+
+    public clampReal(real value, real minimum_value, real maximum_value): real {
+        return clamp(value, minimum_value, maximum_value);
+    }
+
+    public power(real base_value, real exponent_value): real {
+        return base_value ^ exponent_value;
+    }
+
+    public powerReal(real base_value, real exponent_value): real {
+        return base_value ^ exponent_value;
+    }
+
+    public sqrt(real value): real {
+        if (value < 0.0) {
+            return 0.0;
+        }
+        return value ^ 0.5;
+    }
+
+    public sign(real value): int {
+        if (value < 0.0) {
+            return -1;
+        }
+        if (value > 0.0) {
+            return 1;
+        }
+        return 0;
+    }
+
+    public signReal(real value): int {
+        return sign(value);
+    }
+}

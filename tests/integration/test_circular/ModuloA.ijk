@@ -1,0 +1,10 @@
+importe ModuloB;
+
+unidade ModuloA {
+    publico iniciarA(inteiro n): inteiro {
+        se (n <= 0) {
+            retorne 42;
+        }
+        retorne avancarB(n - 1);
+    }
+}

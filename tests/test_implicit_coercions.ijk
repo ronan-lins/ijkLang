@@ -1,0 +1,52 @@
+// ==============================================================================
+// Teste de Coercoes Implicitas e Concatenacao de Texto (Fase 2)
+// ==============================================================================
+
+programa TesteCoercoesApp {
+    privado principal(): inteiro {
+        // 1. Inteiro + Texto
+        texto res1 = 1 + "2";
+        se (res1 != "12") {
+            escrevaln("Falha no teste 1: 1 + \"2\" != \"12\", obtido: ", res1);
+            retorne 1;
+        }
+
+        // 2. Texto + Inteiro
+        texto res2 = "Total: " + 42;
+        se (res2 != "Total: 42") {
+            escrevaln("Falha no teste 2: \"Total: \" + 42 != \"Total: 42\", obtido: ", res2);
+            retorne 2;
+        }
+
+        // 3. Texto + Real
+        texto res3 = "Valor: " + 3.14;
+        se (res3 != "Valor: 3.14") {
+            escrevaln("Falha no teste 3: \"Valor: \" + 3.14 != \"Valor: 3.14\", obtido: ", res3);
+            retorne 3;
+        }
+
+        // 4. Texto + Booleano
+        texto res4 = "Status: " + verdadeiro;
+        se (res4 != "Status: verdadeiro") {
+            escrevaln("Falha no teste 4: \"Status: \" + verdadeiro != \"Status: verdadeiro\", obtido: ", res4);
+            retorne 4;
+        }
+
+        // 5. Encadeamento: (1 + 2) + "3" => 3 + "3" => "33"
+        texto res5 = 1 + 2 + "3";
+        se (res5 != "33") {
+            escrevaln("Falha no teste 5: 1 + 2 + \"3\" != \"33\", obtido: ", res5);
+            retorne 5;
+        }
+
+        // 6. Texto + Texto + Texto
+        texto res6 = "Ola" + " " + "Mundo";
+        se (res6 != "Ola Mundo") {
+            escrevaln("Falha no teste 6: \"Ola\" + \" \" + \"Mundo\" != \"Ola Mundo\", obtido: ", res6);
+            retorne 6;
+        }
+
+        escrevaln("Fase 2: Todos os testes de coercoes implicitas e concatenacao passaram com sucesso!");
+        retorne 0;
+    }
+}

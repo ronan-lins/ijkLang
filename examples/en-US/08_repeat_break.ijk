@@ -1,0 +1,28 @@
+// ==============================================================================
+// Example 08: Post-tested Loop and Early Termination (Repeat / Break)
+// Demonstration of guaranteed first cycle execution and early break
+// ==============================================================================
+
+program RepeatBreakApp {
+    // Mandatory entry point for the application
+    private main(): int {
+        int attempt = 1;
+        int safety_limit = 10;
+
+        writeln("Starting 'repeat ... while' loop with early termination:");
+
+        repeat {
+            writeln("Executing verification cycle number ", attempt);
+
+            if (attempt = 4) {
+                writeln("Convergence condition met! Triggering 'break' statement.");
+                break;
+            }
+
+            attempt = attempt + 1;
+        } while (attempt <= safety_limit);
+
+        writeln("Loop completed successfully.");
+        return 0;
+    }
+}

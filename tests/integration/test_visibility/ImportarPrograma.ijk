@@ -1,0 +1,7 @@
+importe ProgramaAlvo;
+
+programa ImportarPrograma {
+    privado principal(): inteiro {
+        retorne 0;
+    }
+}

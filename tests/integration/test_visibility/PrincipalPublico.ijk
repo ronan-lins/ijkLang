@@ -1,0 +1,5 @@
+programa PrincipalPublico {
+    publico principal(): inteiro {
+        retorne 0;
+    }
+}
