@@ -5,7 +5,7 @@
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
 #else
-#include <unistd.h>
+#include <time.h>
 #endif
 
 /*
@@ -1748,7 +1748,10 @@ bool ijkl_code_generator_generate_to_file(IjklMemoryArena* memory_arena,
 #if defined(_WIN32) || defined(_WIN64)
             Sleep(50);
 #else
-            usleep(50000);
+            struct timespec retry_delay = {0, 50000000L};
+            /* Retoma o intervalo restante se um sinal interromper a espera. */
+            while (nanosleep(&retry_delay, &retry_delay) == -1 && errno == EINTR) {
+            }
 #endif
         }
     }
