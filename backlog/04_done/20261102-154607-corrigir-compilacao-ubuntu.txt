@@ -1,0 +1,529 @@
+TÍTULO: Corrigir a compilação do ijkLang no Ubuntu com GNU Make
+ID: 20261102-154607-corrigir-compilacao-ubuntu
+Tipo: bugfix
+Status: DONE (concluída)
+Prioridade: alta — bloqueia a compilação e a validação neste Ubuntu; proposta local.
+Severidade: falha de build; sem evidência de incidente em produção.
+Criado em UTC: 2026-11-02T15:46:07.773607+00:00
+Solicitante: mantenedor do repositório, nesta sessão.
+Responsável: Codex. Início UTC: 2026-11-02T15:58:31.883465+00:00
+Repositório local: /home/devops/repos/ijkLang
+Remoto: git@github.com:ronan-lins/ijkLang.git
+Branch de trabalho: fix-ubuntu-make-build
+Commit dos fontes analisados: 2a9b8fcd545fcbaf99c81acd7cde52a75d7f5cc4
+Commit que registrou o diagnóstico original: 86c94e5
+
+OBJETIVO E CONTEXTO
+Restabelecer a compilação das ferramentas ijkl e ijkl-m no Ubuntu usando o
+Makefile existente. A tentativa registrada termina com código 2.
+
+RESULTADO ESPERADO E OBSERVADO
+Esperado: make -B -k -j1 all termina com código 0 e produz bin/ijkl e bin/ijkl-m.
+Observado: declarações POSIX ausentes ou indisponíveis nas condições atuais:
+strcasecmp, struct stat, stat, S_ISDIR, usleep, S_IFREG e S_IFDIR.
+Arquivos com erros: src/compiler/main.c, src/compiler/codegen.c,
+src/vm/main.c e src/vm/vm_io.c. Consultar mensagens exatas no anexo.
+Causa raiz: ainda não confirmada; investigar cabeçalhos, macros de recursos
+POSIX e alternativas portáveis antes de escolher a correção.
+Impacto: impede validar a cadeia de compilação/execução nesta máquina.
+Frequência: observada nas tentativas locais; reproduzir antes de corrigir.
+
+AMBIENTE E REPRODUÇÃO
+Ubuntu 26.04.1 LTS, x86_64; GCC/cc 15.2.0; GNU Make 4.4.1.
+Detalhes completos, kernel, flags e versões: anexo A.
+Pré-requisitos: checkout local, compilador C11 e GNU Make instalados.
+Executar como usuário comum na raiz do repositório:
+    make -B -k -j1 all
+Não requer sudo, acesso à rede ou credenciais.
+Procedimento original e justificativa das opções: anexo B.
+
+ESCOPO E LIMITES
+Investigar e corrigir as causas da falha nos fontes/cabeçalhos/Makefile conforme
+necessário. Preservar o comportamento da linguagem e a compatibilidade prevista
+com Windows e outros sistemas Unix. Evitar refatorações sem relação com o bug.
+Não mascarar erros apenas relaxando diagnósticos nem registrar binários gerados.
+Não alterar configurações do sistema. Não fazer push ou merge sem solicitação.
+Não há dependência externa conhecida; registrar qualquer bloqueio encontrado.
+
+CRITÉRIOS DE ACEITE
+[x] Reproduzir o problema e registrar ambiente/commit antes da correção.
+[x] Identificar e documentar a causa raiz de cada grupo de erros.
+[x] make -B -k -j1 all conclui com código 0, sem os erros originais.
+[x] Confirmar a geração dos dois executáveis e validar sua execução.
+[x] Executar make test e make test-integration; registrar comandos, códigos de
+    saída e resultados. Distinguir regressões, falhas preexistentes e bloqueios.
+[x] Avaliar o impacto em outros sistemas; declarar quais foram efetivamente
+    testados e quais foram somente inspecionados.
+[x] Registrar avisos restantes, riscos e pendências sem afirmar validação ausente.
+[x] Atualizar este arquivo com evidências e resumo das alterações.
+
+INSTRUÇÕES À IA EXECUTORA E HISTÓRICO
+Leia as instruções aplicáveis do repositório antes de trabalhar. Use este branch.
+Ao iniciar, mova este mesmo arquivo para backlog/03_doing e atualize o status,
+responsável e horário UTC. Preserve o nome e seu prefixo de criação.
+Ao concluir com os critérios satisfeitos, mova-o para backlog/04_done e atualize
+o status. Se bloqueado, mantenha em 03_doing e descreva bloqueio e próximo passo.
+Não crie outra tarefa ou relatório para substituir este registro.
+Atualize o próprio arquivo com causa raiz, arquivos/funções alterados, decisões,
+comandos, resultados esperados/obtidos, códigos de saída, evidências relevantes,
+limitações, pendências, riscos e identificadores de commits quando existirem.
+Preserve os anexos originais como evidência histórica e acrescente novas seções;
+não sobrescreva o diagnóstico original com o resultado posterior.
+Não inclua senhas, chaves privadas ou outros segredos nas evidências.
+O prefixo do nome serve somente para ordenação pela criação, não para status.
+
+Histórico inicial:
+- 2026-11-02: diagnóstico coletado; build falhou com código 2; nenhuma correção.
+- Commit 86c94e5: diagnóstico original registrado na raiz.
+- 2026-11-02T15:46:07.773607+00:00: tarefa consolidada em 02_todo; anexos preservados;
+  arquivos originais removidos da raiz. Correção ainda não iniciada.
+
+RESULTADOS DA EXECUÇÃO — CODEX
+Início UTC: 2026-11-02T15:58:31Z.
+Fim UTC: 2026-11-02T15:59:49.737702+00:00.
+Responsável: Codex.
+Branch: fix-ubuntu-make-build; checkout inicial limpo.
+Commit anterior à correção: 323e0f0198808c407b8d888a6b7285a776340bd3.
+Instruções: CONTRIBUTING.md lido; nenhum AGENTS.md aplicável encontrado.
+
+Causas raiz e alterações:
+- src/compiler/main.c: faltavam strings.h (strcasecmp) e sys/stat.h
+  (struct stat, stat e S_ISDIR) no caminho Unix.
+- src/vm/main.c: faltava strings.h no caminho Unix para strcasecmp.
+- src/compiler/codegen.c, ijkl_code_generator_generate_to_file: usleep não
+  é exposto com _POSIX_C_SOURCE=200809L. Substituído por nanosleep de 50 ms,
+  declarado em time.h, retomando o tempo restante após EINTR. Sleep(50)
+  permanece no Windows. Flags e rigor dos diagnósticos preservados.
+- src/vm/vm_io.c, file_system_port_read_handler: S_IFREG/S_IFDIR não eram
+  expostos nessa configuração POSIX; testar bits isoladamente também não
+  classifica corretamente todos os tipos. Usa S_ISREG/S_ISDIR no Unix e
+  comparação com máscara _S_IFMT e constantes _S_IFREG/_S_IFDIR no Windows.
+- tests/run_integration_tests.sh: faltava fi no teste 34, após o ramo de
+  erro de compilação. Corrigido para permitir executar a integração inteira.
+  Defeito confirmado no arquivo do commit inicial via bash -n (saída 2).
+
+Comandos e resultados (executados na raiz, sem sudo):
+- make -B -k -j1 all, antes: saída 2; reproduziu os erros originais.
+- make -B -k -j1 all, depois: saída 0; gerou bin/ijkl e bin/ijkl-m.
+- bin/ijkl --version e bin/ijkl-m --version: saída 0, versão 0.2.0.
+- make test: saída 0; 163 aprovados, 0 falhas, 163 no total.
+- make test-integration, antes do ajuste do script: saída 2; 33 testes
+  aprovados antes do erro sintático, sem falha funcional registrada.
+- bash -n tests/run_integration_tests.sh após ajuste: saída 0.
+- make test-integration após ajuste: saída 0; 38 aprovados, 0 falhas.
+  Inclui operações de arquivos/pastas e execução de programas na VM.
+- bash examples/apps/onm/tests/run_tests.sh: saída 1; caminho padrão
+  bin/Debug/ijkl inexistente (runner não considera bin por padrão).
+- bash examples/apps/onm/tests/run_tests.sh .: saída 0; 11 aprovados,
+  0 falhas; paridade de stdout e onm.data entre execução normal e nativa.
+  O argumento . seleciona bin/./, onde o Makefile produz os executáveis.
+- git diff --check: saída 0.
+
+Compatibilidade, avisos e riscos:
+Testado efetivamente somente Ubuntu 26.04.1 LTS x86_64, cc/GCC 15.2.0,
+GNU Make 4.4.1 (kernel e ambiente detalhados no anexo C).
+Windows e demais Unix foram somente inspecionados, sem build ou execução.
+Mantidos os caminhos Windows e utilizadas interfaces POSIX no caminho Unix.
+Avisos preexistentes restantes: comentário com delimitador de abertura em
+src/compiler/lexer.c:679 e comparação signed/unsigned em src/vm/vm_io.c
+(agora linha 609). Não impedem a compilação; fora do escopo desta correção.
+O tratamento de interrupção de nanosleep foi inspecionado, sem injeção de sinais.
+Nenhuma configuração de sistema ou binário gerado foi incluído no commit.
+Pendências: nenhuma para esta tarefa; portabilidade fora do Ubuntu não validada.
+Commits da implementação: este registro acompanha o commit local da correção;
+consultar git log --follow deste arquivo. Nenhum push ou merge realizado.
+Conclusão: todos os critérios de aceite atendidos, com limitações explicitadas.
+
+ANEXO A — LOG ORIGINAL COMPLETO (IMUTÁVEL)
+SHA-256 do arquivo original em UTF-8: 8beeb96ff2995cbfa70bfb870e293f4bc547a1b8735db6f14b61d48136125644
+===== INÍCIO ubuntu-make-build.log =====
+ijkLang: Ubuntu Make build diagnostic
+
+UTC: 2026-11-02T15:32:43.239707+00:00
+
+Directory: /home/devops/repos/ijkLang
+
+Branch: fix-ubuntu-make-build
+
+Commit: 2a9b8fcd545fcbaf99c81acd7cde52a75d7f5cc4
+
+System: Linux agent-cluster01-node01 7.0.0-38-generic #38-Ubuntu SMP PREEMPT_DYNAMIC Fri Sep  4 09:10:14 UTC 2026 x86_64 GNU/Linux
+
+Ubuntu: PRETTY_NAME="Ubuntu 26.04.1 LTS"
+NAME="Ubuntu"
+VERSION_ID="26.04"
+VERSION="26.04.1 LTS (Resolute Raccoon)"
+VERSION_CODENAME=resolute
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+UBUNTU_CODENAME=resolute
+LOGO=ubuntu-logo
+
+C compiler: cc (Ubuntu 15.2.0-16ubuntu1) 15.2.0
+Copyright (C) 2025 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+GNU Make: GNU Make 4.4.1
+Built for x86_64-pc-linux-gnu
+Copyright (C) 1988-2023 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+COMMAND: make -B -k -j1 all
+
+--- BUILD OUTPUT (stdout + stderr) ---
+mkdir -p build/compiler
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/main.c -o build/compiler/main.o
+src/compiler/main.c: In function ‘has_extension’:
+src/compiler/main.c:122:13: error: implicit declaration of function ‘strcasecmp’; did you mean ‘strncmp’? [-Wimplicit-function-declaration]
+  122 |     return (strcasecmp(file_path + file_path_length - extension_length, expected_extension) == 0);
+      |             ^~~~~~~~~~
+      |             strncmp
+src/compiler/main.c: In function ‘is_directory_present’:
+src/compiler/main.c:190:17: error: storage size of ‘directory_stat’ isn’t known
+  190 |     struct stat directory_stat;
+      |                 ^~~~~~~~~~~~~~
+src/compiler/main.c:191:9: error: implicit declaration of function ‘stat’; did you mean ‘strcat’? [-Wimplicit-function-declaration]
+  191 |     if (stat(directory_path, &directory_stat) != 0) return false;
+      |         ^~~~
+      |         strcat
+src/compiler/main.c:192:12: error: implicit declaration of function ‘S_ISDIR’ [-Wimplicit-function-declaration]
+  192 |     return S_ISDIR(directory_stat.st_mode);
+      |            ^~~~~~~
+src/compiler/main.c:190:17: warning: unused variable ‘directory_stat’ [-Wunused-variable]
+  190 |     struct stat directory_stat;
+      |                 ^~~~~~~~~~~~~~
+make: *** [Makefile:64: build/compiler/main.o] Error 1
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/config.c -o build/compiler/config.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/lexer.c -o build/compiler/lexer.o
+src/compiler/lexer.c: In function ‘ijkl_lexer_scan_raw_block’:
+src/compiler/lexer.c:679:33: warning: ‘/*’ within comment [-Wcomment]
+  679 |         /* Comentário de bloco '/*' */
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/token.c -o build/compiler/token.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/vocabulary.c -o build/compiler/vocabulary.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/ast.c -o build/compiler/ast.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/parser.c -o build/compiler/parser.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/symtab.c -o build/compiler/symtab.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/semantic.c -o build/compiler/semantic.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/codegen.c -o build/compiler/codegen.o
+src/compiler/codegen.c: In function ‘ijkl_code_generator_generate_to_file’:
+src/compiler/codegen.c:1751:13: error: implicit declaration of function ‘usleep’; did you mean ‘sleep’? [-Wimplicit-function-declaration]
+ 1751 |             usleep(50000);
+      |             ^~~~~~
+      |             sleep
+make: *** [Makefile:64: build/compiler/codegen.o] Error 1
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/module_loader.c -o build/compiler/module_loader.o
+mkdir -p build/common
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/common/memory.c -o build/common/memory.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/common/utf8.c -o build/common/utf8.o
+mkdir -p bin
+mkdir -p build/vm
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/main.c -o build/vm/main.o
+src/vm/main.c: In function ‘has_extension’:
+src/vm/main.c:45:13: error: implicit declaration of function ‘strcasecmp’; did you mean ‘strncmp’? [-Wimplicit-function-declaration]
+   45 |     return (strcasecmp(file_path + file_path_length - extension_length, expected_extension) == 0);
+      |             ^~~~~~~~~~
+      |             strncmp
+make: *** [Makefile:67: build/vm/main.o] Error 1
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/ci_instruction.c -o build/vm/ci_instruction.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/ci_loader.c -o build/vm/ci_loader.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/vm_core.c -o build/vm/vm_core.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/vm_debugger.c -o build/vm/vm_debugger.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/vm_io.c -o build/vm/vm_io.o
+src/vm/vm_io.c: In function ‘file_system_port_read_handler’:
+src/vm/vm_io.c:418:83: error: ‘S_IFREG’ undeclared (first use in this function); did you mean ‘S_ISREG’?
+  418 |             if (IJKL_STAT_FUNC(path, &status_info) == 0 && (status_info.st_mode & S_IFREG)) {
+      |                                                                                   ^~~~~~~
+      |                                                                                   S_ISREG
+src/vm/vm_io.c:418:83: note: each undeclared identifier is reported only once for each function it appears in
+src/vm/vm_io.c:531:83: error: ‘S_IFDIR’ undeclared (first use in this function); did you mean ‘S_ISDIR’?
+  531 |             if (IJKL_STAT_FUNC(path, &status_info) == 0 && (status_info.st_mode & S_IFDIR)) {
+      |                                                                                   ^~~~~~~
+      |                                                                                   S_ISDIR
+src/vm/vm_io.c: In function ‘file_system_port_write_handler’:
+src/vm/vm_io.c:605:41: warning: comparison of integer expressions of different signedness: ‘int64_t’ {aka ‘long int’} and ‘long long unsigned int’ [-Wsign-compare]
+  605 |             if (!content && input_value >= IJKL_VM_PAGE_NULL_END_ADDRESS &&
+      |                                         ^~
+make: *** [Makefile:67: build/vm/vm_io.o] Error 1
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/vm_memory.c -o build/vm/vm_memory.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/vm_plugins.c -o build/vm/vm_plugins.o
+make: Target 'all' not remade because of errors.
+
+--- END BUILD OUTPUT ---
+Exit code: 2
+Finished UTC: 2026-11-02T15:32:45.646723+00:00
+===== FIM ubuntu-make-build.log =====
+
+ANEXO B — PROCEDIMENTO ORIGINAL COMPLETO (IMUTÁVEL)
+Nota histórica: as menções a arquivos na raiz e à ausência de commit descrevem
+o momento da coleta; foram sucedidas pelo commit 86c94e5 e por esta consolidação.
+===== INÍCIO ubuntu-make-build.txt =====
+Diagnóstico de compilação do ijkLang no Ubuntu
+
+Arquivo associado: ubuntu-make-build.log, na raiz deste repositório.
+Branch: fix-ubuntu-make-build
+Commit analisado: 2a9b8fcd545fcbaf99c81acd7cde52a75d7f5cc4
+Diretório: /home/devops/repos/ijkLang
+
+Como foi obtido
+1. Confirmado o estado limpo do Git e criado o branch a partir do checkout local de main.
+2. Registrados data/hora UTC, diretório, branch, commit, sistema operacional,
+   arquitetura/kernel e versões de cc e GNU Make no início do log.
+3. Executado na raiz do repositório, como usuário devops, sem sudo:
+
+   make -B -k -j1 all
+
+4. stdout e stderr foram redirecionados para o mesmo arquivo, sem filtrar nem
+   truncar a saída. O código de saída e a hora de término estão no final do log.
+
+Escolha das opções
+-B força a reconstrução mesmo se houver objetos de tentativas anteriores.
+-k continua os alvos independentes após erros, permitindo registrar problemas
+   adicionais do compilador e da máquina virtual em uma única execução.
+-j1 executa sequencialmente, evitando misturar mensagens de compilações paralelas.
+all é o alvo padrão do Makefile: compilador, máquina virtual e cópia de recursos.
+Não foi executado make clean; a reconstrução forçada evita usar objetos antigos.
+
+Resultado
+Código de saída: 2 (zero significa sucesso; diferente de zero, falha).
+A saída completa e os diagnósticos originais estão no arquivo .log.
+Nenhum fonte, cabeçalho ou regra do Makefile foi corrigido.
+A compilação pode criar ou atualizar artefatos ignorados pelo Git em build/ e bin/.
+Testes não foram executados: este procedimento registra somente a compilação.
+Não houve commit nem push.
+
+Orientação à próxima IA
+Examine os erros no contexto dos fontes e das condições de compilação para Unix.
+Não presuma que todos os avisos são causas da falha ou que este log revela todos
+os defeitos: etapas dependentes de alvos com erro podem não ter sido executadas.
+Após as correções, repita o comando acima e execute as suítes adequadas.
+===== FIM ubuntu-make-build.txt =====
+
+ANEXO C — EVIDÊNCIAS DA EXECUÇÃO ATUAL
+
+===== environment.log =====
+Mon Nov  2 15:58:31 UTC 2026
+323e0f0198808c407b8d888a6b7285a776340bd3
+fix-ubuntu-make-build
+Linux agent-cluster01-node01 7.0.0-38-generic #38-Ubuntu SMP PREEMPT_DYNAMIC Fri Sep  4 09:10:14 UTC 2026 x86_64 GNU/Linux
+PRETTY_NAME="Ubuntu 26.04.1 LTS"
+NAME="Ubuntu"
+VERSION_ID="26.04"
+VERSION="26.04.1 LTS (Resolute Raccoon)"
+VERSION_CODENAME=resolute
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+UBUNTU_CODENAME=resolute
+LOGO=ubuntu-logo
+cc (Ubuntu 15.2.0-16ubuntu1) 15.2.0
+Copyright (C) 2025 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+GNU Make 4.4.1
+Built for x86_64-pc-linux-gnu
+Copyright (C) 1988-2023 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+===== before.log =====
+mkdir -p build/compiler
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/main.c -o build/compiler/main.o
+src/compiler/main.c: In function ‘has_extension’:
+src/compiler/main.c:122:13: error: implicit declaration of function ‘strcasecmp’; did you mean ‘strncmp’? [-Wimplicit-function-declaration]
+  122 |     return (strcasecmp(file_path + file_path_length - extension_length, expected_extension) == 0);
+      |             ^~~~~~~~~~
+      |             strncmp
+src/compiler/main.c: In function ‘is_directory_present’:
+src/compiler/main.c:190:17: error: storage size of ‘directory_stat’ isn’t known
+  190 |     struct stat directory_stat;
+      |                 ^~~~~~~~~~~~~~
+src/compiler/main.c:191:9: error: implicit declaration of function ‘stat’; did you mean ‘strcat’? [-Wimplicit-function-declaration]
+  191 |     if (stat(directory_path, &directory_stat) != 0) return false;
+      |         ^~~~
+      |         strcat
+src/compiler/main.c:192:12: error: implicit declaration of function ‘S_ISDIR’ [-Wimplicit-function-declaration]
+  192 |     return S_ISDIR(directory_stat.st_mode);
+      |            ^~~~~~~
+src/compiler/main.c:190:17: warning: unused variable ‘directory_stat’ [-Wunused-variable]
+  190 |     struct stat directory_stat;
+      |                 ^~~~~~~~~~~~~~
+make: *** [Makefile:64: build/compiler/main.o] Error 1
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/config.c -o build/compiler/config.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/lexer.c -o build/compiler/lexer.o
+src/compiler/lexer.c: In function ‘ijkl_lexer_scan_raw_block’:
+src/compiler/lexer.c:679:33: warning: ‘/*’ within comment [-Wcomment]
+  679 |         /* Comentário de bloco '/*' */
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/token.c -o build/compiler/token.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/vocabulary.c -o build/compiler/vocabulary.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/ast.c -o build/compiler/ast.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/parser.c -o build/compiler/parser.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/symtab.c -o build/compiler/symtab.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/semantic.c -o build/compiler/semantic.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/codegen.c -o build/compiler/codegen.o
+src/compiler/codegen.c: In function ‘ijkl_code_generator_generate_to_file’:
+src/compiler/codegen.c:1751:13: error: implicit declaration of function ‘usleep’; did you mean ‘sleep’? [-Wimplicit-function-declaration]
+ 1751 |             usleep(50000);
+      |             ^~~~~~
+      |             sleep
+make: *** [Makefile:64: build/compiler/codegen.o] Error 1
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/module_loader.c -o build/compiler/module_loader.o
+mkdir -p build/common
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/common/memory.c -o build/common/memory.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/common/utf8.c -o build/common/utf8.o
+mkdir -p bin
+mkdir -p build/vm
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/main.c -o build/vm/main.o
+src/vm/main.c: In function ‘has_extension’:
+src/vm/main.c:45:13: error: implicit declaration of function ‘strcasecmp’; did you mean ‘strncmp’? [-Wimplicit-function-declaration]
+   45 |     return (strcasecmp(file_path + file_path_length - extension_length, expected_extension) == 0);
+      |             ^~~~~~~~~~
+      |             strncmp
+make: *** [Makefile:67: build/vm/main.o] Error 1
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/ci_instruction.c -o build/vm/ci_instruction.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/ci_loader.c -o build/vm/ci_loader.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/vm_core.c -o build/vm/vm_core.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/vm_debugger.c -o build/vm/vm_debugger.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/vm_io.c -o build/vm/vm_io.o
+src/vm/vm_io.c: In function ‘file_system_port_read_handler’:
+src/vm/vm_io.c:418:83: error: ‘S_IFREG’ undeclared (first use in this function); did you mean ‘S_ISREG’?
+  418 |             if (IJKL_STAT_FUNC(path, &status_info) == 0 && (status_info.st_mode & S_IFREG)) {
+      |                                                                                   ^~~~~~~
+      |                                                                                   S_ISREG
+src/vm/vm_io.c:418:83: note: each undeclared identifier is reported only once for each function it appears in
+src/vm/vm_io.c:531:83: error: ‘S_IFDIR’ undeclared (first use in this function); did you mean ‘S_ISDIR’?
+  531 |             if (IJKL_STAT_FUNC(path, &status_info) == 0 && (status_info.st_mode & S_IFDIR)) {
+      |                                                                                   ^~~~~~~
+      |                                                                                   S_ISDIR
+src/vm/vm_io.c: In function ‘file_system_port_write_handler’:
+src/vm/vm_io.c:605:41: warning: comparison of integer expressions of different signedness: ‘int64_t’ {aka ‘long int’} and ‘long long unsigned int’ [-Wsign-compare]
+  605 |             if (!content && input_value >= IJKL_VM_PAGE_NULL_END_ADDRESS &&
+      |                                         ^~
+make: *** [Makefile:67: build/vm/vm_io.o] Error 1
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/vm_memory.c -o build/vm/vm_memory.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/vm_plugins.c -o build/vm/vm_plugins.o
+make: Target 'all' not remade because of errors.
+
+===== after.log =====
+mkdir -p build/compiler
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/main.c -o build/compiler/main.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/config.c -o build/compiler/config.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/lexer.c -o build/compiler/lexer.o
+src/compiler/lexer.c: In function ‘ijkl_lexer_scan_raw_block’:
+src/compiler/lexer.c:679:33: warning: ‘/*’ within comment [-Wcomment]
+  679 |         /* Comentário de bloco '/*' */
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/token.c -o build/compiler/token.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/vocabulary.c -o build/compiler/vocabulary.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/ast.c -o build/compiler/ast.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/parser.c -o build/compiler/parser.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/symtab.c -o build/compiler/symtab.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/semantic.c -o build/compiler/semantic.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/codegen.c -o build/compiler/codegen.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/module_loader.c -o build/compiler/module_loader.o
+mkdir -p build/common
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/common/memory.c -o build/common/memory.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/common/utf8.c -o build/common/utf8.o
+mkdir -p bin
+cc   build/compiler/main.o  build/compiler/config.o  build/compiler/lexer.o  build/compiler/token.o  build/compiler/vocabulary.o  build/compiler/ast.o  build/compiler/parser.o  build/compiler/symtab.o  build/compiler/semantic.o  build/compiler/codegen.o  build/compiler/module_loader.o  build/common/memory.o  build/common/utf8.o -o bin/ijkl
+mkdir -p build/vm
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/main.c -o build/vm/main.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/ci_instruction.c -o build/vm/ci_instruction.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/ci_loader.c -o build/vm/ci_loader.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/vm_core.c -o build/vm/vm_core.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/vm_debugger.c -o build/vm/vm_debugger.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/vm_io.c -o build/vm/vm_io.o
+src/vm/vm_io.c: In function ‘file_system_port_write_handler’:
+src/vm/vm_io.c:609:41: warning: comparison of integer expressions of different signedness: ‘int64_t’ {aka ‘long int’} and ‘long long unsigned int’ [-Wsign-compare]
+  609 |             if (!content && input_value >= IJKL_VM_PAGE_NULL_END_ADDRESS &&
+      |                                         ^~
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/vm_memory.c -o build/vm/vm_memory.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/vm_plugins.c -o build/vm/vm_plugins.o
+cc   build/vm/main.o  build/vm/ci_instruction.o  build/vm/ci_loader.o  build/vm/vm_core.o  build/vm/vm_debugger.o  build/vm/vm_io.o  build/vm/vm_memory.o  build/vm/vm_plugins.o  build/common/memory.o  build/common/utf8.o -o bin/ijkl-m -lm -ldl
+
+===== test.log (trecho final) =====
+  [PASS] (pt-BR) [VM-Exec] 06_laco_enquanto.ijk
+  [PASS] (pt-BR) [VM-Exec] 07_laco_para.ijk
+  [PASS] (pt-BR) [VM-Exec] 08_laco_repita_aborte.ijk
+  [PASS] (pt-BR) [VM-Exec] 09_funcoes_matematicas.ijk
+  [PASS] (pt-BR) [VM-Exec] 10_procedimentos_referencia.ijk
+  [PASS] (pt-BR) [VM-Exec] 11_arranjos.ijk
+  [PASS] (pt-BR) [VM-Exec] 12_registros.ijk
+  [PASS] (pt-BR) [VM-Exec] 13_ponteiros_desreferenciacao.ijk
+  [PASS] (pt-BR) [VM-Exec] 14_alocacao_dinamica.ijk
+  [PASS] (pt-BR) [VM-Exec] 15_modulos_namespaces.ijk
+  [PASS] (pt-BR) [VM-Exec] quickstart_demo.ijk
+
+======================================================================
+Test Results Summary: 163 Passed, 0 Failed (Total: 163)
+======================================================================
+
+===== integration.log (trecho final) =====
+  [PASS] Lifecycle Routines: Lifecycle Routine with Parameters Fails with Semantic Error
+  [PASS] Lifecycle Routines: Initialization and Teardown Execution in VM (exit_code = 45)
+  [PASS] Default Output: Inferred <source>.ci When -o is Omitted (exit_code = 50)
+  [PASS] Extension Inference: Compiler infers .ijk and VM infers .ci (exit_code = 77)
+  [PASS] Routine Overloading: Functions, Procedures, Widening & VM Execution (exit_code = 42)
+  [PASS] Overloading: Duplicate Parameter Types Fails with Semantic Error
+  [PASS] Overloading: Ambiguous Overload Call Fails with Semantic Error
+  [PASS] Overloading: Collision Between Routine and Variable Fails with Semantic Error
+  [PASS] Overloading: Overloading Entry Point 'principal' Fails with Semantic Error
+  [PASS] Framework ijkL.Conversao: Portuguese Module & Member Aliases (exit_code = 52)
+  [PASS] Framework ijkL.Convert: English Canonical Resolution & Overloading (exit_code = 43)
+  [PASS] Framework ijkL.Texto: String & Text Processing Operations (exit_code = 11)
+  [PASS] Framework ijkL.Colecoes: Dynamic List Allocation, Growth & Element Access (exit_code = 53)
+tests/run_integration_tests.sh: line 1050: syntax error: unexpected end of file from `if' command on line 742
+make: *** [Makefile:101: test-integration] Error 2
+
+===== integration-fixed.log (trecho final) =====
+  [PASS] Overloading: Ambiguous Overload Call Fails with Semantic Error
+  [PASS] Overloading: Collision Between Routine and Variable Fails with Semantic Error
+  [PASS] Overloading: Overloading Entry Point 'principal' Fails with Semantic Error
+  [PASS] Framework ijkL.Conversao: Portuguese Module & Member Aliases (exit_code = 52)
+  [PASS] Framework ijkL.Convert: English Canonical Resolution & Overloading (exit_code = 43)
+  [PASS] Framework ijkL.Texto: String & Text Processing Operations (exit_code = 11)
+  [PASS] Framework ijkL.Colecoes: Dynamic List Allocation, Growth & Element Access (exit_code = 53)
+  [PASS] Framework Parity: Compilation with --native-builtins and VM Execution (exit_code = 53)
+  [PASS] Inline Assembly Block (asm { ... }): Code Generation & VM Execution (exit_code = 42)
+  [PASS] Framework ijkL.Memory: DMA Block Copy, Fill & Compare (exit_code = 42)
+  [PASS] Framework ijkL.IO (File, Folder, Path): File System Operations (exit_code = 42)
+  [PASS] Framework Extensions: Math, Text & Collections (exit_code = 42)
+======================================================================
+Integration Results: 38 Passed, 0 Failed, 38 Total
+======================================================================
+
+===== onm.log (trecho final) =====
+======================================================================
+ onm — Object Notation Management: Automated Test Suite (bash)
+ Compiler: /home/devops/repos/ijkLang/bin/Debug/ijkl
+ VM:       /home/devops/repos/ijkLang/bin/Debug/ijkl-m
+ INI:      /home/devops/repos/ijkLang/tests/ijkl_en.ini
+======================================================================
+[ERROR] Compiler executable not found: /home/devops/repos/ijkLang/bin/Debug/ijkl
+
+===== onm-fixed.log (trecho final) =====
+  [PASS] test_serializer (exit = 0)
+  [PASS] test_storage (exit = 0)
+  [PASS] test_tokenizer (exit = 0)
+
+--- Phase 2: Building Application CI Artifacts ---
+  [PASS] onm.ci compiled successfully (160808 bytes)
+  [PASS] onm_native.ci compiled successfully (155018 bytes)
+
+--- Phase 3: Runtime Parity Verification ---
+  [PASS] Console stdout is 100% IDENTICAL between onm.ci and onm_native.ci
+  [PASS] Resulting onm.data is 100% IDENTICAL between onm.ci and onm_native.ci
+
+======================================================================
+ Results: 11 Passed, 0 Failed
+======================================================================

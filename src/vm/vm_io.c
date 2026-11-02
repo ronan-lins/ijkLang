@@ -16,6 +16,8 @@
 #define IJKL_CHDIR(path) _chdir(path)
 #define IJKL_STAT struct _stat
 #define IJKL_STAT_FUNC _stat
+#define IJKL_IS_REGULAR_FILE(mode) (((mode) & _S_IFMT) == _S_IFREG)
+#define IJKL_IS_DIRECTORY(mode) (((mode) & _S_IFMT) == _S_IFDIR)
 #else
 #include <unistd.h>
 #define IJKL_ACCESS(path, mode) access(path, mode)
@@ -25,6 +27,8 @@
 #define IJKL_CHDIR(path) chdir(path)
 #define IJKL_STAT struct stat
 #define IJKL_STAT_FUNC stat
+#define IJKL_IS_REGULAR_FILE(mode) S_ISREG(mode)
+#define IJKL_IS_DIRECTORY(mode) S_ISDIR(mode)
 #endif
 
 #include "vm/vm_io.h"
@@ -415,7 +419,7 @@ static bool file_system_port_read_handler(void* device_context,
                 return true;
             }
             IJKL_STAT status_info;
-            if (IJKL_STAT_FUNC(path, &status_info) == 0 && (status_info.st_mode & S_IFREG)) {
+            if (IJKL_STAT_FUNC(path, &status_info) == 0 && IJKL_IS_REGULAR_FILE(status_info.st_mode)) {
                 *output_value = 1;
             } else {
                 *output_value = 0;
@@ -528,7 +532,7 @@ static bool file_system_port_read_handler(void* device_context,
                 return true;
             }
             IJKL_STAT status_info;
-            if (IJKL_STAT_FUNC(path, &status_info) == 0 && (status_info.st_mode & S_IFDIR)) {
+            if (IJKL_STAT_FUNC(path, &status_info) == 0 && IJKL_IS_DIRECTORY(status_info.st_mode)) {
                 *output_value = 1;
             } else {
                 *output_value = 0;

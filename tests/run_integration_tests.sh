@@ -749,6 +749,7 @@ if [ $T34_CODE -eq 0 ] && [ -f "$T34_CI" ]; then
     fi
 else
     assert_test "Framework Parity: Compilation with --native-builtins" 0 "Failed to compile with --native-builtins. Output: $T34_OUT"
+fi
 rm -f "$T33_SRC"
 
 # ------------------------------------------------------------------------------

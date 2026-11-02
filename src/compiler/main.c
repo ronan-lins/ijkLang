@@ -15,6 +15,8 @@
 #include <windows.h>
 #else
 #include <unistd.h>
+#include <strings.h>
+#include <sys/stat.h>
 #endif
 
 typedef struct IjklCommandLineOptions {
