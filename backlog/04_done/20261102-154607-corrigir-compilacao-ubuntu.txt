@@ -134,6 +134,26 @@ Commits da implementação: este registro acompanha o commit local da correção
 consultar git log --follow deste arquivo. Nenhum push ou merge realizado.
 Conclusão: todos os critérios de aceite atendidos, com limitações explicitadas.
 
+RESULTADOS DA REVISÃO E VALIDAÇÃO NO WINDOWS — ANTIGRAVITY
+Início UTC: 2026-11-02T16:34:00Z.
+Fim UTC: 2026-11-02T16:40:00Z.
+Responsável: Antigravity (IA Revisora).
+Ambiente: Windows 11 x64, Visual Studio 18 Insiders (MSVC v145 / 14.52.37025), MSBuild 18.
+Branch: fix-ubuntu-make-build.
+
+Comandos e resultados:
+- MSBuild.exe ijkL.sln -p:Configuration=Debug -p:Platform=x64: saída 0; 0 avisos, 0 erros.
+- bin/Debug/ijkl.exe --version e bin/Debug/ijkl-m.exe --version: saída 0, versão 0.2.0.
+- powershell tests/run_tests.ps1 -Configuration Debug: saída 0; 163 aprovados, 0 falhas (163 no total).
+- powershell tests/run_integration_tests.ps1 -Configuration Debug: saída 0; 38 aprovados, 0 falhas (38 no total).
+  Validou expressamente as macros IJKL_IS_REGULAR_FILE e IJKL_IS_DIRECTORY em Framework ijkL.IO (código 42).
+- powershell examples/apps/onm/tests/run_tests.ps1 -Config Debug: saída 0; 12 aprovados, 0 falhas.
+  Paridade de 100% no stdout e no arquivo onm.data entre modo normal e nativo.
+- Execução interativa de ONM com redirecionamento de entrada (help e exit): saída 0.
+
+Conclusão da revisão: Código em conformidade com as diretrizes do projeto (AGENTS.md); compatibilidade multiplataforma preservada; PR aprovado para integração.
+
+
 ANEXO A — LOG ORIGINAL COMPLETO (IMUTÁVEL)
 SHA-256 do arquivo original em UTF-8: 8beeb96ff2995cbfa70bfb870e293f4bc547a1b8735db6f14b61d48136125644
 ===== INÍCIO ubuntu-make-build.log =====
