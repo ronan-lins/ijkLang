@@ -1,0 +1,40 @@
+// ==============================================================================
+// ijkLang (ijkL) Standard Framework - Data, Hora e Timestamps
+// Alias em Português para a unidade canônica ijkL.Time.DateTime
+// ==============================================================================
+
+import ijkL.Time.DateTime;
+
+unit ijkL.Tempo.DataHora {
+
+    type DataHora = pointer struct {
+        int year;
+        int month;
+        int day;
+        int hour;
+        int minute;
+        int second;
+        int millisecond;
+        int timestamp;
+    };
+
+    public agora(): DataHora {
+        return ijkL.Time.DateTime.now();
+    }
+
+    public agoraUtc(): DataHora {
+        return ijkL.Time.DateTime.utcNow();
+    }
+
+    public deTimestampUnix(int timestamp_segundos): DataHora {
+        return ijkL.Time.DateTime.fromUnixTimestamp(timestamp_segundos);
+    }
+
+    public segundosDecorridosDoDia(DataHora dh): int {
+        return ijkL.Time.DateTime.elapsedSecondsOfDay(dh);
+    }
+
+    public paraTexto(DataHora dh): string {
+        return ijkL.Time.DateTime.toString(dh);
+    }
+}

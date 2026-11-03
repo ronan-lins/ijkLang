@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <sys/stat.h>
 
 #ifdef _WIN32
@@ -283,6 +284,82 @@ bool ijkl_vm_io_bus_register_standard_console(IjklIoBus* io_bus, struct IjklVirt
                                           console_port_read_handler,
                                           console_port_write_handler,
                                           machine);
+}
+
+/* Manipulador embutido do relógio de tempo real do sistema para portas 0x0008 a 0x000A */
+static bool system_clock_port_read_handler(void* device_context,
+                                           uint16_t port_address,
+                                           int64_t* output_value) {
+    (void)device_context;
+    if (!output_value) return false;
+
+    switch (port_address) {
+        case IJKL_VM_IO_PORT_SYSTEM_TIME_SECONDS: {
+            time_t current_time = time(NULL);
+            *output_value = (int64_t)current_time;
+            return true;
+        }
+
+        case IJKL_VM_IO_PORT_SYSTEM_TIME_MILLIS: {
+#ifdef _WIN32
+            SYSTEMTIME system_time;
+            GetSystemTime(&system_time);
+            *output_value = (int64_t)system_time.wMilliseconds;
+#else
+            struct timespec time_spec;
+            if (clock_gettime(CLOCK_REALTIME, &time_spec) == 0) {
+                *output_value = (int64_t)(time_spec.tv_nsec / 1000000L);
+            } else {
+                *output_value = 0;
+            }
+#endif
+            return true;
+        }
+
+        case IJKL_VM_IO_PORT_SYSTEM_TIME_TIMEZONE: {
+#ifdef _WIN32
+            TIME_ZONE_INFORMATION timezone_information;
+            DWORD timezone_result = GetTimeZoneInformation(&timezone_information);
+            long total_bias_minutes = timezone_information.Bias;
+            if (timezone_result == TIME_ZONE_ID_DAYLIGHT) {
+                total_bias_minutes += timezone_information.DaylightBias;
+            } else if (timezone_result == TIME_ZONE_ID_STANDARD) {
+                total_bias_minutes += timezone_information.StandardBias;
+            }
+            *output_value = (int64_t)(-total_bias_minutes * 60);
+#else
+            time_t now = time(NULL);
+            struct tm local_time_info;
+            localtime_r(&now, &local_time_info);
+#if defined(__USE_MISC) || defined(_BSD_SOURCE) || defined(__GLIBC__)
+            *output_value = (int64_t)local_time_info.tm_gmtoff;
+#else
+            struct tm utc_time_info;
+            gmtime_r(&now, &utc_time_info);
+            time_t local_seconds = mktime(&local_time_info);
+            time_t utc_seconds = mktime(&utc_time_info);
+            *output_value = (int64_t)difftime(local_seconds, utc_seconds);
+#endif
+#endif
+            return true;
+        }
+
+        default:
+            *output_value = 0;
+            return false;
+    }
+}
+
+bool ijkl_vm_io_bus_register_system_clock(IjklIoBus* io_bus) {
+    if (!io_bus) return false;
+
+    return ijkl_vm_io_bus_register_device(io_bus,
+                                          IJKL_VM_IO_PORT_SYSTEM_TIME_SECONDS,
+                                          3, /* Portas 0x0008, 0x0009, 0x000A */
+                                          "System Real-Time Clock",
+                                          system_clock_port_read_handler,
+                                          NULL,
+                                          NULL);
 }
 
 /* Manipulador de leitura para portas DMA 0x0020 a 0x0023 */

@@ -1,0 +1,137 @@
+// ==============================================================================
+// Teste de Unidade e Paridade: ijkL.Time.DateTime e ijkL.Tempo.DataHora
+// ==============================================================================
+
+import ijkL.Time.DateTime;
+import ijkL.Tempo.DataHora;
+import ijkL.IO.Console;
+
+program TesteDateTimeApp {
+    private main(): int {
+        // 1. Teste Determinístico de Paridade com Timestamp Fixo (1700000000 = 2023-11-14 22:13:20 UTC)
+        DateTime dt = ijkL.Time.DateTime.fromUnixTimestamp(1700000000);
+        if (dt == null) {
+            ijkL.IO.Console.write("Falha: dt eh nulo\n");
+            return 1;
+        }
+
+        if (dt.year != 2023) {
+            ijkL.IO.Console.write("Falha no ano: esperado 2023\n");
+            return 2;
+        }
+
+        if (dt.month != 11) {
+            ijkL.IO.Console.write("Falha no mes: esperado 11\n");
+            return 3;
+        }
+
+        if (dt.day != 14) {
+            ijkL.IO.Console.write("Falha no dia: esperado 14\n");
+            return 4;
+        }
+
+        if (dt.hour != 22) {
+            ijkL.IO.Console.write("Falha na hora: esperado 22\n");
+            return 5;
+        }
+
+        if (dt.minute != 13) {
+            ijkL.IO.Console.write("Falha no minuto: esperado 13\n");
+            return 6;
+        }
+
+        if (dt.second != 20) {
+            ijkL.IO.Console.write("Falha no segundo: esperado 20\n");
+            return 7;
+        }
+
+        if (dt.millisecond != 0) {
+            ijkL.IO.Console.write("Falha no milissegundo: esperado 0\n");
+            return 8;
+        }
+
+        if (dt.timestamp != 1700000000) {
+            ijkL.IO.Console.write("Falha no timestamp: esperado 1700000000\n");
+            return 9;
+        }
+
+        int segundos_dia = ijkL.Time.DateTime.elapsedSecondsOfDay(dt);
+        if (segundos_dia != 80000) {
+            ijkL.IO.Console.write("Falha em elapsedSecondsOfDay: esperado 80000\n");
+            return 10;
+        }
+
+        string texto_formatado = ijkL.Time.DateTime.toString(dt);
+        if (texto_formatado != "2023-11-14 22:13:20") {
+            ijkL.IO.Console.write("Falha em toString: esperado '2023-11-14 22:13:20'\n");
+            return 11;
+        }
+
+        // 2. Teste via Alias em Português (ijkL.Tempo.DataHora)
+        DataHora dh = ijkL.Tempo.DataHora.deTimestampUnix(1700000000);
+        if (dh.year != 2023 || dh.month != 11 || dh.day != 14) {
+            ijkL.IO.Console.write("Falha no alias DataHora: campos ano/mes/dia incorretos\n");
+            return 12;
+        }
+
+        int seg_dh = ijkL.Tempo.DataHora.segundosDecorridosDoDia(dh);
+        if (seg_dh != 80000) {
+            ijkL.IO.Console.write("Falha no alias DataHora.segundosDecorridosDoDia: esperado 80000\n");
+            return 13;
+        }
+
+        string str_dh = ijkL.Tempo.DataHora.paraTexto(dh);
+        if (str_dh != "2023-11-14 22:13:20") {
+            ijkL.IO.Console.write("Falha no alias DataHora.paraTexto\n");
+            return 14;
+        }
+
+        // 3. Teste de Sanidade de now()
+        DateTime agora = ijkL.Time.DateTime.now();
+        if (agora == null) {
+            ijkL.IO.Console.write("Falha em now(): ponteiro nulo\n");
+            return 15;
+        }
+        if (agora.year < 2024 || agora.month < 1 || agora.month > 12 || agora.day < 1 || agora.day > 31) {
+            ijkL.IO.Console.write("Falha em now(): data civil fora dos limites\n");
+            return 16;
+        }
+        if (agora.hour < 0 || agora.hour > 23 || agora.minute < 0 || agora.minute > 59 || agora.second < 0 || agora.second > 59) {
+            ijkL.IO.Console.write("Falha em now(): hora civil fora dos limites\n");
+            return 17;
+        }
+        if (agora.timestamp <= 1700000000) {
+            ijkL.IO.Console.write("Falha em now(): timestamp menor ou igual a 1700000000\n");
+            return 18;
+        }
+        int seg_agora = ijkL.Time.DateTime.elapsedSecondsOfDay(agora);
+        int seg_esperados = (agora.hour * 3600) + (agora.minute * 60) + agora.second;
+        if (seg_agora != seg_esperados) {
+            ijkL.IO.Console.write("Falha em elapsedSecondsOfDay(agora)\n");
+            return 19;
+        }
+        string texto_agora = ijkL.Time.DateTime.toString(agora);
+        if (texto_agora == "") {
+            ijkL.IO.Console.write("Falha em toString(agora): string vazia\n");
+            return 20;
+        }
+
+        // 4. Teste de Sanidade de utcNow()
+        DateTime agora_utc = ijkL.Time.DateTime.utcNow();
+        if (agora_utc == null) {
+            ijkL.IO.Console.write("Falha em utcNow(): ponteiro nulo\n");
+            return 21;
+        }
+        if (agora_utc.year < 2024 || agora_utc.month < 1 || agora_utc.month > 12 || agora_utc.day < 1 || agora_utc.day > 31) {
+            ijkL.IO.Console.write("Falha em utcNow(): data civil fora dos limites\n");
+            return 22;
+        }
+        if (agora_utc.timestamp <= 1700000000) {
+            ijkL.IO.Console.write("Falha em utcNow(): timestamp menor ou igual a 1700000000\n");
+            return 23;
+        }
+
+        ijkL.IO.Console.write("SUCESSO: DateTime e DataHora aprovados com paridade deterministica!\n");
+        return 0;
+    }
+}

@@ -85,9 +85,14 @@ ijkL.IO.Folder      = ijkL.IO.Folder
 ijkL.IO.File        = ijkL.IO.File
 ijkL.Memory         = ijkL.Memory
 ijkL.Math           = ijkL.Math
+ijkL.Time.DateTime  = ijkL.Time.DateTime
 
 [framework_members]
 ; Canonical framework member mappings
+now                 = now
+utcNow              = utcNow
+fromUnixTimestamp   = fromUnixTimestamp
+elapsedSecondsOfDay = elapsedSecondsOfDay
 toInt               = toInt
 toReal              = toReal
 toFloat             = toFloat

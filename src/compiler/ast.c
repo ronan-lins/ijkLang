@@ -113,8 +113,17 @@ bool ijkl_ast_are_types_identical(const IjklTypeSpec* first_type, const IjklType
             if (!first_type->details.user_type_name || !second_type->details.user_type_name) {
                 return false;
             }
-            return ijkl_string_case_insensitive_equals(first_type->details.user_type_name,
-                                                       second_type->details.user_type_name);
+            if (ijkl_string_case_insensitive_equals(first_type->details.user_type_name,
+                                                   second_type->details.user_type_name)) {
+                return true;
+            }
+            if ((strcmp(first_type->details.user_type_name, "DateTime") == 0 && strcmp(second_type->details.user_type_name, "DataHora") == 0) ||
+                (strcmp(first_type->details.user_type_name, "DataHora") == 0 && strcmp(second_type->details.user_type_name, "DateTime") == 0) ||
+                (strcmp(first_type->details.user_type_name, "DateTime") == 0 && strcmp(second_type->details.user_type_name, "DateHeure") == 0) ||
+                (strcmp(first_type->details.user_type_name, "DateHeure") == 0 && strcmp(second_type->details.user_type_name, "DateTime") == 0)) {
+                return true;
+            }
+            return false;
 
         case TYPE_KIND_STRUCT:
             return first_type == second_type;

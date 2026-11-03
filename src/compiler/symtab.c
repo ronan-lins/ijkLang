@@ -278,6 +278,20 @@ static void register_builtin_routines(IjklSymbolTable* symbol_table) {
 
     IjklTypeSpec* mem_cmp_params[] = { generic_pointer_type, generic_pointer_type, int_type };
     register_single_builtin_routine_with_types(symbol_table, "__builtin_mem_cmp", int_type, 3, mem_cmp_params);
+
+    /* Built-ins de Data e Hora (ijkL.Time.DateTime / ijkL.Tempo.DataHora) */
+    register_single_builtin_routine_with_types(symbol_table, "__builtin_datetime_now", generic_pointer_type, 0, NULL);
+    register_single_builtin_routine_with_types(symbol_table, "__builtin_datetime_utc_now", generic_pointer_type, 0, NULL);
+
+    IjklTypeSpec* datetime_from_unix_params[] = { int_type };
+    register_single_builtin_routine_with_types(symbol_table, "__builtin_datetime_from_unix_timestamp", generic_pointer_type, 1, datetime_from_unix_params);
+
+    IjklTypeSpec* datetime_single_param[] = { generic_pointer_type };
+    register_single_builtin_routine_with_types(symbol_table, "__builtin_datetime_elapsed_seconds_of_day", int_type, 1, datetime_single_param);
+
+    IjklTypeSpec* string_type = ijkl_ast_type_spec_create(arena, TYPE_KIND_PRIMITIVE, 0, 0);
+    string_type->details.primitive_type = PRIMITIVE_STRING;
+    register_single_builtin_routine_with_types(symbol_table, "__builtin_datetime_to_string", string_type, 1, datetime_single_param);
 }
 
 /* --- Suporte a Tipos Encapsulados (Boxed Types) --- */
