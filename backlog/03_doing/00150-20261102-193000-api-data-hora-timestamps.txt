@@ -1,13 +1,13 @@
 TÍTULO: Implementar API de data, hora e timestamps na biblioteca padrão (ijkL.Time.DateTime)
 ID: 00150-20261102-193000-api-data-hora-timestamps
 Tipo: feature
-Status: TODO
+Status: DOING
 Prioridade: 00150 - Alta
 Severidade: moderada
 Criado em UTC: 2026-11-02T19:30:00.000000+00:00
 Solicitante: mantenedor do repositório
-Responsável: Pendente
-Início UTC: Pendente
+Responsável: Antigravity
+Início UTC: 2026-11-03T07:17:00.000000+00:00
 Fim UTC: Pendente
 Repositório local: C:\Sources\ijkLang
 Remoto: git@github.com:ronan-lins/ijkLang.git
