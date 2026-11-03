@@ -1,0 +1,86 @@
+TÍTULO: Implementar barramento e rotinas de leitura de teclado não-bloqueante no Console
+ID: 00100-20261102-231500-console-teclado-nao-bloqueante
+Tipo: feature
+Status: TODO
+Prioridade: 00100 - Crítica
+Severidade: bloqueante
+Criado em UTC: 2026-11-02T23:15:00.000000+00:00
+Solicitante: mantenedor do repositório
+Responsável: Pendente
+Início UTC: Pendente
+Fim UTC: Pendente
+Repositório local: C:\Sources\ijkLang
+Remoto: git@github.com:ronan-lins/ijkLang.git
+Branch de trabalho: 20261102-231500-console-teclado-nao-bloqueante
+
+OBJETIVO E CONTEXTO
+Atualmente, as operações de leitura de teclado no barramento de E/S da máquina virtual
+(IJKL_VM_IO_PORT_CONSOLE_CHAR em src/vm/vm_io.c) utilizam a função getchar(), que é
+estritamente bloqueante e requer que o terminal confirme a linha (Enter). Isso impede
+que aplicações iterativas em ijkLang realizem processamento intensivo em segundo plano
+enquanto consultam periodicamente se o usuário pressionou alguma tecla (como ESC para
+cancelamento). Esta tarefa estabelece a infraestrutura necessária de sondagem não-bloqueante
+de teclado na VM e a respectiva exposição na biblioteca padrão ijkL.IO.Console.
+
+RESULTADO ESPERADO E OBSERVADO
+Esperado: A biblioteca ijkL.IO.Console oferece as rotinas hasKey(): bool e readKeyAsync(): char.
+A rotina hasKey() retorna true imediatamente se uma tecla estiver disponível no buffer de
+entrada, sem travar o processamento da CPU. Caso contrário, retorna false.
+Observado: Apenas readLine() e readKey() bloqueantes existem; qualquer tentativa de consultar
+o teclado interrompe a execução até que haja entrada do usuário.
+Impacto: Bloqueia as aplicações que necessitam de cancelamento cooperativo via tecla ESC
+(como a busca do 1000º primo e a busca em dicionários com cancelamento).
+
+AMBIENTE E REPRODUÇÃO
+- Windows 11 x64, Visual Studio / MSBuild C11 (_kbhit de <conio.h>).
+- Linux / Ubuntu x86_64, GCC C11 (select / poll com termios em modo raw/cbreak sem eco).
+- Código ijkLang de teste:
+    while (!ijkL.IO.Console.hasKey()) {
+        // executa computação contínua
+    }
+
+ESCOPO E LIMITES
+Dentro do escopo:
+- Adicionar no barramento da VM (include/vm/vm_io.h e src/vm/vm_io.c) a porta
+  IJKL_VM_IO_PORT_CONSOLE_KEY_AVAILABLE (0x0005).
+- Implementação condicional segura em C11:
+  - Windows: _kbhit() de <conio.h>.
+  - Linux/POSIX: select() ou poll() não-bloqueante sobre STDIN_FILENO (<sys/select.h> / <unistd.h>).
+- Adicionar em lib/ijkL/IO/Console.ijk:
+  - public hasKey(): bool
+  - public readKeyAsync(): char
+  - Aliases em português em ijkL.ES.Console (temTecla(): bool, leiaTeclaAssincrona(): char).
+- Adicionar testes de unidade e testes na suíte tests/run_tests.ps1 e Makefile.
+Fora do escopo:
+- Criação de interface gráfica ou emuladores complexos de terminal ANSI.
+
+CRITÉRIOS DE ACEITE
+[ ] Porta 0x0005 registrada no barramento padrão de console em src/vm/vm_io.c.
+[ ] hasKey() implementado em lib/ijkL/IO/Console.ijk retornando booleano via 'in 0x0005, r0'.
+[ ] readKeyAsync() retornando o código da tecla se hasKey() for verdadeiro ou 0 caso contrário.
+[ ] Compilação limpa no Windows via MSBuild (ijkL.sln) sem erros ou avisos (0 warnings).
+[ ] Compilação limpa no Linux via make -B all sem erros.
+[ ] Suíte de testes existente (make test e tests/run_tests.ps1) com 100% de aprovação (sem regressões).
+[ ] Novo teste automatizado comprovando que hasKey() retorna false sem bloquear quando não há entrada.
+[ ] Atualizar este próprio arquivo com os comandos, códigos de saída e evidências, movendo para 04_done.
+
+RESULTADOS DA EXECUÇÃO — [NOME DO AGENTE]
+Início UTC: Pendente.
+Fim UTC: Pendente.
+Responsável: Pendente.
+Branch: 20261102-231500-console-teclado-nao-bloqueante.
+
+Causas raiz e alterações implementadas:
+- Pendente.
+
+Comandos, códigos de saída e evidências:
+- Pendente.
+
+Compatibilidade e Riscos:
+- Pendente.
+
+Conclusão:
+- Pendente.
+
+ANEXO A — REGISTROS BRUTOS E LOGS DE EXECUÇÃO
+(Logs de compilação e execução dos testes serão anexados nesta seção ao concluir.)

@@ -1,0 +1,85 @@
+TÍTULO: Desenvolver aplicação de sugestão ortográfica Levenshtein com dicionário e estresse de VM (spell)
+ID: 00300-20261102-210000-app-sugestao-palavras-levenshtein
+Tipo: feature
+Status: TODO
+Prioridade: 00300 - Normal
+Severidade: moderada
+Criado em UTC: 2026-11-02T21:00:00.000000+00:00
+Solicitante: mantenedor do repositório
+Responsável: Pendente
+Início UTC: Pendente
+Fim UTC: Pendente
+Repositório local: C:\Sources\ijkLang
+Remoto: git@github.com:ronan-lins/ijkLang.git
+Branch de trabalho: 20261102-210000-app-sugestao-palavras-levenshtein
+
+OBJETIVO E CONTEXTO
+Desenvolver uma aplicação CLI completa em ijkLang, denominada 'spell', localizada em
+examples/apps/spell/, que implementa o algoritmo de distância de edição de Levenshtein.
+A aplicação tem duplo propósito: pedagógico (demonstrando programação dinâmica, processamento
+de coleções e interação de terminal) e teste de estresse da máquina virtual (benchmark de
+performance computacional sob grandes volumes de iterações em código intermediário).
+
+RESULTADO ESPERADO E OBSERVADO
+Esperado: O executável spell.ci solicita ao usuário a escolha do dicionário a utilizar
+(compacto ou estresse completo) e uma palavra com erro de digitação (typo). Durante o cálculo
+da distância de edição contra o acervo de palavras, a aplicação atualiza um indicador visual
+de progresso no terminal e consulta o teclado de forma não-bloqueante (hasKey): caso a tecla
+ESC seja pressionada, a busca é abortada de forma limpa. Ao término da busca bem-sucedida,
+a aplicação apresenta as 5 palavras mais próximas, ordenadas alfabeticamente.
+Observado: Inexistência da aplicação e dos dados de dicionário no repositório.
+Impacto: Expande o portfólio de exemplos reais de aplicações escritas em ijkLang ao lado de onm.
+
+AMBIENTE E REPRODUÇÃO
+- Pasta da aplicação: examples/apps/spell/
+- Dicionários em examples/apps/spell/data/:
+  - compact.dict: ~2.000 a 3.000 palavras comuns em licença aberta (domínio público / MIT).
+  - stress.dict: ~50.000 a 100.000 palavras para benchmark intensivo da VM.
+- Execução:
+    bin/Debug/ijkl examples/apps/spell/spell.ijk -o examples/apps/spell/spell.ci
+    bin/Debug/ijkl-m examples/apps/spell/spell.ci
+
+ESCOPO E LIMITES
+Dentro do escopo:
+- Implementação do algoritmo clássico de Levenshtein (programação dinâmica).
+- Criação dos dois arquivos de dicionário sob licença permissiva em examples/apps/spell/data/.
+- Menu inicial:
+  [1] Dicionário Compacto (~2k palavras - retorno rápido didático)
+  [2] Dicionário Completo de Estresse (~50k palavras - benchmark intensivo)
+- Exibição de progresso percentual atualizado dinamicamente no terminal durante a busca.
+- Interrupção por tecla ESC (código 27) via ijkL.IO.Console.hasKey() sem travamento.
+- Seleção das 5 palavras com menor distância e ordenação alfabética em caso de empate.
+- Scripts de teste automatizado examples/apps/spell/tests/run_tests.ps1 e run_tests.sh.
+Fora do escopo:
+- Correção fonética (Soundex/Metaphone) ou árvores BK-Tree complexas.
+
+CRITÉRIOS DE ACEITE
+[ ] spell.ijk compila sem erros com bin/Debug/ijkl gerando spell.ci.
+[ ] spell.ci executa na VM bin/Debug/ijkl-m em ambas as plataformas (Windows e Linux).
+[ ] O cálculo de Levenshtein para palavras conhecidas retorna distâncias exatas (ex: "casa" -> "caso" = 1).
+[ ] As 5 palavras sugeridas são ordenadas alfabeticamente.
+[ ] Cancelamento com tecla ESC interrompe a busca e encerra com código 0.
+[ ] Scripts de teste automatizados em tests/ passam com 100% de sucesso.
+[ ] Documento de especificação examples/apps/spell/spell.spec.md criado.
+[ ] Atualizar este próprio arquivo com os comandos, códigos de saída e evidências, movendo para 04_done.
+
+RESULTADOS DA EXECUÇÃO — [NOME DO AGENTE]
+Início UTC: Pendente.
+Fim UTC: Pendente.
+Responsável: Pendente.
+Branch: 20261102-210000-app-sugestao-palavras-levenshtein.
+
+Causas raiz e alterações implementadas:
+- Pendente.
+
+Comandos, códigos de saída e evidências:
+- Pendente.
+
+Compatibilidade e Riscos:
+- Pendente.
+
+Conclusão:
+- Pendente.
+
+ANEXO A — REGISTROS BRUTOS E LOGS DE EXECUÇÃO
+(Logs de compilação e execução dos testes serão anexados nesta seção ao concluir.)

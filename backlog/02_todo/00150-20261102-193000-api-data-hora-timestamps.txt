@@ -1,0 +1,89 @@
+TÍTULO: Implementar API de data, hora e timestamps na biblioteca padrão (ijkL.Time.DateTime)
+ID: 00150-20261102-193000-api-data-hora-timestamps
+Tipo: feature
+Status: TODO
+Prioridade: 00150 - Alta
+Severidade: moderada
+Criado em UTC: 2026-11-02T19:30:00.000000+00:00
+Solicitante: mantenedor do repositório
+Responsável: Pendente
+Início UTC: Pendente
+Fim UTC: Pendente
+Repositório local: C:\Sources\ijkLang
+Remoto: git@github.com:ronan-lins/ijkLang.git
+Branch de trabalho: 20261102-193000-api-data-hora-timestamps
+
+OBJETIVO E CONTEXTO
+O ecossistema ijkLang atualmente carece de módulos para manipulação e obtenção do relógio
+do sistema operacional, data, hora civil e timestamps. Essa funcionalidade é indispensável
+para registro de eventos, medição de tempo de execução, ordenação temporal e para semear
+geradores de números aleatórios com base no horário do dia. Esta tarefa estabelece uma API
+minimalista, pragmática e elegante inspirada nos modelos consolidados de Java (Instant,
+LocalDateTime) e .NET (DateTime), aderente aos padrões de código da biblioteca ijkLang.
+
+RESULTADO ESPERADO E OBSERVADO
+Esperado: Disponibilização da unidade canônica ijkL.Time.DateTime (e alias ijkL.Tempo.DataHora)
+fornecendo criação de instâncias de data/hora, consulta de componentes (ano, mês, dia, hora,
+minuto, segundo), cálculo dos segundos decorridos do dia (elapsedSecondsOfDay) e conversão para
+string formatada ISO 8601 (YYYY-MM-DD HH:MM:SS).
+Observado: Inexistência de módulos de tempo em lib/ijkL/ ou suporte a relógio do sistema no
+barramento da máquina virtual.
+Impacto: Bloqueia a criação do gerador de números aleatórios semeado pelo relógio e a medição
+de tempo de tarefas.
+
+AMBIENTE E REPRODUÇÃO
+- Windows 11 x64, Visual Studio / MSBuild C11 (<time.h>, GetSystemTimeAsFileTime ou timespec_get).
+- Linux / Ubuntu x86_64, GCC C11 (<time.h>, clock_gettime com CLOCK_REALTIME).
+- Exemplo de uso pretendido em ijkLang:
+    import ijkL.Time.DateTime;
+    var agora = ijkL.Time.DateTime.now();
+    var segundos_do_dia = ijkL.Time.DateTime.elapsedSecondsOfDay(agora);
+    escrevaLinha(ijkL.Time.DateTime.toString(agora));
+
+ESCOPO E LIMITES
+Dentro do escopo:
+- Adicionar no barramento da VM (include/vm/vm_io.h e src/vm/vm_io.c):
+  - IJKL_VM_IO_PORT_SYSTEM_TIME_SECONDS (0x0008): retorna timestamp Unix Epoch em segundos (time_t).
+  - IJKL_VM_IO_PORT_SYSTEM_TIME_MILLIS (0x0009): retorna fração de milissegundos atuais (0 a 999).
+- Criar a biblioteca em lib/ijkL/Time/DateTime.ijk (e mapear alias ijkL.Tempo.DataHora):
+  - struct DateTime { int year; int month; int day; int hour; int minute; int second; int millisecond; int timestamp; }
+  - public now(): DateTime
+  - public utcNow(): DateTime
+  - public fromUnixTimestamp(int timestamp_seconds): DateTime
+  - public elapsedSecondsOfDay(DateTime dt): int
+  - public toString(DateTime dt): string
+- Adicionar cobertura de testes na suíte tests/.
+Fora do escopo:
+- Cálculos complexos de fusos horários astronômicos ou calendários não-gregorianos.
+
+CRITÉRIOS DE ACEITE
+[ ] Portas 0x0008 e 0x0009 registradas no barramento da VM retornando valores corretos do SO.
+[ ] Unidade ijkL.Time.DateTime implementada em lib/ijkL/Time/DateTime.ijk.
+[ ] now() retorna ano, mês, dia, hora, minuto, segundo compatíveis com o horário local real.
+[ ] elapsedSecondsOfDay() retorna exatamente (hora * 3600 + minuto * 60 + segundo).
+[ ] toString() formata no padrão ISO 'YYYY-MM-DD HH:MM:SS'.
+[ ] Compilação limpa no Windows (MSBuild) e Linux (make) sem erros ou avisos.
+[ ] Suíte de testes automatizados existente 100% aprovada.
+[ ] Novos testes de unidade validando os métodos da API de data e hora.
+[ ] Atualizar este próprio arquivo com os comandos, códigos de saída e evidências, movendo para 04_done.
+
+RESULTADOS DA EXECUÇÃO — [NOME DO AGENTE]
+Início UTC: Pendente.
+Fim UTC: Pendente.
+Responsável: Pendente.
+Branch: 20261102-193000-api-data-hora-timestamps.
+
+Causas raiz e alterações implementadas:
+- Pendente.
+
+Comandos, códigos de saída e evidências:
+- Pendente.
+
+Compatibilidade e Riscos:
+- Pendente.
+
+Conclusão:
+- Pendente.
+
+ANEXO A — REGISTROS BRUTOS E LOGS DE EXECUÇÃO
+(Logs de compilação e execução dos testes serão anexados nesta seção ao concluir.)
