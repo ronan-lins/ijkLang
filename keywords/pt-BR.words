@@ -190,3 +190,6 @@ sementeComTempo = seedWithTime
 proximo = next
 proximoIntervalo = nextRange
 proximoReal = nextReal
+dividir = split
+dividirLinhas = splitLines
+

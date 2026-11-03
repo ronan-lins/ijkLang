@@ -114,6 +114,13 @@ else
 	@python3 tests/run_console_tests.py
 endif
 
+test-split: all
+ifeq ($(OS),Windows_NT)
+	@powershell -ExecutionPolicy Bypass -File tests/run_split_tests.ps1
+else
+	@python3 tests/run_split_tests.py
+endif
+
 test-integration: all
 	@echo "Executando testes de integracao modular do ijkLang..."
 ifeq ($(OS),Windows_NT)

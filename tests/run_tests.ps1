@@ -284,6 +284,15 @@ try {
     $FailedCount++
 }
 
+$TotalCount++
+try {
+    & (Join-Path $PSScriptRoot "run_split_tests.ps1") -Configuration $Configuration -CompilerPath $BinaryPath -VmPath $VmBinaryPath
+    $PassedCount++
+} catch {
+    Write-Host "[FAIL] Split parity: $_" -ForegroundColor Red
+    $FailedCount++
+}
+
 Write-Host "`n======================================================================" -ForegroundColor Cyan
 Write-Host "Test Results Summary: $PassedCount Passed, $FailedCount Failed (Total: $TotalCount)" -ForegroundColor $(if ($FailedCount -eq 0) { "Green" } else { "Red" })
 Write-Host "======================================================================" -ForegroundColor Cyan

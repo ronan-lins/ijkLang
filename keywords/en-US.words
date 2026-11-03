@@ -180,3 +180,6 @@ seedWithTime = seedWithTime
 next = next
 nextRange = nextRange
 nextReal = nextReal
+split = split
+splitLines = splitLines
+

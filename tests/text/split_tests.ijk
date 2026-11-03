@@ -1,0 +1,245 @@
+// ==============================================================================
+// Test: split_tests.ijk
+// Comprehensive test suite for ijkL.Text.split and ijkL.Text.splitLines
+// ==============================================================================
+
+import ijkL.Text;
+import ijkL.Collections;
+
+program TestSplitSuite {
+
+    private assertEqual(string actual, string expected, string test_name): int {
+        if (ijkL.Text.compare(actual, expected) != 0) {
+            writeln("[FAIL] ", test_name, ": expected '", expected, "', got '", actual, "'");
+            return 1;
+        }
+        return 0;
+    }
+
+    private assertIntEqual(int actual, int expected, string test_name): int {
+        if (actual != expected) {
+            writeln("[FAIL] ", test_name, ": expected ", expected, ", got ", actual);
+            return 1;
+        }
+        return 0;
+    }
+
+    private main(): int {
+        int failures = 0;
+
+        // ----------------------------------------------------------------------
+        // 1. splitLines Tests
+        // ----------------------------------------------------------------------
+
+        // 1.1 Empty string -> count 0
+        List l_empty = ijkL.Text.splitLines("");
+        failures = failures + assertIntEqual(l_empty.count, 0, "splitLines empty count");
+        ijkL.Collections.destroyList(l_empty);
+
+        // 1.2 Single line without newline -> count 1
+        List l_single = ijkL.Text.splitLines("hello");
+        failures = failures + assertIntEqual(l_single.count, 1, "splitLines single count");
+        if (l_single.count == 1) {
+            string s0 = ijkL.Collections.get(l_single, 0);
+            failures = failures + assertEqual(s0, "hello", "splitLines single content");
+        }
+        ijkL.Collections.destroyList(l_single);
+
+        // 1.3 Single line with trailing Unix newline -> count 1
+        List l_single_nl = ijkL.Text.splitLines("hello\n");
+        failures = failures + assertIntEqual(l_single_nl.count, 1, "splitLines single_nl count");
+        if (l_single_nl.count == 1) {
+            string s0 = ijkL.Collections.get(l_single_nl, 0);
+            failures = failures + assertEqual(s0, "hello", "splitLines single_nl content");
+        }
+        ijkL.Collections.destroyList(l_single_nl);
+
+        // 1.4 Single line with trailing Windows CRLF -> count 1
+        List l_single_crlf = ijkL.Text.splitLines("hello\r\n");
+        failures = failures + assertIntEqual(l_single_crlf.count, 1, "splitLines single_crlf count");
+        if (l_single_crlf.count == 1) {
+            string s0 = ijkL.Collections.get(l_single_crlf, 0);
+            failures = failures + assertEqual(s0, "hello", "splitLines single_crlf content");
+        }
+        ijkL.Collections.destroyList(l_single_crlf);
+
+        // 1.5 Multiple lines with mixed \n and \r\n -> count 3
+        List l_multi = ijkL.Text.splitLines("alpha\nbeta\r\ngamma\n");
+        failures = failures + assertIntEqual(l_multi.count, 3, "splitLines multi count");
+        if (l_multi.count == 3) {
+            string s0 = ijkL.Collections.get(l_multi, 0);
+            string s1 = ijkL.Collections.get(l_multi, 1);
+            string s2 = ijkL.Collections.get(l_multi, 2);
+            failures = failures + assertEqual(s0, "alpha", "splitLines multi s0");
+            failures = failures + assertEqual(s1, "beta", "splitLines multi s1");
+            failures = failures + assertEqual(s2, "gamma", "splitLines multi s2");
+        }
+        ijkL.Collections.destroyList(l_multi);
+
+        // 1.6 Multiple lines without trailing newline -> count 2
+        List l_multi_notrail = ijkL.Text.splitLines("line1\nline2");
+        failures = failures + assertIntEqual(l_multi_notrail.count, 2, "splitLines multi_notrail count");
+        if (l_multi_notrail.count == 2) {
+            string s0 = ijkL.Collections.get(l_multi_notrail, 0);
+            string s1 = ijkL.Collections.get(l_multi_notrail, 1);
+            failures = failures + assertEqual(s0, "line1", "splitLines multi_notrail s0");
+            failures = failures + assertEqual(s1, "line2", "splitLines multi_notrail s1");
+        }
+        ijkL.Collections.destroyList(l_multi_notrail);
+
+        // 1.7 Empty line in between -> count 3
+        List l_empty_mid = ijkL.Text.splitLines("first\n\nsecond");
+        failures = failures + assertIntEqual(l_empty_mid.count, 3, "splitLines empty_mid count");
+        if (l_empty_mid.count == 3) {
+            string s0 = ijkL.Collections.get(l_empty_mid, 0);
+            string s1 = ijkL.Collections.get(l_empty_mid, 1);
+            string s2 = ijkL.Collections.get(l_empty_mid, 2);
+            failures = failures + assertEqual(s0, "first", "splitLines empty_mid s0");
+            failures = failures + assertEqual(s1, "", "splitLines empty_mid s1");
+            failures = failures + assertEqual(s2, "second", "splitLines empty_mid s2");
+        }
+        ijkL.Collections.destroyList(l_empty_mid);
+
+        // 1.8 Solo newline -> count 1
+        List l_solo_nl = ijkL.Text.splitLines("\n");
+        failures = failures + assertIntEqual(l_solo_nl.count, 1, "splitLines solo_nl count");
+        if (l_solo_nl.count == 1) {
+            string s0 = ijkL.Collections.get(l_solo_nl, 0);
+            failures = failures + assertEqual(s0, "", "splitLines solo_nl content");
+        }
+        ijkL.Collections.destroyList(l_solo_nl);
+
+        // 1.9 Solo CRLF -> count 1
+        List l_solo_crlf = ijkL.Text.splitLines("\r\n");
+        failures = failures + assertIntEqual(l_solo_crlf.count, 1, "splitLines solo_crlf count");
+        if (l_solo_crlf.count == 1) {
+            string s0 = ijkL.Collections.get(l_solo_crlf, 0);
+            failures = failures + assertEqual(s0, "", "splitLines solo_crlf content");
+        }
+        ijkL.Collections.destroyList(l_solo_crlf);
+
+        // 1.10 Double newline -> count 2
+        List l_double_nl = ijkL.Text.splitLines("\n\n");
+        failures = failures + assertIntEqual(l_double_nl.count, 2, "splitLines double_nl count");
+        if (l_double_nl.count == 2) {
+            string s0 = ijkL.Collections.get(l_double_nl, 0);
+            string s1 = ijkL.Collections.get(l_double_nl, 1);
+            failures = failures + assertEqual(s0, "", "splitLines double_nl s0");
+            failures = failures + assertEqual(s1, "", "splitLines double_nl s1");
+        }
+        ijkL.Collections.destroyList(l_double_nl);
+
+        // ----------------------------------------------------------------------
+        // 2. split Tests
+        // ----------------------------------------------------------------------
+
+        // 2.1 Empty string -> count 0
+        List s_empty = ijkL.Text.split("", ',');
+        failures = failures + assertIntEqual(s_empty.count, 0, "split empty count");
+        ijkL.Collections.destroyList(s_empty);
+
+        // 2.2 Single item without delimiter -> count 1
+        List s_single = ijkL.Text.split("abc", ',');
+        failures = failures + assertIntEqual(s_single.count, 1, "split single count");
+        if (s_single.count == 1) {
+            string s0 = ijkL.Collections.get(s_single, 0);
+            failures = failures + assertEqual(s0, "abc", "split single s0");
+        }
+        ijkL.Collections.destroyList(s_single);
+
+        // 2.3 Delimited items -> count 3
+        List s_items = ijkL.Text.split("a,b,c", ',');
+        failures = failures + assertIntEqual(s_items.count, 3, "split items count");
+        if (s_items.count == 3) {
+            string s0 = ijkL.Collections.get(s_items, 0);
+            string s1 = ijkL.Collections.get(s_items, 1);
+            string s2 = ijkL.Collections.get(s_items, 2);
+            failures = failures + assertEqual(s0, "a", "split items s0");
+            failures = failures + assertEqual(s1, "b", "split items s1");
+            failures = failures + assertEqual(s2, "c", "split items s2");
+        }
+        ijkL.Collections.destroyList(s_items);
+
+        // 2.4 Empty in middle -> count 3
+        List s_mid_empty = ijkL.Text.split("a,,b", ',');
+        failures = failures + assertIntEqual(s_mid_empty.count, 3, "split mid_empty count");
+        if (s_mid_empty.count == 3) {
+            string s0 = ijkL.Collections.get(s_mid_empty, 0);
+            string s1 = ijkL.Collections.get(s_mid_empty, 1);
+            string s2 = ijkL.Collections.get(s_mid_empty, 2);
+            failures = failures + assertEqual(s0, "a", "split mid_empty s0");
+            failures = failures + assertEqual(s1, "", "split mid_empty s1");
+            failures = failures + assertEqual(s2, "b", "split mid_empty s2");
+        }
+        ijkL.Collections.destroyList(s_mid_empty);
+
+        // 2.5 Trailing delimiter -> count 3 ("a", "b", "")
+        List s_trailing = ijkL.Text.split("a,b,", ',');
+        failures = failures + assertIntEqual(s_trailing.count, 3, "split trailing count");
+        if (s_trailing.count == 3) {
+            string s0 = ijkL.Collections.get(s_trailing, 0);
+            string s1 = ijkL.Collections.get(s_trailing, 1);
+            string s2 = ijkL.Collections.get(s_trailing, 2);
+            failures = failures + assertEqual(s0, "a", "split trailing s0");
+            failures = failures + assertEqual(s1, "b", "split trailing s1");
+            failures = failures + assertEqual(s2, "", "split trailing s2");
+        }
+        ijkL.Collections.destroyList(s_trailing);
+
+        // 2.6 Leading delimiter -> count 2 ("", "a")
+        List s_leading = ijkL.Text.split(",a", ',');
+        failures = failures + assertIntEqual(s_leading.count, 2, "split leading count");
+        if (s_leading.count == 2) {
+            string s0 = ijkL.Collections.get(s_leading, 0);
+            string s1 = ijkL.Collections.get(s_leading, 1);
+            failures = failures + assertEqual(s0, "", "split leading s0");
+            failures = failures + assertEqual(s1, "a", "split leading s1");
+        }
+        ijkL.Collections.destroyList(s_leading);
+
+        // 2.7 Solo delimiter -> count 2 ("", "")
+        List s_solo = ijkL.Text.split(",", ',');
+        failures = failures + assertIntEqual(s_solo.count, 2, "split solo count");
+        if (s_solo.count == 2) {
+            string s0 = ijkL.Collections.get(s_solo, 0);
+            string s1 = ijkL.Collections.get(s_solo, 1);
+            failures = failures + assertEqual(s0, "", "split solo s0");
+            failures = failures + assertEqual(s1, "", "split solo s1");
+        }
+        ijkL.Collections.destroyList(s_solo);
+
+        // ----------------------------------------------------------------------
+        // 3. Portuguese Aliases (dividir, dividirLinhas)
+        // ----------------------------------------------------------------------
+
+        List pt_lines = ijkL.Text.dividirLinhas("pt1\npt2\n");
+        failures = failures + assertIntEqual(pt_lines.count, 2, "dividirLinhas count");
+        if (pt_lines.count == 2) {
+            string s0 = ijkL.Collections.get(pt_lines, 0);
+            string s1 = ijkL.Collections.get(pt_lines, 1);
+            failures = failures + assertEqual(s0, "pt1", "dividirLinhas s0");
+            failures = failures + assertEqual(s1, "pt2", "dividirLinhas s1");
+        }
+        ijkL.Collections.destroyList(pt_lines);
+
+        List pt_split = ijkL.Text.dividir("item1:item2:item3", ':');
+        failures = failures + assertIntEqual(pt_split.count, 3, "dividir count");
+        if (pt_split.count == 3) {
+            string s0 = ijkL.Collections.get(pt_split, 0);
+            string s1 = ijkL.Collections.get(pt_split, 1);
+            string s2 = ijkL.Collections.get(pt_split, 2);
+            failures = failures + assertEqual(s0, "item1", "dividir s0");
+            failures = failures + assertEqual(s1, "item2", "dividir s1");
+            failures = failures + assertEqual(s2, "item3", "dividir s2");
+        }
+        ijkL.Collections.destroyList(pt_split);
+
+        if (failures == 0) {
+            writeln("ALL_SPLIT_TESTS_PASSED");
+            return 0;
+        }
+
+        writeln("SPLIT_TESTS_FAILED: ", failures);
+        return 1;
+    }
+}

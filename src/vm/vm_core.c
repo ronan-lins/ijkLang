@@ -474,6 +474,46 @@ static uint64_t random_advance_state(uint64_t* state) {
     return *state;
 }
 
+/*
+ * Aloca uma cadeia de caracteres no heap linear da máquina virtual,
+ * inicializa o conteúdo com terminação nula e define a etiqueta VM_VALUE_TYPE_STRING.
+ */
+static uint64_t create_vm_string(IjklVirtualMachine* machine, const char* source_bytes, size_t string_length) {
+    uint64_t string_heap_address = ijkl_vm_memory_allocate_heap(&machine->memory, string_length + 1);
+    if (string_heap_address == 0) return 0;
+    if (string_length > 0 && source_bytes) {
+        memcpy(&machine->memory.raw_linear_memory_buffer[string_heap_address], source_bytes, string_length);
+    }
+    machine->memory.raw_linear_memory_buffer[string_heap_address + string_length] = '\0';
+    ijkl_vm_memory_set_tag(&machine->memory, string_heap_address, VM_VALUE_TYPE_STRING);
+    return string_heap_address;
+}
+
+/*
+ * Instancia no heap linear da VM a estrutura de lista dinâmica (ijkL.Collections.List)
+ * com layout binário idêntico: capacity (offset 0), count (offset 8), items pointer (offset 16).
+ */
+static uint64_t create_vm_list(IjklVirtualMachine* machine, const uint64_t* items_array, size_t items_count) {
+    uint64_t list_heap_address = ijkl_vm_memory_allocate_heap(&machine->memory, 24);
+    if (list_heap_address == 0) return 0;
+
+    size_t initial_capacity = items_count > 0 ? items_count : 4;
+    uint64_t items_buffer_address = ijkl_vm_memory_allocate_heap(&machine->memory, initial_capacity * sizeof(int64_t));
+    if (items_buffer_address == 0) {
+        ijkl_vm_memory_free_heap(&machine->memory, list_heap_address);
+        return 0;
+    }
+
+    ijkl_vm_memory_write_integer(&machine->memory, list_heap_address + 0, (int64_t)initial_capacity);
+    ijkl_vm_memory_write_integer(&machine->memory, list_heap_address + 8, (int64_t)items_count);
+    ijkl_vm_memory_write_integer(&machine->memory, list_heap_address + 16, (int64_t)items_buffer_address);
+
+    for (size_t index = 0; index < items_count; ++index) {
+        ijkl_vm_memory_write_integer(&machine->memory, items_buffer_address + index * sizeof(int64_t), (int64_t)items_array[index]);
+    }
+    return list_heap_address;
+}
+
 static bool execute_native_builtin(IjklVirtualMachine* machine, const char* builtin_name) {
     if (!machine || !builtin_name) return false;
 
@@ -923,6 +963,134 @@ static bool execute_native_builtin(IjklVirtualMachine* machine, const char* buil
         machine->registers[IJKL_VM_REG_R0].as.unsigned_value = new_str_addr;
         ijkl_vm_memory_set_tag(&machine->memory, new_str_addr, VM_VALUE_TYPE_STRING);
 
+        machine->memory.current_stack_pointer = machine->current_frame_top;
+        return true;
+    }
+
+    if (strcmp(builtin_name, "__builtin_str_split") == 0) {
+        int64_t string_address = 0;
+        int64_t delimiter_value = 0;
+        ijkl_vm_memory_read_integer(&machine->memory, args_base, &string_address);
+        ijkl_vm_memory_read_integer(&machine->memory, args_base + 8, &delimiter_value);
+
+        IjklVmRegisterValue temporary_value;
+        temporary_value.type = VM_VALUE_TYPE_STRING;
+        temporary_value.as.integer_value = string_address;
+        const char* source_string = resolve_string_pointer(machine, &temporary_value);
+        char delimiter_character = (char)delimiter_value;
+
+        size_t string_length = source_string ? strlen(source_string) : 0;
+        if (string_length == 0) {
+            uint64_t empty_list_address = create_vm_list(machine, NULL, 0);
+            machine->registers[IJKL_VM_REG_R0].type = VM_VALUE_TYPE_INT;
+            machine->registers[IJKL_VM_REG_R0].as.unsigned_value = empty_list_address;
+            machine->memory.current_stack_pointer = machine->current_frame_top;
+            return true;
+        }
+
+        size_t items_capacity = 8;
+        size_t items_count = 0;
+        uint64_t* items_array = (uint64_t*)malloc(items_capacity * sizeof(uint64_t));
+        if (!items_array) return false;
+
+        size_t segment_start_index = 0;
+        for (size_t scan_index = 0; scan_index < string_length; ++scan_index) {
+            if (source_string[scan_index] == delimiter_character) {
+                size_t segment_length = scan_index - segment_start_index;
+                uint64_t segment_string_address = create_vm_string(machine, &source_string[segment_start_index], segment_length);
+                if (items_count >= items_capacity) {
+                    items_capacity *= 2;
+                    uint64_t* reallocated_buffer = (uint64_t*)realloc(items_array, items_capacity * sizeof(uint64_t));
+                    if (!reallocated_buffer) { free(items_array); return false; }
+                    items_array = reallocated_buffer;
+                }
+                items_array[items_count++] = segment_string_address;
+                segment_start_index = scan_index + 1;
+            }
+        }
+
+        size_t remaining_segment_length = string_length - segment_start_index;
+        uint64_t last_segment_address = create_vm_string(machine, &source_string[segment_start_index], remaining_segment_length);
+        if (items_count >= items_capacity) {
+            items_capacity += 1;
+            uint64_t* reallocated_buffer = (uint64_t*)realloc(items_array, items_capacity * sizeof(uint64_t));
+            if (!reallocated_buffer) { free(items_array); return false; }
+            items_array = reallocated_buffer;
+        }
+        items_array[items_count++] = last_segment_address;
+
+        uint64_t result_list_address = create_vm_list(machine, items_array, items_count);
+        free(items_array);
+
+        machine->registers[IJKL_VM_REG_R0].type = VM_VALUE_TYPE_INT;
+        machine->registers[IJKL_VM_REG_R0].as.unsigned_value = result_list_address;
+        machine->memory.current_stack_pointer = machine->current_frame_top;
+        return true;
+    }
+
+    if (strcmp(builtin_name, "__builtin_str_split_lines") == 0) {
+        int64_t string_address = 0;
+        ijkl_vm_memory_read_integer(&machine->memory, args_base, &string_address);
+
+        IjklVmRegisterValue temporary_value;
+        temporary_value.type = VM_VALUE_TYPE_STRING;
+        temporary_value.as.integer_value = string_address;
+        const char* source_string = resolve_string_pointer(machine, &temporary_value);
+
+        size_t string_length = source_string ? strlen(source_string) : 0;
+        if (string_length == 0) {
+            uint64_t empty_list_address = create_vm_list(machine, NULL, 0);
+            machine->registers[IJKL_VM_REG_R0].type = VM_VALUE_TYPE_INT;
+            machine->registers[IJKL_VM_REG_R0].as.unsigned_value = empty_list_address;
+            machine->memory.current_stack_pointer = machine->current_frame_top;
+            return true;
+        }
+
+        size_t items_capacity = 8;
+        size_t items_count = 0;
+        uint64_t* items_array = (uint64_t*)malloc(items_capacity * sizeof(uint64_t));
+        if (!items_array) return false;
+
+        size_t segment_start_index = 0;
+        size_t scan_index = 0;
+        while (scan_index < string_length) {
+            char current_character = source_string[scan_index];
+            if (current_character == '\n' || current_character == '\r') {
+                size_t segment_length = scan_index - segment_start_index;
+                uint64_t segment_string_address = create_vm_string(machine, &source_string[segment_start_index], segment_length);
+                if (items_count >= items_capacity) {
+                    items_capacity *= 2;
+                    uint64_t* reallocated_buffer = (uint64_t*)realloc(items_array, items_capacity * sizeof(uint64_t));
+                    if (!reallocated_buffer) { free(items_array); return false; }
+                    items_array = reallocated_buffer;
+                }
+                items_array[items_count++] = segment_string_address;
+
+                if (current_character == '\r' && scan_index + 1 < string_length && source_string[scan_index + 1] == '\n') {
+                    scan_index++;
+                }
+                segment_start_index = scan_index + 1;
+            }
+            scan_index++;
+        }
+
+        if (segment_start_index < string_length) {
+            size_t remaining_segment_length = string_length - segment_start_index;
+            uint64_t last_segment_address = create_vm_string(machine, &source_string[segment_start_index], remaining_segment_length);
+            if (items_count >= items_capacity) {
+                items_capacity += 1;
+                uint64_t* reallocated_buffer = (uint64_t*)realloc(items_array, items_capacity * sizeof(uint64_t));
+                if (!reallocated_buffer) { free(items_array); return false; }
+                items_array = reallocated_buffer;
+            }
+            items_array[items_count++] = last_segment_address;
+        }
+
+        uint64_t result_list_address = create_vm_list(machine, items_array, items_count);
+        free(items_array);
+
+        machine->registers[IJKL_VM_REG_R0].type = VM_VALUE_TYPE_INT;
+        machine->registers[IJKL_VM_REG_R0].as.unsigned_value = result_list_address;
         machine->memory.current_stack_pointer = machine->current_frame_top;
         return true;
     }

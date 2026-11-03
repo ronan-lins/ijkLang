@@ -1329,6 +1329,10 @@ static const char* get_builtin_alias_name(const char* module_path, const char* m
             strcmp(mangled_name, "getChar$string$int") == 0 || strcmp(mangled_name, "getChar") == 0) return "__builtin_str_get_char";
         if (strcmp(mangled_name, "change$string$int$char") == 0 || strcmp(mangled_name, "change") == 0 ||
             strcmp(mangled_name, "changeChar$string$int$char") == 0 || strcmp(mangled_name, "changeChar") == 0) return "__builtin_str_set_char";
+        if (strcmp(mangled_name, "splitLines$string") == 0 || strcmp(mangled_name, "splitLines") == 0 ||
+            strcmp(mangled_name, "dividirLinhas$string") == 0 || strcmp(mangled_name, "dividirLinhas") == 0) return "__builtin_str_split_lines";
+        if (strcmp(mangled_name, "split$string_char") == 0 || strcmp(mangled_name, "split") == 0 ||
+            strcmp(mangled_name, "dividir$string_char") == 0 || strcmp(mangled_name, "dividir") == 0) return "__builtin_str_split";
     }
 
     bool is_convert = (strcmp(module_path, "ijkL.Convert") == 0 ||
