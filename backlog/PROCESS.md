@@ -83,21 +83,52 @@ Quando solicitado a verificar as tarefas do projeto, o agente deve:
    * **Responsável** e **Branch de trabalho**
 3. Apresentar uma tabela organizada por estado e ordenada por prioridade (menor número primeiro).
 
-### Fase 2: Seleção e Assunção de Tarefa
-1. Identificar em `backlog/02_todo/` a tarefa com maior prioridade (menor prefixo numérico). Caso haja empate, escolher a de menor timestamp (mais antiga).
-2. Mover o arquivo da tarefa de `02_todo/` para `03_doing/` usando `git mv`:
+### Fase 2: Seleção e Assunção de Tarefa com Lock por Branch Remota
+
+Para evitar trabalho duplicado e colisões (*race conditions*) entre múltiplos agentes autônomos, a assunção de qualquer tarefa deve adquirir um **Lock Atômico por Branch Remota** no servidor Git antes de qualquer desenvolvimento:
+
+1. **Atualização das referências remotas:**
    ```bash
-   git mv backlog/02_todo/<arquivo>.txt backlog/03_doing/<arquivo>.txt
+   git fetch --prune origin
    ```
-3. Atualizar o cabeçalho do arquivo:
-   * `Status: DOING (em andamento)`
-   * `Responsável: <Nome_do_Agente>`
-   * `Início UTC: <Timestamp_ISO8601>`
-   * `Branch de trabalho: <DATA_HORA>-<SLUG>`
-4. Criar e alternar para a branch a partir da `main`:
-   ```bash
-   git checkout -b <DATA_HORA>-<SLUG>
-   ```
+2. **Seleção da tarefa candidata:**
+   * Inspecionar os arquivos em `backlog/02_todo/` em ordem de prioridade (menor número decimal primeiro; em empate, menor timestamp).
+   * Para cada arquivo `[PRIORIDADE]-[DATA_HORA]-[SLUG].txt`, extrair o identificador da branch: `[DATA_HORA]-[SLUG]`.
+   * Verificar se a branch remota já existe (`git branch -r` ou `git ls-remote --heads origin <branch>`):
+     * **Se existir `origin/[DATA_HORA]-[SLUG]`:** Outro agente já assumiu e bloqueou esta tarefa. **Pular** e avaliar a próxima tarefa da fila em `02_todo/`.
+     * **Se NÃO existir:** A tarefa está livre para disputa de lock.
+
+3. **Tentativa de Aquisição do Lock Atômico no Servidor:**
+   * A partir da `main` atualizada, criar a branch localmente e tentar publicá-la imediatamente no repositório remoto:
+     ```bash
+     git checkout -b <DATA_HORA>-<SLUG>
+     git push -u origin <DATA_HORA>-<SLUG>
+     ```
+   * **Tratamento de Concorrência (Race Condition):**
+     * **Sucesso no push:** O agente adquiriu o lock com exclusividade no Git. Prosseguir para o passo 4.
+     * **Rejeição no push (`[remote rejected] ... already exists`):** Outro agente publicou a branch instantes antes. O agente perdeu a disputa pelo lock. Deve retornar para a `main`, descartar a branch local e tentar a próxima tarefa em `02_todo/`:
+       ```bash
+       git checkout main
+       git branch -D <DATA_HORA>-<SLUG>
+       ```
+
+4. **Registro da Assunção na Branch:**
+   * Mover o arquivo da tarefa de `02_todo/` para `03_doing/` *dentro da branch* usando `git mv`:
+     ```bash
+     git mv backlog/02_todo/<arquivo>.txt backlog/03_doing/<arquivo>.txt
+     ```
+   * Atualizar o cabeçalho do arquivo:
+     * `Status: DOING (em andamento)`
+     * `Responsável: <Nome_do_Agente>`
+     * `Início UTC: <Timestamp_ISO8601>`
+     * `Branch de trabalho: <DATA_HORA>-<SLUG>`
+   * Comitar a assunção e enviar para a branch remota:
+     ```bash
+     git commit -am "chore(backlog): claim <ID> por <Nome_do_Agente>"
+     git push origin <DATA_HORA>-<SLUG>
+     ```
+   * A partir deste momento, a tarefa está 100% blindada e reservada para o agente.
+
 
 ### Fase 3: Execução, Testes e Registro Contínuo
 1. Implementar o código em estrita conformidade com as diretrizes de Clean Code em `AGENTS.md` (C11, nomes em inglês descritivo, namespace `ijkl_`, gerenciamento por Arena).

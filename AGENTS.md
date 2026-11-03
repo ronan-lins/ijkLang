@@ -24,11 +24,12 @@ Todo trabalho desenvolvido por agentes deve ser orientado pelo protocolo **GNAK 
    * Formato: `[DATA_HORA]-[SLUG]` (a prioridade **NÃO** faz parte da branch).
    * Exemplo: `20261102-154607-corrigir-compilacao-ubuntu`
 
-4. **Ciclo Iterativo do Agente:**
+4. **Ciclo Iterativo do Agente e Lock por Branch Remota:**
    * Ao ser solicitado a verificar o backlog: inspecionar as pastas e relatar tarefas, estados e prioridades.
-   * Ao assumir uma tarefa: mover de `02_todo/` para `03_doing/` (`git mv`), atualizar cabeçalho e criar a branch.
-   * Ao concluir: anexar comandos, saídas e evidências no próprio arquivo, mover para `04_done/` (`git mv`) e comitar junto ao código.
-   * Consulte o template completo e o passo a passo em [`backlog/PROCESS.md`](backlog/PROCESS.md).
+   * Ao assumir uma tarefa: consultar as branches remotas (`git fetch --prune origin && git branch -r`). Pular tarefas cuja branch remota `origin/[DATA_HORA]-[SLUG]` já exista.
+   * Criar a branch e publicá-la imediatamente (`git checkout -b <branch> && git push -u origin <branch>`) para registrar o lock atômico no Git. Se o push for aceito, mover o arquivo para `03_doing/` (`git mv`), atualizar cabeçalho e comitar o claim na branch.
+   * Ao concluir: anexar comandos, saídas e evidências no próprio arquivo, mover para `04_done/` (`git mv`), comitar e abrir PR / mergear na `main`.
+   * Consulte o protocolo completo em [`backlog/PROCESS.md`](backlog/PROCESS.md).
 
 ---
 
