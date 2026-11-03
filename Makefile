@@ -50,7 +50,7 @@ SRCS_VM = src/vm/main.c \
 OBJS_COMPILER = $(patsubst src/%.c, $(BUILD_DIR)/%.o, $(SRCS_COMPILER))
 OBJS_VM = $(patsubst src/%.c, $(BUILD_DIR)/%.o, $(SRCS_VM))
 
-.PHONY: all clean test test-integration publish copy_assets
+.PHONY: all clean test test-integration test-console publish copy_assets
 
 all: $(TARGET_COMPILER) $(TARGET_VM) copy_assets
 
@@ -94,6 +94,13 @@ ifeq ($(OS),Windows_NT)
 	@powershell -ExecutionPolicy Bypass -File tests/run_tests.ps1
 else
 	@bash tests/run_tests.sh
+endif
+
+test-console: all
+ifeq ($(OS),Windows_NT)
+	@powershell -ExecutionPolicy Bypass -File tests/run_console_tests.ps1
+else
+	@python3 tests/run_console_tests.py
 endif
 
 test-integration: all

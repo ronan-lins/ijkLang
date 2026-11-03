@@ -1299,6 +1299,15 @@ static const IjklAstNode* find_entry_routine_node(const IjklAstNode* program_nod
 static const char* get_builtin_alias_name(const char* module_path, const char* mangled_name) {
     if (!module_path || !mangled_name) return NULL;
 
+    if (strcmp(module_path, "ijkL.IO.Console") == 0) {
+        if (strcmp(mangled_name, "hasKey$void") == 0 || strcmp(mangled_name, "hasKey") == 0) {
+            return "__builtin_console_has_key";
+        }
+        if (strcmp(mangled_name, "readKeyAsync$void") == 0 || strcmp(mangled_name, "readKeyAsync") == 0) {
+            return "__builtin_console_read_key_async";
+        }
+    }
+
     bool is_text = (strcmp(module_path, "ijkL.Text") == 0 ||
                     strcmp(module_path, "ijkL.Texto") == 0 ||
                     strcmp(module_path, "ijkL.Texte") == 0);

@@ -108,3 +108,40 @@ Recebe dígitos decimais codificados (ou padrões de catodo) e renderiza na inte
 
 ### 4.3 Sensores e Chaves de Entrada (Porta `0x0030`)
 Permite ao estudante ler o estado de chaves liga/desliga simuladas pelo usuário no teclado, condicionando laços de controle industrial e atuadores virtuais.
+
+
+## Teclado sem bloqueio
+
+`ijkL.IO.Console.hasKey(): bool` consulta se existe um byte de entrada sem
+consumi-lo logicamente. `readKeyAsync(): char` consome esse byte ou retorna zero
+se não houver entrada. EOF não é tecla. Para distinguir um byte NUL de ausência
+de dados, consulte `hasKey()` antes da leitura. As funções trabalham com bytes,
+como a porta de caracteres existente; não decodificam sequências UTF-8 ou teclas
+especiais do terminal. ESC isolado corresponde ao byte 27.
+
+O modo padrão emite as rotinas em CI: a porta `0x0005` consulta disponibilidade
+e a porta `0x0006` faz uma leitura assíncrona, evitando uma leitura bloqueante
+após a sondagem. Com `--native-builtins`, o compilador emite chamadas para
+`__builtin_console_has_key` e `__builtin_console_read_key_async`, despachadas
+em C pela VM usando o mesmo backend de E/S. A instrução `in` retorna uma palavra
+inteira; o despacho nativo preserva essa representação dinâmica, mantendo as
+assinaturas públicas bool/char e o comportamento idêntico nos dois modos.
+
+No POSIX, `poll` consulta stdin; terminais são colocados temporariamente em modo
+não canônico e sem eco, restaurando os atributos antes de cada retorno. Pipes e
+arquivos redirecionados também são aceitos. No Windows, `_kbhit`/`_getch` atendem
+ao console e `PeekNamedPipe` consulta pipes redirecionados. A VM desativa o buffer
+de stdin ao registrar o console, para a sondagem não ignorar bytes antecipados
+por stdio. Um byte antecipado fica na máquina e é devolvido a stdin se a próxima
+operação for uma leitura bloqueante. O console pressupõe um único consumidor de
+stdin, como o restante da VM.
+
+Os aliases `ijkL.ES.Console.temTecla()` e `leiaTeclaAssincrona()` usam o mecanismo
+existente de `keywords/pt-BR.words`, sem duplicar a unidade física em `lib/ijkL/ES`.
+
+Validação: `make test-console` ou `python3 tests/run_console_tests.py` no Ubuntu;
+no Windows, `powershell -ExecutionPolicy Bypass -File tests/run_console_tests.ps1`.
+As suítes gerais incluem esses testes. Os testes POSIX usam um pseudo-terminal
+para enviar ESC sem Enter e verificar a restauração de atributos; no Windows,
+validar também `tests/console/poll.ijk` em console real e pressionar ESC sem Enter.
+O runner Ubuntu usa Python 3 (somente biblioteca padrão).

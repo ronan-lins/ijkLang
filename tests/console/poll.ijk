@@ -1,0 +1,9 @@
+import ijkL.IO.Console;
+program KeyboardPoll {
+    private main(): int {
+        writeln("READY");
+        while (!ijkL.IO.Console.hasKey()) { }
+        writeln(ijkL.IO.Console.readKeyAsync());
+        return 0;
+    }
+}
