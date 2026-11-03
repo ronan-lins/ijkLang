@@ -43,23 +43,32 @@ AMBIENTE E REPRODUÇÃO
 
 ESCOPO E LIMITES
 Dentro do escopo:
-- Adicionar em lib/ijkL/Text.ijk (e alias em ijkL.Texto):
-  - public splitLines(string text): List
-  - public split(string text, char delimiter): List
-- Normalização de quebras de linha Windows (\r\n) e Unix (\n).
-- Ignorar o último elemento vazio se o texto terminar com quebra de linha.
-- Uso de ijkL.Collections para alocação da lista resultante.
+- Implementação e paridade entre modo padrão CI e modo nativo:
+  1. Implementação em CI (Modo Padrão):
+     - lib/ijkL/Text.ijk (e alias em lib/ijkL/Texto.ijk):
+       - public splitLines(string text): List
+       - public split(string text, char delimiter): List
+     - Algoritmo de varredura implementado em CI operando sobre ijkL.Text e instanciando nós em ijkL.Collections.List.
+     - Normalização transparente de quebras de linha Windows (\r\n) e Unix (\n).
+     - Ignorar o último elemento vazio se o texto terminar com quebra de linha.
+  2. Despacho Nativo de Builtins (Modo --native-builtins):
+     - Compilador (src/compiler/codegen.c): reconhecer rotinas como alvos de builtins nativos (__builtin_str_split_lines, __builtin_str_split), emitindo 'call #__builtin_str_split_*'.
+     - VM (src/vm/vm_core.c): registrar e despachar builtins em execute_native_builtin() instanciando a estrutura List e as strings resultantes na memória da VM com alta performance em C.
+- Paridade Semântica e Testes:
+  - Para entradas textuais idênticas (cadeia vazia, linha única, múltiplas linhas com \n e \r\n, quebra no final do arquivo e múltiplos delimitadores), a lista retornada no modo CI e no modo nativo deve possuir exatamente a mesma contagem (count) e strings equivalentes em cada índice.
+- Adicionar cobertura de testes para os modos padrão e nativo em tests/run_tests.ps1 e Makefile.
 Fora do escopo:
 - Expressões regulares (Regex) ou múltiplos delimitadores simultâneos.
 
 CRITÉRIOS DE ACEITE
-[ ] splitLines("linha1\nlinha2\nlinha3") retorna List com 3 elementos idênticos aos esperados.
-[ ] Suporte completo e transparente a quebras no formato Windows (\r\n).
-[ ] split("a,b,c", ',') retorna List com 3 elementos ("a", "b", "c").
-[ ] Cadeia vazia ("") retorna List com count = 0.
-[ ] Compilação limpa no Windows e Linux (0 warnings).
-[ ] Suíte de testes existente com 100% de aprovação.
-[ ] Novo teste automatizado em tests/ cobrindo splitLines e split com cenários de borda.
+[ ] splitLines e split implementados em lib/ijkL/Text.ijk (e alias em ijkL.Texto) emitidos em CI no modo padrão.
+[ ] Implementação de builtins nativos em C (__builtin_str_split_lines, __builtin_str_split) ativada por --native-builtins no compilador e executada na VM.
+[ ] Paridade semântica 100%: List retornada nos modos CI e nativo possui a mesma contagem (count) e strings equivalentes em cada posição.
+[ ] Suporte completo e transparente a quebras no formato Windows (\r\n) e Unix (\n) em ambos os modos.
+[ ] Cadeia vazia ("") retorna List com count = 0 em ambos os modos.
+[ ] Compilação limpa no Windows (MSBuild) e Linux (make) sem erros nem avisos (0 warnings).
+[ ] Suíte de testes automatizados existente 100% aprovada (sem regressões).
+[ ] Novo teste automatizado em tests/ cobrindo paridade de splitLines e split nos modos CI e nativo.
 [ ] Atualizar este próprio arquivo com os comandos, códigos de saída e evidências, movendo para 04_done.
 
 RESULTADOS DA EXECUÇÃO — [NOME DO AGENTE]

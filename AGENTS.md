@@ -18,7 +18,7 @@ Todo trabalho desenvolvido por agentes deve ser orientado pelo protocolo **GNAK 
 2. **Nomenclatura do Arquivo:**
    * Formato: `backlog/<pasta>/[PRIORIDADE]-[DATA_HORA]-[SLUG].txt`
    * Exemplo: `00300-20261102-154607-corrigir-compilacao-ubuntu.txt`
-   * Prioridade decimal com zeros à esquerda: menor número = maior urgência (`00100` Crítica, `00200` Alta, `00300` Normal, `00400` Baixa, `00500` Desejável).
+   * Prioridade decimal com zeros à esquerda: menor número = maior urgência (`00050` Máxima/Arquitetural, `00100` Crítica, `00200` Alta, `00300` Normal, `00400` Baixa, `00500` Desejável).
 
 3. **Nomenclatura da Branch Git:**
    * Formato: `[DATA_HORA]-[SLUG]` (a prioridade **NÃO** faz parte da branch).
@@ -64,3 +64,27 @@ Todo trabalho desenvolvido por agentes deve ser orientado pelo protocolo **GNAK 
 
 5. **Gerenciamento de Memória Sem Vazamentos**:
    * Todo nó sintático, tipo e string intermediária gerada durante a compilação deve ser alocado na `IjklMemoryArena`, permitindo alocação e destruição em tempo $O(1)$ ao final do ciclo de compilação.
+
+---
+
+## 3. Diretriz de Paridade de Builtins (CI vs. `--native-builtins`)
+
+Para assegurar consistência semântica e portabilidade pedagógica do ecossistema ijkLang, toda rotina ou biblioteca que integre o mecanismo de builtins deve observar rigorosamente a paridade funcional entre seus modos de compilação e execução:
+
+1. **Distinção Conceitual Obrigatória**:
+   * **Algoritmo em Código Intermediário (CI padrão)**: Código emitido pelo compilador quando executado no modo padrão (sem flags de builtins nativos). Contém instruções assembly da VM (`.ci`) que implementam a lógica na própria máquina virtual ou acionam o barramento de E/S.
+   * **Despacho Nativo de Builtin (`--native-builtins`)**: O compilador emite a instrução `call #__builtin_<nome>`, interceptada pela VM em `execute_native_builtin()` (`src/vm/vm_core.c`), executando a rotina implementada diretamente em C para máxima performance.
+   * **Backend de E/S do Barramento da VM**: Instruções de E/S (`in` / `out`) lendo ou escrevendo em portas registradas (ex.: `0x0005` teclado, `0x0008`/`0x0009` relógio). O código em C da porta comunica com o sistema operacional; isso é infraestrutura de periférico da VM e **não** substitui nem constitui, isoladamente, a implementação do builtin nativo.
+
+2. **Regra Mandatória de Paridade Semântica 100%**:
+   * Nenhuma funcionalidade de biblioteca elegível para builtin pode ser disponibilizada apenas em CI ou apenas em C nativo.
+   * Ambos os caminhos devem preservar estritamente as mesmas assinaturas, tipos de parâmetros e retorno, formato de estruturas na memória da VM, tratamento de erros e efeitos colaterais.
+
+3. **Estratégia para Fontes Não-Determinísticas**:
+   * Testes automatizados de paridade entre modo padrão e modo nativo não devem comparar leituras de tempo ou teclado realizadas em momentos distintos.
+   * **Relógio/DataHora**: A validação de paridade deve testar funções determinísticas (ex.: decomposição de timestamp fixo `fromUnixTimestamp(1700000000)`, `elapsedSecondsOfDay`, `toString`).
+   * **Teclado**: Validar com buffers controlados (stream vazia ou pré-injetada), assegurando que ambos os modos reportam idêntica disponibilidade (`hasKey`) e leitura (`readKeyAsync`).
+   * **Gerador Aleatório (PRNG)**: Para a mesma semente inicial fixa (`seed(s)`), a sequência produzida por `next()`, `nextRange()` e `nextReal()` deve ser 100% idêntica bit a bit entre o modo CI e o modo `--native-builtins`.
+
+4. **Validação Cruzada de Aplicações**:
+   * Aplicações de usuário (ex.: `spell`, `wordguess`, `prime`) devem ter suítes de teste que as compilem e executem em ambos os modos (`app.ci` e `app_native.ci`), garantindo saídas e códigos de retorno estritamente equivalentes em Windows e Linux.

@@ -31,9 +31,13 @@ Impacto: Completa os exemplos demonstrativos de aplicações numéricas com canc
 
 AMBIENTE E REPRODUÇÃO
 - Pasta da aplicação: examples/apps/prime/
-- Execução:
-    bin/Debug/ijkl examples/apps/prime/prime.ijk -o examples/apps/prime/prime.ci
-    bin/Debug/ijkl-m examples/apps/prime/prime.ci
+- Compilação e execução nos dois modos de builtins:
+  a) Modo Padrão (CI):
+     bin/Debug/ijkl examples/apps/prime/prime.ijk -o examples/apps/prime/prime.ci
+     bin/Debug/ijkl-m examples/apps/prime/prime.ci
+  b) Modo Nativo (--native-builtins):
+     bin/Debug/ijkl --native-builtins examples/apps/prime/prime.ijk -o examples/apps/prime/prime_native.ci
+     bin/Debug/ijkl-m examples/apps/prime/prime_native.ci
 
 ESCOPO E LIMITES
 Dentro do escopo:
@@ -42,16 +46,21 @@ Dentro do escopo:
 - Chamada cooperativa não-bloqueante a ijkL.IO.Console.hasKey() em cada iteração do laço.
 - Tratamento da tecla ESC (27 / 0x1B) para interrupção imediata graciosa com aviso no console.
 - Confirmação do 1000º número primo exato (7919) ao final do cálculo completo.
-- Scripts de teste automatizado examples/apps/prime/tests/run_tests.ps1 e run_tests.sh.
+- Validação de paridade estrita entre prime.ci e prime_native.ci:
+  - Sem entrada externa, ambos devem calcular até o 1000º primo gerando saídas de terminal idênticas.
+  - Sob sinal de ESC injetado, ambos devem interromper no mesmo ponto e encerrar com código 0.
+- Scripts de teste automatizado examples/apps/prime/tests/run_tests.ps1 e run_tests.sh cobrindo as duas variantes.
 Fora do escopo:
 - Testes probabilísticos de Miller-Rabin para números com centenas de dígitos.
 
 CRITÉRIOS DE ACEITE
-[ ] prime.ijk compila sem erros gerando prime.ci.
-[ ] Execução completa sem interrupção imprime exatamente o 1000º primo como 7919.
-[ ] A aplicação exibe mensagens periódicas de status durante o progresso.
-[ ] Pressionar a tecla ESC cancela a execução imediatamente sem travamento e encerra com código 0.
-[ ] Teste automatizado com entrada pré-gravada validando tanto o caminho de sucesso quanto o de cancelamento.
+[ ] prime.ijk compila sem erros gerando prime.ci no modo padrão.
+[ ] prime.ijk compila com --native-builtins gerando prime_native.ci no modo nativo.
+[ ] Ambos os binários executam na VM (bin/Debug/ijkl-m) no Windows e Linux.
+[ ] Execução completa sem interrupção imprime exatamente o 1000º primo como 7919 em ambos os modos.
+[ ] Paridade de saída 100%: mensagens de status e resultado final no console são estritamente idênticas entre prime.ci e prime_native.ci.
+[ ] Pressionar a tecla ESC cancela a execução imediatamente sem travamento e encerra com código 0 em ambos os modos.
+[ ] Scripts de teste automatizado em tests/ validam ambas as compilações (prime.ci e prime_native.ci) com 100% de sucesso.
 [ ] Documento examples/apps/prime/prime.spec.md criado.
 [ ] Atualizar este próprio arquivo com os comandos, códigos de saída e evidências, movendo para 04_done.
 

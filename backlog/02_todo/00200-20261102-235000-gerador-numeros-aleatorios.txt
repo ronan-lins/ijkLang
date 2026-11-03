@@ -38,26 +38,35 @@ AMBIENTE E REPRODUÇÃO
 
 ESCOPO E LIMITES
 Dentro do escopo:
-- Criar a unidade em lib/ijkL/Math/Random.ijk (e alias ijkL.Matematica.Aleatorio):
-  - public seed(int custom_seed)
-  - public seedWithTime() (utiliza ijkL.Time.DateTime.now() e elapsedSecondsOfDay)
-  - public next(): int (intervalo [0, 2147483647])
-  - public nextRange(int minimum, int maximum): int (intervalo fechado [minimum, maximum])
-  - public nextReal(): real (intervalo [0.0, 1.0))
-- Implementar algoritmo determinístico de boa dispersão estatística (ex.: Xorshift64 ou LCG de Knuth: X = (aX + c) mod m).
-- Assegurar que a mesma semente gere rigorosamente a mesma sequência previsível (essencial para testes).
+- Implementação e paridade entre modo padrão CI e modo nativo:
+  1. Implementação em CI (Modo Padrão):
+     - lib/ijkL/Math/Random.ijk (e alias em lib/ijkL/Matematica/Aleatorio.ijk):
+       - public seed(int custom_seed)
+       - public seedWithTime() (consome ijkL.Time.DateTime.now() e elapsedSecondsOfDay)
+       - public next(): int (intervalo [0, 2147483647])
+       - public nextRange(int minimum, int maximum): int (intervalo fechado [minimum, maximum])
+       - public nextReal(): real (intervalo [0.0, 1.0))
+     - Algoritmo PRNG determinístico leve e de alta dispersão (ex.: Knuth LCG 64 bits X_{n+1} = (aX_n + c) mod m ou Xorshift64) implementado inteiramente em instruções CI.
+  2. Despacho Nativo de Builtins (Modo --native-builtins):
+     - Compilador (src/compiler/codegen.c): reconhecer rotinas como alvos de builtins nativos (__builtin_random_seed, __builtin_random_seed_with_time, __builtin_random_next, __builtin_random_next_range, __builtin_random_next_real), emitindo 'call #__builtin_random_*'.
+     - VM (src/vm/vm_core.c): registrar e despachar builtins em execute_native_builtin() executando rotinas nativas em C que implementam EXATAMENTE o mesmo algoritmo PRNG, com as mesmas constantes matemáticas e representação de estado do CI.
+- Paridade Semântica e Testes Determinísticos:
+  - Teste de determinismo estrito bit a bit: para uma semente fixa (ex.: seed(123456789)), a sequência retornada por chamadas consecutivas a next(), nextRange(1, 100) e nextReal() no modo padrão (.ci) e no modo nativo (--native-builtins) DEVE ser 100% idêntica por pelo menos 100 sorteios consecutivos.
+  - seedWithTime(): em ambos os modos utiliza o relógio via ijkL.Time.DateTime para garantir variação temporal coerente.
+- Adicionar cobertura de testes para os modos padrão e nativo em tests/run_tests.ps1 e Makefile.
 Fora do escopo:
 - Geradores criptograficamente seguros (CSPRNG via /dev/urandom ou CryptGenRandom).
 
 CRITÉRIOS DE ACEITE
-[ ] Unidade ijkL.Math.Random implementada em lib/ijkL/Math/Random.ijk com documentação em pt-BR.
-[ ] seed(custom_seed) garante determinismo total de sequências nos testes de regressão.
-[ ] seedWithTime() produz sequências distintas em execuções espaçadas no tempo.
-[ ] nextRange(min, max) retorna estritamente valores entre min e max inclusive.
-[ ] nextReal() retorna valores no intervalo [0.0, 1.0).
-[ ] Compilação limpa em Windows e Linux (0 warnings, 0 errors).
-[ ] Suíte de testes existente com 100% de aprovação.
-[ ] Novo teste unitário automatizado validando limites, determinismo e dispersão básica.
+[ ] Unidade ijkL.Math.Random implementada em lib/ijkL/Math/Random.ijk (e alias ijkL.Matematica.Aleatorio) emitida em CI no modo padrão.
+[ ] Implementação de builtins nativos em C (__builtin_random_*) ativada por --native-builtins no compilador e executada na VM com o mesmo algoritmo matemático do CI.
+[ ] Paridade semântica 100%: para semente fixa, a sequência de valores gerada por next(), nextRange() e nextReal() é estritamente idêntica entre os modos CI e nativo.
+[ ] seedWithTime() funciona em ambos os modos produzindo sequências distintas em momentos diferentes.
+[ ] nextRange(min, max) retorna estritamente valores entre min e max inclusive em ambos os modos.
+[ ] nextReal() retorna valores no intervalo [0.0, 1.0) em ambos os modos.
+[ ] Compilação limpa em Windows (MSBuild) e Linux (make) sem erros nem avisos (0 warnings).
+[ ] Suíte de testes automatizados existente 100% aprovada (sem regressões).
+[ ] Teste automatizado de paridade validando bit a bit a sequência gerada nos dois modos em tests/.
 [ ] Atualizar este próprio arquivo com os comandos, códigos de saída e evidências, movendo para 04_done.
 
 RESULTADOS DA EXECUÇÃO — [NOME DO AGENTE]

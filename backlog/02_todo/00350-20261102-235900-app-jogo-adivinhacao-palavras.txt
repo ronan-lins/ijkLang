@@ -32,31 +32,39 @@ Impacto: Fornece um exemplo completo de aplicação interativa de lógica de jog
 AMBIENTE E REPRODUÇÃO
 - Pasta da aplicação: examples/apps/wordguess/
 - Dicionário de palavras: examples/apps/wordguess/words.txt (copiado ou compartilhado de spell)
-- Execução:
-    bin/Debug/ijkl examples/apps/wordguess/wordguess.ijk -o examples/apps/wordguess/wordguess.ci
-    bin/Debug/ijkl-m examples/apps/wordguess/wordguess.ci
+- Compilação e execução nos dois modos de builtins:
+  a) Modo Padrão (CI):
+     bin/Debug/ijkl examples/apps/wordguess/wordguess.ijk -o examples/apps/wordguess/wordguess.ci
+     bin/Debug/ijkl-m examples/apps/wordguess/wordguess.ci
+  b) Modo Nativo (--native-builtins):
+     bin/Debug/ijkl --native-builtins examples/apps/wordguess/wordguess.ijk -o examples/apps/wordguess/wordguess_native.ci
+     bin/Debug/ijkl-m examples/apps/wordguess/wordguess_native.ci
 
 ESCOPO E LIMITES
 Dentro do escopo:
-- Sorteio da palavra secreta usando ijkL.Math.Random semeado por data/hora do sistema.
+- Sorteio da palavra secreta usando ijkL.Math.Random semeado por data/hora do sistema (ou semente fixa configurável em modo de teste).
 - Exibição de N underscores separados por espaço para o tamanho da palavra.
 - Limite de chances de erro estipulado em (N div 2). Se o resultado for inferior a 2, garantir no mínimo 2 chances.
 - Normalização de letras maiúsculas e minúsculas (insensível a maiúsculas).
 - Registro e exibição das letras já arriscadas pelo usuário; ignorar repetições sem penalidade.
 - Atualização visual da palavra secreta com as letras acertadas reveladas em suas posições.
 - Finalização amigável de vitória (todas as letras descobertas) ou derrota (chances esgotadas).
-- Scripts de teste automatizado em examples/apps/wordguess/tests/.
+- Validação de paridade estrita entre wordguess.ci e wordguess_native.ci:
+  - Com semente controlada e entrada simulada de palpites, o fluxo, mensagens de console, revelação de letras e desfecho devem ser 100% idênticos entre os dois modos.
+- Scripts de teste automatizado em examples/apps/wordguess/tests/ cobrindo as duas compilações.
 Fora do escopo:
 - Representação gráfica ASCII ou visual de forca, patíbulo ou corpo humano.
 
 CRITÉRIOS DE ACEITE
-[ ] wordguess.ijk compila limpo gerando wordguess.ci.
-[ ] Execução na VM demonstra sorteio funcional de palavras a partir de words.txt.
-[ ] O número inicial de vidas concedidas é rigorosamente (N div 2) com piso mínimo de 2.
+[ ] wordguess.ijk compila limpo gerando wordguess.ci no modo padrão.
+[ ] wordguess.ijk compila com --native-builtins gerando wordguess_native.ci no modo nativo.
+[ ] Ambos os binários executam na VM (bin/Debug/ijkl-m) no Windows e Linux.
+[ ] Paridade funcional 100%: sob mesma semente e entrada pré-gravada, fluxo de jogo e mensagens no console são estritamente idênticos entre os modos.
+[ ] O número inicial de vidas concedidas é rigorosamente (N div 2) com piso mínimo de 2 em ambos os modos.
 [ ] Letras corretas revelam todas as posições correspondentes na palavra mascarada.
 [ ] Palpites repetidos avisam o jogador e não consomem chances adicionais.
 [ ] Fim de jogo encerra o loop interativo e exibe a palavra com saída limpa (código 0).
-[ ] Scripts de teste automatizado executam e validam o comportamento com entrada pré-definida.
+[ ] Scripts de teste automatizado em tests/ validam ambas as compilações (wordguess.ci e wordguess_native.ci) com 100% de sucesso.
 [ ] Documento examples/apps/wordguess/wordguess.spec.md criado.
 [ ] Atualizar este próprio arquivo com os comandos, códigos de saída e evidências, movendo para 04_done.
 

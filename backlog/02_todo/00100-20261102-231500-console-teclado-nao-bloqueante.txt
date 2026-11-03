@@ -41,27 +41,33 @@ AMBIENTE E REPRODUÇÃO
 
 ESCOPO E LIMITES
 Dentro do escopo:
-- Adicionar no barramento da VM (include/vm/vm_io.h e src/vm/vm_io.c) a porta
-  IJKL_VM_IO_PORT_CONSOLE_KEY_AVAILABLE (0x0005).
-- Implementação condicional segura em C11:
-  - Windows: _kbhit() de <conio.h>.
-  - Linux/POSIX: select() ou poll() não-bloqueante sobre STDIN_FILENO (<sys/select.h> / <unistd.h>).
-- Adicionar em lib/ijkL/IO/Console.ijk:
-  - public hasKey(): bool
-  - public readKeyAsync(): char
-  - Aliases em português em ijkL.ES.Console (temTecla(): bool, leiaTeclaAssincrona(): char).
-- Adicionar testes de unidade e testes na suíte tests/run_tests.ps1 e Makefile.
+- Distinção clara entre backend de barramento, modo padrão CI e modo nativo:
+  1. Barramento da VM (include/vm/vm_io.h e src/vm/vm_io.c):
+     - Porta IJKL_VM_IO_PORT_CONSOLE_KEY_AVAILABLE (0x0005).
+     - Backend C multiplataforma: Windows (_kbhit de <conio.h>), Linux (select/poll não-bloqueante sobre STDIN_FILENO em <sys/select.h>/<unistd.h>).
+  2. Implementação em CI (Modo Padrão):
+     - lib/ijkL/IO/Console.ijk com rotinas hasKey(): bool e readKeyAsync(): char emitindo instruções assembly CI (bloco asm com 'in 0x0005, r0').
+     - Mapear aliases equivalentes em português em lib/ijkL/ES/Console.ijk (temTecla(): bool, leiaTeclaAssincrona(): char).
+  3. Despacho Nativo de Builtins (Modo --native-builtins):
+     - Compilador (src/compiler/codegen.c): reconhecer rotinas como alvos de builtins nativos (__builtin_console_has_key, __builtin_console_read_key_async), emitindo 'call #__builtin_console_*'.
+     - VM (src/vm/vm_core.c): registrar e despachar builtins em execute_native_builtin() executando rotinas nativas em C.
+- Paridade Semântica e Testes Determinísticos:
+  - Assinaturas, convenções de chamada, retornos e comportamento rigorosamente idênticos entre os modos.
+  - Como o teclado é fonte externa não-determinística, os testes de paridade automatizados devem usar ambientes controlados:
+    a) Cenário sem entrada (buffer vazio / stream fechada): hasKey() retorna false imediatamente e readKeyAsync() retorna 0 em ambos os modos, sem bloquear CPU.
+    b) Cenário com entrada injetada (stream pré-carregada): hasKey() retorna true e readKeyAsync() consome e retorna o mesmo caractere em ambos os modos.
+- Adicionar testes de unidade e integração cobrindo os modos padrão e --native-builtins em tests/run_tests.ps1 e Makefile.
 Fora do escopo:
 - Criação de interface gráfica ou emuladores complexos de terminal ANSI.
 
 CRITÉRIOS DE ACEITE
-[ ] Porta 0x0005 registrada no barramento padrão de console em src/vm/vm_io.c.
-[ ] hasKey() implementado em lib/ijkL/IO/Console.ijk retornando booleano via 'in 0x0005, r0'.
-[ ] readKeyAsync() retornando o código da tecla se hasKey() for verdadeiro ou 0 caso contrário.
-[ ] Compilação limpa no Windows via MSBuild (ijkL.sln) sem erros ou avisos (0 warnings).
-[ ] Compilação limpa no Linux via make -B all sem erros.
+[ ] Porta 0x0005 registrada no barramento padrão de console em src/vm/vm_io.c com suporte Windows e Linux.
+[ ] Implementação emitida em CI (modo padrão) em lib/ijkL/IO/Console.ijk e aliases em lib/ijkL/ES/Console.ijk.
+[ ] Implementação nativa de builtins em C (__builtin_console_has_key, __builtin_console_read_key_async) ativada por --native-builtins no compilador e executada na VM.
+[ ] Paridade semântica 100%: assinaturas, tipos de retorno e comportamento rigorosamente equivalentes nos dois modos.
+[ ] Teste determinístico de paridade automatizado comprovando que hasKey() retorna false sem bloquear quando não há entrada, tanto em CI quanto com --native-builtins.
+[ ] Compilação limpa no Windows via MSBuild (ijkL.sln) e no Linux via make -B all sem erros nem avisos (0 warnings).
 [ ] Suíte de testes existente (make test e tests/run_tests.ps1) com 100% de aprovação (sem regressões).
-[ ] Novo teste automatizado comprovando que hasKey() retorna false sem bloquear quando não há entrada.
 [ ] Atualizar este próprio arquivo com os comandos, códigos de saída e evidências, movendo para 04_done.
 
 RESULTADOS DA EXECUÇÃO — [NOME DO AGENTE]
