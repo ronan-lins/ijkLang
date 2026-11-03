@@ -13,6 +13,7 @@ Todo trabalho desenvolvido por agentes deve ser orientado pelo protocolo **GNAK 
    * `backlog/02_todo/`: Tarefas aprovadas e prontas para execução (com critérios de aceite fechados).
    * `backlog/03_doing/`: Tarefa em execução ativa pelo agente.
    * `backlog/04_done/`: Tarefa concluída, validada e com evidências registradas.
+   * `backlog/05_blocked/`: Tarefas temporariamente impedidas (ambiente, decisão arquitetural, validação). Responsabilidade exclusiva do mantenedor; agentes autônomos nunca se autoatribuem tarefas nesta pasta.
    * *Atenção:* Manter sempre o arquivo `.gitkeep` em cada pasta.
 
 2. **Nomenclatura do Arquivo:**
@@ -24,11 +25,15 @@ Todo trabalho desenvolvido por agentes deve ser orientado pelo protocolo **GNAK 
    * Formato: `[DATA_HORA]-[SLUG]` (a prioridade **NÃO** faz parte da branch).
    * Exemplo: `20261102-154607-corrigir-compilacao-ubuntu`
 
-4. **Ciclo Iterativo do Agente:**
+4. **Ciclo Iterativo do Agente, Regras de Dependência e Lock por Branch Remota:**
    * Ao ser solicitado a verificar o backlog: inspecionar as pastas e relatar tarefas, estados e prioridades.
-   * Ao assumir uma tarefa: mover de `02_todo/` para `03_doing/` (`git mv`), atualizar cabeçalho e criar a branch.
-   * Ao concluir: anexar comandos, saídas e evidências no próprio arquivo, mover para `04_done/` (`git mv`) e comitar junto ao código.
-   * Consulte o template completo e o passo a passo em [`backlog/PROCESS.md`](backlog/PROCESS.md).
+   * **Verificação de Dependências (Definition of Ready - DoR):** Inspecionar o campo `Dependências:` de cada tarefa candidata em `02_todo/`. A tarefa só pode ser assumida se **todas as suas dependências estiverem concluídas em `04_done/` na branch `main`**. Se alguma dependência estiver em `01_plan/`, `02_todo/`, `03_doing/` ou `05_blocked/`, a tarefa deve ser **pulada**.
+   * **Lock por Branch Remota:** Consultar as branches remotas (`git fetch --prune origin && git branch -r`). Pular tarefas elegíveis cuja branch remota `origin/[DATA_HORA]-[SLUG]` já exista.
+   * **Isolamento Estrito de Branch:** O agente deve criar sua branch **exclusivamente a partir da `origin/main` atualizada** (`git checkout main && git pull origin main && git checkout -b <branch>`). É estritamente proibido criar branches a partir de branches ativas (`doing`) de outros agentes (*stacked branches*).
+   * Publicar a branch imediatamente (`git push -u origin <branch>`) para registrar o lock atômico no Git. Se o push for aceito, mover o arquivo para `03_doing/` (`git mv`), atualizar cabeçalho e comitar o claim na branch. Se o push for rejeitado por colisão, descartar a branch e avaliar a próxima tarefa.
+   * **Tratamento de Bloqueios:** Se uma tarefa for impedida durante o desenvolvimento, o agente opera **exclusivamente dentro de sua branch** (nunca comita na `main`), move o arquivo de `03_doing/` para `05_blocked/`, anota os metadados de bloqueio (motivo, sugestão de resolução, responsável pelo desbloqueio: mantenedor), comita, envia push e mantém o PR em Draft `[BLOCKED]`.
+   * **Ao concluir:** Anexar comandos, saídas e evidências no próprio arquivo, mover para `04_done/` (`git mv`), comitar e abrir PR / mergear na `main`.
+   * Consulte o protocolo completo em [`backlog/PROCESS.md`](backlog/PROCESS.md).
 
 ---
 

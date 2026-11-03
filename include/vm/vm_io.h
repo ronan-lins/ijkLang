@@ -35,6 +35,11 @@
 #define IJKL_VM_IO_PORT_CONSOLE_KEY_AVAILABLE 0x0005
 #define IJKL_VM_IO_PORT_CONSOLE_READ_KEY_ASYNC 0x0006
 
+/* Portas de controle de relógio e data/hora do sistema operacional */
+#define IJKL_VM_IO_PORT_SYSTEM_TIME_SECONDS 0x0008
+#define IJKL_VM_IO_PORT_SYSTEM_TIME_MILLIS  0x0009
+#define IJKL_VM_IO_PORT_SYSTEM_TIME_TIMEZONE 0x000A
+
 /* Portas de controle de transferência direta de memória (DMA) - Basys 3 FPGA */
 #define IJKL_VM_IO_PORT_DMA_SOURCE        0x0020
 #define IJKL_VM_IO_PORT_DMA_DESTINATION   0x0021
@@ -149,6 +154,9 @@ bool ijkl_vm_io_bus_register_standard_console(IjklIoBus* io_bus, struct IjklVirt
 bool ijkl_vm_io_bus_register_dma_controller(IjklIoBus* io_bus,
                                             IjklDmaController* dma_controller,
                                             struct IjklVirtualMemory* target_memory);
+
+/* Registra o dispositivo do relógio de tempo real do sistema (0x0008 a 0x000A) */
+bool ijkl_vm_io_bus_register_system_clock(IjklIoBus* io_bus);
 
 /* Registra o controlador de sistema de arquivos e pastas (0x0100 a 0x0114) */
 bool ijkl_vm_io_bus_register_file_system_controller(IjklIoBus* io_bus,

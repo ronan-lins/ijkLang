@@ -91,9 +91,15 @@ ijkL.Memory         = ijkL.Memory
 ijkL.Memoria        = ijkL.Memory
 ijkL.Math           = ijkL.Math
 ijkL.Matematica     = ijkL.Math
+ijkL.Time.DateTime  = ijkL.Time.DateTime
+ijkL.Tempo.DataHora = ijkL.Time.DateTime
 
 [framework_members]
 ; Mapeamento de membros e rotinas do framework padrao (alias = canonico)
+agora                   = now
+agoraUtc                = utcNow
+deTimestampUnix         = fromUnixTimestamp
+segundosDecorridosDoDia = elapsedSecondsOfDay
 paraInteiro         = toInt
 paraReal            = toReal
 paraFlutuante       = toFloat

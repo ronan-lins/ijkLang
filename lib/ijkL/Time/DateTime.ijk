@@ -1,0 +1,148 @@
+// ==============================================================================
+// ijkLang (ijkL) Standard Framework - Date, Time, and Timestamps
+// Canonical Unit: ijkL.Time.DateTime (Aliases: ijkL.Tempo.DataHora)
+// ==============================================================================
+
+import ijkL.Convert;
+
+unit ijkL.Time.DateTime {
+
+    type DateTime = pointer struct {
+        int year;
+        int month;
+        int day;
+        int hour;
+        int minute;
+        int second;
+        int millisecond;
+        int timestamp;
+    };
+
+    private pad2(int value): string {
+        string str_val = ijkL.Convert.toString(value);
+        if (value < 10 && value >= 0) {
+            return "0" + str_val;
+        }
+        return str_val;
+    }
+
+    private pad4(int value): string {
+        string str_val = ijkL.Convert.toString(value);
+        if (value < 10 && value >= 0) {
+            return "000" + str_val;
+        }
+        if (value < 100 && value >= 0) {
+            return "00" + str_val;
+        }
+        if (value < 1000 && value >= 0) {
+            return "0" + str_val;
+        }
+        return str_val;
+    }
+
+    private getClockSeconds(): int {
+        asm {
+            in 0x0008, r0;
+            free_frame;
+            return r0;
+        }
+    }
+
+    private getClockMillis(): int {
+        asm {
+            in 0x0009, r0;
+            free_frame;
+            return r0;
+        }
+    }
+
+    private getClockTimezone(): int {
+        asm {
+            in 0x000A, r0;
+            free_frame;
+            return r0;
+        }
+    }
+
+    public fromUnixTimestamp(int timestamp): DateTime {
+        int seconds_of_day = timestamp mod 86400;
+        int days_count = timestamp div 86400;
+        if (seconds_of_day < 0) {
+            seconds_of_day = seconds_of_day + 86400;
+            days_count = days_count - 1;
+        }
+
+        int hour = seconds_of_day div 3600;
+        int remaining_seconds = seconds_of_day mod 3600;
+        int minute = remaining_seconds div 60;
+        int second = remaining_seconds mod 60;
+
+        int days_shifted = days_count + 719468;
+        int era_index = 0;
+        if (days_shifted >= 0) {
+            era_index = days_shifted div 146097;
+        } else {
+            era_index = (days_shifted - 146096) div 146097;
+        }
+
+        int day_of_era = days_shifted - (era_index * 146097);
+        int year_of_era = (day_of_era - (day_of_era div 1460) + (day_of_era div 36524) - (day_of_era div 146096)) div 365;
+        int calculated_year = year_of_era + (era_index * 400);
+        int day_of_year = day_of_era - ((365 * year_of_era) + (year_of_era div 4) - (year_of_era div 100));
+        int month_prime = ((5 * day_of_year) + 2) div 153;
+        int calculated_day = day_of_year - (((153 * month_prime) + 2) div 5) + 1;
+        int calculated_month = 0;
+        if (month_prime < 10) {
+            calculated_month = month_prime + 3;
+        } else {
+            calculated_month = month_prime - 9;
+        }
+        if (calculated_month <= 2) {
+            calculated_year = calculated_year + 1;
+        }
+
+        DateTime dt = alloc($DateTime);
+        dt.year = calculated_year;
+        dt.month = calculated_month;
+        dt.day = calculated_day;
+        dt.hour = hour;
+        dt.minute = minute;
+        dt.second = second;
+        dt.millisecond = 0;
+        dt.timestamp = timestamp;
+        return dt;
+    }
+
+    public elapsedSecondsOfDay(DateTime dt): int {
+        if (dt == null) {
+            return 0;
+        }
+        return (dt.hour * 3600) + (dt.minute * 60) + dt.second;
+    }
+
+    public toString(DateTime dt): string {
+        if (dt == null) {
+            return "";
+        }
+        return pad4(dt.year) + "-" + pad2(dt.month) + "-" + pad2(dt.day) + " " +
+               pad2(dt.hour) + ":" + pad2(dt.minute) + ":" + pad2(dt.second);
+    }
+
+    public utcNow(): DateTime {
+        int seconds = getClockSeconds();
+        int millis = getClockMillis();
+        DateTime dt = fromUnixTimestamp(seconds);
+        dt.millisecond = millis;
+        return dt;
+    }
+
+    public now(): DateTime {
+        int seconds = getClockSeconds();
+        int millis = getClockMillis();
+        int timezone_offset = getClockTimezone();
+        DateTime dt = fromUnixTimestamp(seconds + timezone_offset);
+        dt.timestamp = seconds;
+        dt.millisecond = millis;
+        return dt;
+    }
+}

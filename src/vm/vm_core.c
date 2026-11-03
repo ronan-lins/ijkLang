@@ -2,6 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <time.h>
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <windows.h>
+#endif
 #include "vm/vm_core.h"
 
 /*
@@ -48,6 +54,12 @@ bool ijkl_virtual_machine_initialize(IjklVirtualMachine* machine,
     }
 
     if (!ijkl_vm_io_bus_register_file_system_controller(&machine->io_bus, &machine->file_io_controller, machine)) {
+        ijkl_vm_io_bus_destroy(&machine->io_bus);
+        ijkl_vm_memory_destroy(&machine->memory);
+        return false;
+    }
+
+    if (!ijkl_vm_io_bus_register_system_clock(&machine->io_bus)) {
         ijkl_vm_io_bus_destroy(&machine->io_bus);
         ijkl_vm_memory_destroy(&machine->memory);
         return false;
@@ -381,6 +393,74 @@ static bool write_destination_operand(IjklVirtualMachine* machine,
     }
 
     return false;
+}
+
+/*
+ * Decompõe um timestamp Unix Epoch em segundos nos componentes de data civil
+ * gregoriana (ano, mês, dia, hora, minuto, segundo) através de aritmética afim exata.
+ */
+static void decompose_gregorian_civil(int64_t timestamp_seconds,
+                                      int64_t* output_year,
+                                      int64_t* output_month,
+                                      int64_t* output_day,
+                                      int64_t* output_hour,
+                                      int64_t* output_minute,
+                                      int64_t* output_second) {
+    int64_t seconds_of_day = timestamp_seconds % 86400;
+    int64_t days_count = timestamp_seconds / 86400;
+    if (seconds_of_day < 0) {
+        seconds_of_day += 86400;
+        days_count -= 1;
+    }
+
+    *output_hour = seconds_of_day / 3600;
+    int64_t remaining_seconds = seconds_of_day % 3600;
+    *output_minute = remaining_seconds / 60;
+    *output_second = remaining_seconds % 60;
+
+    int64_t days_shifted = days_count + 719468;
+    int64_t era_index = (days_shifted >= 0 ? days_shifted : days_shifted - 146096) / 146097;
+    int64_t day_of_era = days_shifted - (era_index * 146097);
+    int64_t year_of_era = (day_of_era - (day_of_era / 1460) + (day_of_era / 36524) - (day_of_era / 146096)) / 365;
+    int64_t calculated_year = year_of_era + (era_index * 400);
+    int64_t day_of_year = day_of_era - ((365 * year_of_era) + (year_of_era / 4) - (year_of_era / 100));
+    int64_t month_prime = ((5 * day_of_year) + 2) / 153;
+    int64_t calculated_day = day_of_year - (((153 * month_prime) + 2) / 5) + 1;
+    int64_t calculated_month = (month_prime < 10) ? month_prime + 3 : month_prime - 9;
+    if (calculated_month <= 2) {
+        calculated_year += 1;
+    }
+
+    *output_year = calculated_year;
+    *output_month = calculated_month;
+    *output_day = calculated_day;
+}
+
+/*
+ * EFEITO COLATERAL:
+ * Instancia e preenche a estrutura DateTime (64 bytes) no heap da memória da VM.
+ */
+static uint64_t build_datetime_instance(IjklVirtualMachine* machine,
+                                        int64_t timestamp_seconds,
+                                        int64_t millisecond_fraction,
+                                        int64_t timezone_offset_seconds) {
+    int64_t civil_timestamp = timestamp_seconds + timezone_offset_seconds;
+    int64_t year = 0, month = 0, day = 0, hour = 0, minute = 0, second = 0;
+    decompose_gregorian_civil(civil_timestamp, &year, &month, &day, &hour, &minute, &second);
+
+    uint64_t datetime_address = ijkl_vm_memory_allocate_heap(&machine->memory, 64);
+    if (datetime_address == 0) return 0;
+
+    ijkl_vm_memory_write_integer(&machine->memory, datetime_address + 0, year);
+    ijkl_vm_memory_write_integer(&machine->memory, datetime_address + 8, month);
+    ijkl_vm_memory_write_integer(&machine->memory, datetime_address + 16, day);
+    ijkl_vm_memory_write_integer(&machine->memory, datetime_address + 24, hour);
+    ijkl_vm_memory_write_integer(&machine->memory, datetime_address + 32, minute);
+    ijkl_vm_memory_write_integer(&machine->memory, datetime_address + 40, second);
+    ijkl_vm_memory_write_integer(&machine->memory, datetime_address + 48, millisecond_fraction);
+    ijkl_vm_memory_write_integer(&machine->memory, datetime_address + 56, timestamp_seconds);
+
+    return datetime_address;
 }
 
 /*
@@ -834,6 +914,151 @@ static bool execute_native_builtin(IjklVirtualMachine* machine, const char* buil
 
         machine->registers[IJKL_VM_REG_R0].type = VM_VALUE_TYPE_INT;
         machine->registers[IJKL_VM_REG_R0].as.integer_value = cmp_res;
+        machine->memory.current_stack_pointer = machine->current_frame_top;
+        return true;
+    }
+
+    if (strcmp(builtin_name, "__builtin_datetime_now") == 0) {
+        int64_t epoch_seconds = (int64_t)time(NULL);
+        int64_t millisecond_fraction = 0;
+        int64_t timezone_offset_seconds = 0;
+#ifdef _WIN32
+        SYSTEMTIME system_time;
+        GetSystemTime(&system_time);
+        millisecond_fraction = (int64_t)system_time.wMilliseconds;
+
+        TIME_ZONE_INFORMATION timezone_information;
+        DWORD timezone_result = GetTimeZoneInformation(&timezone_information);
+        long total_bias_minutes = timezone_information.Bias;
+        if (timezone_result == TIME_ZONE_ID_DAYLIGHT) {
+            total_bias_minutes += timezone_information.DaylightBias;
+        } else if (timezone_result == TIME_ZONE_ID_STANDARD) {
+            total_bias_minutes += timezone_information.StandardBias;
+        }
+        timezone_offset_seconds = (int64_t)(-total_bias_minutes * 60);
+#else
+        struct timespec time_spec;
+        if (clock_gettime(CLOCK_REALTIME, &time_spec) == 0) {
+            millisecond_fraction = (int64_t)(time_spec.tv_nsec / 1000000L);
+        }
+        struct tm local_time_info;
+        time_t time_now = (time_t)epoch_seconds;
+        localtime_r(&time_now, &local_time_info);
+#if defined(__USE_MISC) || defined(_BSD_SOURCE) || defined(__GLIBC__)
+        timezone_offset_seconds = (int64_t)local_time_info.tm_gmtoff;
+#else
+        struct tm utc_time_info;
+        gmtime_r(&time_now, &utc_time_info);
+        time_t local_seconds = mktime(&local_time_info);
+        time_t utc_seconds = mktime(&utc_time_info);
+        timezone_offset_seconds = (int64_t)difftime(local_seconds, utc_seconds);
+#endif
+#endif
+        uint64_t datetime_address = build_datetime_instance(machine, epoch_seconds, millisecond_fraction, timezone_offset_seconds);
+        if (datetime_address == 0) return false;
+
+        machine->registers[IJKL_VM_REG_R0].type = VM_VALUE_TYPE_INT;
+        machine->registers[IJKL_VM_REG_R0].as.unsigned_value = datetime_address;
+        machine->memory.current_stack_pointer = machine->current_frame_top;
+        return true;
+    }
+
+    if (strcmp(builtin_name, "__builtin_datetime_utc_now") == 0) {
+        int64_t epoch_seconds = (int64_t)time(NULL);
+        int64_t millisecond_fraction = 0;
+#ifdef _WIN32
+        SYSTEMTIME system_time;
+        GetSystemTime(&system_time);
+        millisecond_fraction = (int64_t)system_time.wMilliseconds;
+#else
+        struct timespec time_spec;
+        if (clock_gettime(CLOCK_REALTIME, &time_spec) == 0) {
+            millisecond_fraction = (int64_t)(time_spec.tv_nsec / 1000000L);
+        }
+#endif
+        uint64_t datetime_address = build_datetime_instance(machine, epoch_seconds, millisecond_fraction, 0);
+        if (datetime_address == 0) return false;
+
+        machine->registers[IJKL_VM_REG_R0].type = VM_VALUE_TYPE_INT;
+        machine->registers[IJKL_VM_REG_R0].as.unsigned_value = datetime_address;
+        machine->memory.current_stack_pointer = machine->current_frame_top;
+        return true;
+    }
+
+    if (strcmp(builtin_name, "__builtin_datetime_from_unix_timestamp") == 0) {
+        int64_t timestamp_seconds = 0;
+        ijkl_vm_memory_read_integer(&machine->memory, args_base, &timestamp_seconds);
+
+        uint64_t datetime_address = build_datetime_instance(machine, timestamp_seconds, 0, 0);
+        if (datetime_address == 0) return false;
+
+        machine->registers[IJKL_VM_REG_R0].type = VM_VALUE_TYPE_INT;
+        machine->registers[IJKL_VM_REG_R0].as.unsigned_value = datetime_address;
+        machine->memory.current_stack_pointer = machine->current_frame_top;
+        return true;
+    }
+
+    if (strcmp(builtin_name, "__builtin_datetime_elapsed_seconds_of_day") == 0) {
+        int64_t datetime_address = 0;
+        ijkl_vm_memory_read_integer(&machine->memory, args_base, &datetime_address);
+        if (datetime_address == 0) {
+            machine->registers[IJKL_VM_REG_R0].type = VM_VALUE_TYPE_INT;
+            machine->registers[IJKL_VM_REG_R0].as.integer_value = 0;
+            machine->memory.current_stack_pointer = machine->current_frame_top;
+            return true;
+        }
+
+        int64_t hour = 0, minute = 0, second = 0;
+        ijkl_vm_memory_read_integer(&machine->memory, (uint64_t)datetime_address + 24, &hour);
+        ijkl_vm_memory_read_integer(&machine->memory, (uint64_t)datetime_address + 32, &minute);
+        ijkl_vm_memory_read_integer(&machine->memory, (uint64_t)datetime_address + 40, &second);
+
+        int64_t elapsed_seconds = (hour * 3600) + (minute * 60) + second;
+
+        machine->registers[IJKL_VM_REG_R0].type = VM_VALUE_TYPE_INT;
+        machine->registers[IJKL_VM_REG_R0].as.integer_value = elapsed_seconds;
+        machine->memory.current_stack_pointer = machine->current_frame_top;
+        return true;
+    }
+
+    if (strcmp(builtin_name, "__builtin_datetime_to_string") == 0) {
+        int64_t datetime_address = 0;
+        ijkl_vm_memory_read_integer(&machine->memory, args_base, &datetime_address);
+        if (datetime_address == 0) {
+            uint64_t empty_string_address = ijkl_vm_memory_allocate_heap(&machine->memory, 1);
+            if (empty_string_address != 0) {
+                machine->memory.raw_linear_memory_buffer[empty_string_address] = '\0';
+                ijkl_vm_memory_set_tag(&machine->memory, empty_string_address, VM_VALUE_TYPE_STRING);
+            }
+            machine->registers[IJKL_VM_REG_R0].type = VM_VALUE_TYPE_STRING;
+            machine->registers[IJKL_VM_REG_R0].as.unsigned_value = empty_string_address;
+            machine->memory.current_stack_pointer = machine->current_frame_top;
+            return true;
+        }
+
+        int64_t year = 0, month = 0, day = 0, hour = 0, minute = 0, second = 0;
+        ijkl_vm_memory_read_integer(&machine->memory, (uint64_t)datetime_address + 0, &year);
+        ijkl_vm_memory_read_integer(&machine->memory, (uint64_t)datetime_address + 8, &month);
+        ijkl_vm_memory_read_integer(&machine->memory, (uint64_t)datetime_address + 16, &day);
+        ijkl_vm_memory_read_integer(&machine->memory, (uint64_t)datetime_address + 24, &hour);
+        ijkl_vm_memory_read_integer(&machine->memory, (uint64_t)datetime_address + 32, &minute);
+        ijkl_vm_memory_read_integer(&machine->memory, (uint64_t)datetime_address + 40, &second);
+
+        char formatted_buffer[32];
+        snprintf(formatted_buffer, sizeof(formatted_buffer), "%04lld-%02lld-%02lld %02lld:%02lld:%02lld",
+                 (long long)year, (long long)month, (long long)day,
+                 (long long)hour, (long long)minute, (long long)second);
+
+        size_t string_length_with_null = strlen(formatted_buffer) + 1;
+        uint64_t new_string_address = ijkl_vm_memory_allocate_heap(&machine->memory, string_length_with_null);
+        if (new_string_address == 0) return false;
+
+        memcpy(&machine->memory.raw_linear_memory_buffer[new_string_address], formatted_buffer, string_length_with_null);
+
+        machine->registers[IJKL_VM_REG_R0].type = VM_VALUE_TYPE_STRING;
+        machine->registers[IJKL_VM_REG_R0].as.unsigned_value = new_string_address;
+        ijkl_vm_memory_set_tag(&machine->memory, new_string_address, VM_VALUE_TYPE_STRING);
+
         machine->memory.current_stack_pointer = machine->current_frame_top;
         return true;
     }

@@ -1347,6 +1347,27 @@ static const char* get_builtin_alias_name(const char* module_path, const char* m
             strcmp(mangled_name, "comparar$pointer$pointer$int") == 0 || strcmp(mangled_name, "comparar") == 0) return "__builtin_mem_cmp";
     }
 
+    bool is_datetime = (strcmp(module_path, "ijkL.Time.DateTime") == 0 ||
+                        strcmp(module_path, "ijkL.Tempo.DataHora") == 0 ||
+                        strcmp(module_path, "ijkL.Temps.DateHeure") == 0);
+    if (is_datetime) {
+        if (strncmp(mangled_name, "now", 3) == 0 ||
+            strncmp(mangled_name, "agora", 5) == 0 ||
+            strncmp(mangled_name, "maintenant", 10) == 0) return "__builtin_datetime_now";
+        if (strncmp(mangled_name, "utcNow", 6) == 0 ||
+            strncmp(mangled_name, "agoraUtc", 8) == 0 ||
+            strncmp(mangled_name, "maintenantUtc", 13) == 0) return "__builtin_datetime_utc_now";
+        if (strncmp(mangled_name, "fromUnixTimestamp", 17) == 0 ||
+            strncmp(mangled_name, "deTimestampUnix", 15) == 0 ||
+            strncmp(mangled_name, "deTimestamp", 11) == 0) return "__builtin_datetime_from_unix_timestamp";
+        if (strncmp(mangled_name, "elapsedSecondsOfDay", 19) == 0 ||
+            strncmp(mangled_name, "segundosDecorridosDoDia", 23) == 0 ||
+            strncmp(mangled_name, "secondesEcouleesDuJour", 22) == 0) return "__builtin_datetime_elapsed_seconds_of_day";
+        if (strncmp(mangled_name, "toString", 8) == 0 ||
+            strncmp(mangled_name, "paraTexto", 9) == 0 ||
+            strncmp(mangled_name, "versTexte", 9) == 0) return "__builtin_datetime_to_string";
+    }
+
     return NULL;
 }
 

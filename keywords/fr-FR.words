@@ -91,9 +91,15 @@ ijkL.Memory         = ijkL.Memory
 ijkL.Memoire        = ijkL.Memory
 ijkL.Math           = ijkL.Math
 ijkL.Mathematiques  = ijkL.Math
+ijkL.Time.DateTime  = ijkL.Time.DateTime
+ijkL.Temps.DateHeure = ijkL.Time.DateTime
 
 [framework_members]
 ; Mappage des membres du framework standard
+maintenant          = now
+maintenantUtc       = utcNow
+deTimestampUnix     = fromUnixTimestamp
+secondesEcouleesDuJour = elapsedSecondsOfDay
 versEntier          = toInt
 versReel            = toReal
 versFlottant        = toFloat
