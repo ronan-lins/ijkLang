@@ -1,0 +1,85 @@
+TÍTULO: Validar compilação e paridade de split/splitLines em ambiente Linux/Ubuntu
+ID: 00300-20261103-164700-validar-splitlines-linux
+Tipo: test
+Status: TODO
+Prioridade: 00300 - Normal
+Severidade: normal
+Criado em UTC: 2026-11-03T19:47:00.000000+00:00
+Solicitante: mantenedor do repositório
+Responsável: Pendente
+Dependências: 00250-20261102-171500-utilitario-texto-split-linhas
+Início UTC: Pendente
+Fim UTC: Pendente
+Repositório local: C:\Sources\ijkLang
+Remoto: git@github.com:ronan-lins/ijkLang.git
+Branch de trabalho: 20261103-164700-validar-splitlines-linux
+
+METADADOS DE BLOQUEIO (Preencher apenas se Status = BLOCKED)
+Bloqueado em UTC: N/A
+Bloqueado por: N/A
+Motivo do Bloqueio: N/A
+Sugestão para Resolução: N/A
+Responsável pelo Desbloqueio: N/A
+
+OBJETIVO E CONTEXTO
+A funcionalidade de divisão de strings e linhas (split e splitLines em ijkL.Text com paridade
+entre CI e --native-builtins) foi integralmente implementada e validada em ambiente Windows
+pela tarefa 00250-20261102-171500-utilitario-texto-split-linhas.
+De acordo com a diretriz do repositório de manter o fluxo de entrega desimpedido (evitando
+bloqueios artificiais quando uma etapa posterior puder ser assumida por um agente com
+capacidade de teste em outro sistema operacional), esta tarefa formaliza a validação cruzada
+da compilação via GCC/Clang e a execução dos testes no Linux (Ubuntu/Debian).
+
+RESULTADO ESPERADO E OBSERVADO
+Esperado: Compilação via Makefile ('make all') sem avisos ou erros no Linux, e execução com
+100% de sucesso de 'make test', 'make test-split' e './tests/run_tests.sh'.
+Observado: Homologação realizada com sucesso no Windows; validação em ambiente Linux pendente.
+Impacto: Garante a portabilidade contínua do ecossistema ijkLang no ecossistema Unix/Linux.
+
+AMBIENTE E REPRODUÇÃO
+- Ambiente: Linux (Ubuntu 22.04 LTS ou superior, Debian, WSL ou contêiner Linux).
+- Ferramentas: GCC / Clang, Make, Python 3, Bash.
+- Comandos a executar:
+    make clean
+    make all
+    make test-split
+    make test
+    make test-integration
+
+ESCOPO E LIMITES
+Dentro do escopo:
+- Compilar o projeto no Linux com 'make all'.
+- Executar os testes de paridade de split e splitLines via 'make test-split' (ou 'python3 tests/run_split_tests.py').
+- Executar a suíte completa de testes no Linux ('make test', 'bash tests/run_tests.sh', 'make test-integration').
+- Se algum ajuste pontual de portabilidade em C ou scripts for necessário no Linux, efetuar a correção preservando compatibilidade com Windows.
+- Registrar os logs de saída neste arquivo e movê-lo para 04_done.
+Fora do escopo:
+- Alterações de sintaxe ou novas funcionalidades além de validação e portabilidade Linux.
+
+CRITÉRIOS DE ACEITE
+[ ] 'make all' compila sem erros nem avisos (0 warnings) com GCC/Clang no Linux.
+[ ] 'make test-split' (tests/run_split_tests.py) executa com 100% de aprovação e paridade estrita.
+[ ] 'make test' (tests/run_tests.sh) passa em 100% dos testes.
+[ ] 'make test-integration' passa em 100% dos testes de integração no Linux.
+[ ] Atualizar este próprio arquivo com os comandos, códigos de saída e evidências, movendo para 04_done.
+
+RESULTADOS DA EXECUÇÃO — [NOME DO AGENTE]
+Início UTC: Pendente.
+Fim UTC: Pendente.
+Responsável: Pendente.
+Branch: 20261103-164700-validar-splitlines-linux.
+
+Causas raiz e alterações implementadas:
+- Pendente.
+
+Comandos, códigos de saída e evidências:
+- Pendente.
+
+Compatibilidade e Riscos:
+- Pendente.
+
+Conclusão:
+- Pendente.
+
+ANEXO A — REGISTROS BRUTOS E LOGS DE EXECUÇÃO
+(Logs de compilação e execução dos testes no Linux serão anexados nesta seção ao concluir.)
