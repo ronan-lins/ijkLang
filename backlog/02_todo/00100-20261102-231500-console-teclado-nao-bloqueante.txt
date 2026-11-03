@@ -7,11 +7,19 @@ Severidade: bloqueante
 Criado em UTC: 2026-11-02T23:15:00.000000+00:00
 Solicitante: mantenedor do repositório
 Responsável: Pendente
+Dependências: Nenhuma
 Início UTC: Pendente
 Fim UTC: Pendente
 Repositório local: C:\Sources\ijkLang
 Remoto: git@github.com:ronan-lins/ijkLang.git
 Branch de trabalho: 20261102-231500-console-teclado-nao-bloqueante
+
+METADADOS DE BLOQUEIO (Preencher apenas se Status = BLOCKED)
+Bloqueado em UTC: N/A
+Bloqueado por: N/A
+Motivo do Bloqueio: N/A
+Sugestão para Resolução: N/A
+Responsável pelo Desbloqueio: N/A
 
 OBJETIVO E CONTEXTO
 Atualmente, as operações de leitura de teclado no barramento de E/S da máquina virtual

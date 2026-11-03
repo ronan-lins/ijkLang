@@ -13,9 +13,10 @@ O ciclo de vida de qualquer demanda técnica percorre quatro pastas sequenciais 
 | Diretório | Estado Kanban | Descrição e Critério de Entrada |
 | :--- | :--- | :--- |
 | `backlog/01_plan/` | **PLAN** | Ideias, diagnósticos iniciais, rascunhos de arquitetura e propostas em refinamento. Critérios de aceite ainda incompletos. |
-| `backlog/02_todo/` | **TODO** | Tarefas prontas para execução. Possui título claro, objetivo delimitado, prioridade definida e critérios de aceite objetivos e verificáveis. |
+| `backlog/02_todo/` | **TODO** | Tarefas prontas para execução. Possui título claro, objetivo delimitado, prioridade definida, dependências satisfeitas e critérios de aceite objetivos e verificáveis. |
 | `backlog/03_doing/` | **DOING** | Tarefa em desenvolvimento ativo por um agente ou desenvolvedor. A branch de trabalho correspondente deve estar criada. |
 | `backlog/04_done/` | **DONE** | Tarefa concluída com sucesso. Código validado pelos testes em todas as plataformas exigidas, com registros de execução e evidências anexadas ao próprio arquivo. |
+| `backlog/05_blocked/` | **BLOCKED** | Tarefa suspensa com impedimento técnico externo, dependência não resolvida ou validação multiplataforma/decisão pendente. Responsabilidade do mantenedor. |
 
 > [!IMPORTANT]
 > **Preservação de Pastas Vazias:** Toda pasta em `backlog/` deve conter um arquivo `.gitkeep`. Quando uma tarefa transitar de pasta, **nunca** apague o `.gitkeep` da pasta de origem. O Git não versiona diretórios vazios e apagaria a pasta se o `.gitkeep` for removido.
@@ -74,45 +75,52 @@ Todo agente de IA (Codex, Antigravity, Claude, Cursor, etc.) operando neste repo
 
 ### Fase 1: Varredura e Resposta sobre o Estado do Backlog
 Quando solicitado a verificar as tarefas do projeto, o agente deve:
-1. Listar o conteúdo de `backlog/01_plan/`, `backlog/02_todo/`, `backlog/03_doing/` e `backlog/04_done/`.
+1. Listar o conteúdo de `backlog/01_plan/`, `backlog/02_todo/`, `backlog/03_doing/`, `backlog/04_done/` e `backlog/05_blocked/`.
 2. Para cada arquivo encontrado, inspecionar as primeiras linhas para extrair:
    * **Título**
    * **ID / Arquivo**
    * **Prioridade** (extraída do prefixo numérico e do campo `Prioridade:`)
    * **Status** (correspondente à pasta onde reside)
+   * **Dependências** (tarefas predecessoras exigidas)
    * **Responsável** e **Branch de trabalho**
-3. Apresentar uma tabela organizada por estado e ordenada por prioridade (menor número primeiro).
+3. Apresentar uma tabela organizada por estado e ordenada por prioridade (menor número primeiro), destacando tarefas bloqueadas sob responsabilidade do mantenedor.
 
-### Fase 2: Seleção e Assunção de Tarefa com Lock por Branch Remota
+### Fase 2: Seleção e Assunção de Tarefa com Lock por Branch Remota e Verificação de Dependências
 
-Para evitar trabalho duplicado e colisões (*race conditions*) entre múltiplos agentes autônomos, a assunção de qualquer tarefa deve adquirir um **Lock Atômico por Branch Remota** no servidor Git antes de qualquer desenvolvimento:
+Para evitar trabalho duplicado, colisões (*race conditions*) e quebras de encadeamento entre múltiplos agentes autônomos, a assunção de qualquer tarefa deve cumprir os seguintes critérios obrigatórios:
 
 1. **Atualização das referências remotas:**
    ```bash
    git fetch --prune origin
    ```
-2. **Seleção da tarefa candidata:**
+2. **Critério de Prontidão (Definition of Ready - DoR) e Checagem de Dependências:**
    * Inspecionar os arquivos em `backlog/02_todo/` em ordem de prioridade (menor número decimal primeiro; em empate, menor timestamp).
-   * Para cada arquivo `[PRIORIDADE]-[DATA_HORA]-[SLUG].txt`, extrair o identificador da branch: `[DATA_HORA]-[SLUG]`.
+   * Para cada arquivo candidato, inspecionar o campo `Dependências:`:
+     * **Todas as dependências devem estar concluídas em `backlog/04_done/` e integradas na `main`**.
+     * Se qualquer dependência estiver em `01_plan/`, `02_todo/`, `03_doing/` ou `05_blocked/`: **PULAR** esta tarefa imediatamente. Uma tarefa não pode ser iniciada se sua base técnica não estiver consolidada na `main`.
+3. **Verificação do Lock Atômico por Branch Remota:**
+   * Para cada arquivo `[PRIORIDADE]-[DATA_HORA]-[SLUG].txt` cujas dependências estejam 100% satisfeitas, extrair o identificador da branch: `[DATA_HORA]-[SLUG]`.
    * Verificar se a branch remota já existe (`git branch -r` ou `git ls-remote --heads origin <branch>`):
-     * **Se existir `origin/[DATA_HORA]-[SLUG]`:** Outro agente já assumiu e bloqueou esta tarefa. **Pular** e avaliar a próxima tarefa da fila em `02_todo/`.
+     * **Se existir `origin/[DATA_HORA]-[SLUG]`:** Outro agente já assumiu e bloqueou esta tarefa. **Pular** e avaliar a próxima tarefa elegível da fila em `02_todo/`.
      * **Se NÃO existir:** A tarefa está livre para disputa de lock.
 
-3. **Tentativa de Aquisição do Lock Atômico no Servidor:**
-   * A partir da `main` atualizada, criar a branch localmente e tentar publicá-la imediatamente no repositório remoto:
+4. **Tentativa de Aquisição do Lock Atômico no Servidor:**
+   * **Regra Mandatória de Isolamento:** O agente deve criar sua branch **exclusivamente a partir da `main` atualizada** (`origin/main`). É expressamente proibido criar branches a partir de branches em andamento (`doing`) de outros agentes (*branch-off-branch* / *stacked branches*).
      ```bash
+     git checkout main
+     git pull origin main
      git checkout -b <DATA_HORA>-<SLUG>
      git push -u origin <DATA_HORA>-<SLUG>
      ```
    * **Tratamento de Concorrência (Race Condition):**
-     * **Sucesso no push:** O agente adquiriu o lock com exclusividade no Git. Prosseguir para o passo 4.
+     * **Sucesso no push:** O agente adquiriu o lock com exclusividade no Git. Prosseguir para o passo 5.
      * **Rejeição no push (`[remote rejected] ... already exists`):** Outro agente publicou a branch instantes antes. O agente perdeu a disputa pelo lock. Deve retornar para a `main`, descartar a branch local e tentar a próxima tarefa em `02_todo/`:
        ```bash
        git checkout main
        git branch -D <DATA_HORA>-<SLUG>
        ```
 
-4. **Registro da Assunção na Branch:**
+5. **Registro da Assunção na Branch:**
    * Mover o arquivo da tarefa de `02_todo/` para `03_doing/` *dentro da branch* usando `git mv`:
      ```bash
      git mv backlog/02_todo/<arquivo>.txt backlog/03_doing/<arquivo>.txt
@@ -129,7 +137,6 @@ Para evitar trabalho duplicado e colisões (*race conditions*) entre múltiplos 
      ```
    * A partir deste momento, a tarefa está 100% blindada e reservada para o agente.
 
-
 ### Fase 3: Execução, Testes e Registro Contínuo
 1. Implementar o código em estrita conformidade com as diretrizes de Clean Code em `AGENTS.md` (C11, nomes em inglês descritivo, namespace `ijkl_`, gerenciamento por Arena).
 2. **Diretriz de Paridade de Builtins (CI vs. `--native-builtins`)**:
@@ -141,9 +148,34 @@ Para evitar trabalho duplicado e colisões (*race conditions*) entre múltiplos 
    * **Windows:** `MSBuild.exe ijkL.sln`, `tests/run_tests.ps1`, `tests/run_integration_tests.ps1`.
 4. **Registro Vivo no Arquivo:** Atualizar a seção `RESULTADOS DA EXECUÇÃO` dentro do próprio arquivo da tarefa em `03_doing/`. Registrar comandos, códigos de saída (`exit_code`), contagem de testes e limitações encontradas.
 
+### Fase 3.1: Tratamento de Bloqueios e Impedimentos (Status BLOCKED)
+
+Quando uma tarefa não puder avançar por motivo de dependência externa, decisão arquitetural, falta de ambiente ou validação multiplataforma:
+
+1. **Bloqueio durante a Execução (In-Flight com Branch de Código):**
+   * O agente opera **EXCLUSIVAMENTE dentro da branch de trabalho**.
+   * O agente **NUNCA deve comitar na branch `main`** para registrar bloqueio de uma branch ativa (evitando conflitos futuros de renomeação no Git e poluição da `main`).
+   * Na branch, mover o arquivo de `backlog/03_doing/` para `backlog/05_blocked/` (`git mv`).
+   * Atualizar os metadados de bloqueio no arquivo:
+     * `Status: BLOCKED`
+     * `Bloqueado em UTC: <Timestamp_ISO8601>`
+     * `Bloqueado por: [Ambiente | Decisão Arquitetural | Dependência Externa | Validação Multiplataforma]`
+     * `Motivo do Bloqueio: [Descrição objetiva do impedimento]`
+     * `Sugestão para Resolução: [Passo a passo ou critérios para desbloqueio]`
+     * `Responsável pelo Desbloqueio: Mantenedor (Ronan)`
+   * Comitar e enviar o push na branch.
+   * Manter ou converter o Pull Request para **Draft** com o prefixo `[BLOCKED]`.
+2. **Bloqueio A Priori (Sem Branch / Direto em 02_todo):**
+   * Se uma tarefa em `02_todo/` for identificada como bloqueada antes de qualquer desenvolvimento, move-se o arquivo direto na `main` de `02_todo/` para `05_blocked/`.
+3. **Responsabilidade Estrita**:
+   * Tarefas em `05_blocked/` são de responsabilidade do **mantenedor**.
+   * Agentes autônomos **NUNCA** devem selecionar ou assumir tarefas de `05_blocked/` por conta própria.
+4. **Tarefas Dependentes em Cascata**:
+   * Tarefas que dependem de uma tarefa bloqueada permanecem em `02_todo/`, mas são puladas pelos agentes até que a tarefa raiz seja concluída e integrada na `main`.
+
 ### Fase 4: Conclusão e Entrega
 1. Confirmar que 100% dos critérios de aceite da tarefa foram cumpridos.
-2. Mover o arquivo da tarefa de `03_doing/` para `04_done/` usando `git mv`:
+2. Mover o arquivo da tarefa de `03_doing/` (ou `05_blocked/`) para `04_done/` usando `git mv`:
    ```bash
    git mv backlog/03_doing/<arquivo>.txt backlog/04_done/<arquivo>.txt
    ```
@@ -151,7 +183,7 @@ Para evitar trabalho duplicado e colisões (*race conditions*) entre múltiplos 
    * `Status: DONE (concluída)`
    * `Fim UTC: <Timestamp_ISO8601>`
 4. Realizar o commit das alterações de código juntamente com o arquivo da tarefa em `04_done/`.
-5. Publicar a branch e criar o Pull Request para revisão.
+5. Publicar a branch e criar o Pull Request para revisão (ou mergear na `main` caso autorizado).
 
 ---
 
@@ -163,17 +195,25 @@ Ao criar uma nova tarefa em `backlog/01_plan/` ou `backlog/02_todo/`, copie e pr
 TÍTULO: [Descrição imperativa clara do objetivo da tarefa]
 ID: [PRIORIDADE]-[DATA_HORA]-[SLUG_DESCRITIVO]
 Tipo: [feature | bugfix | refactor | docs | test | chore]
-Status: [PLAN | TODO | DOING | DONE]
+Status: [PLAN | TODO | DOING | DONE | BLOCKED]
 Prioridade: [00050 - Máxima/Governança | 00100 - Crítica | 00200 - Alta | 00300 - Normal | 00400 - Baixa | 00500 - Desejável]
 Severidade: [bloqueante | alta | moderada | baixa | nenhuma]
 Criado em UTC: YYYY-MM-DDTHH:MM:SS.000000+00:00
 Solicitante: [Nome ou papel do solicitante]
 Responsável: [Nome do agente ou desenvolvedor assumindo a tarefa]
+Dependências: [Nenhuma | ID_DA_TAREFA_1, ID_DA_TAREFA_2]
 Início UTC: [Data e hora de início ou 'Pendente']
 Fim UTC: [Data e hora de conclusão ou 'Pendente']
 Repositório local: [Caminho absoluto do workspace]
 Remoto: [URL do repositório remoto]
 Branch de trabalho: [DATA_HORA]-[SLUG_DESCRITIVO]
+
+METADADOS DE BLOQUEIO (Preencher apenas se Status = BLOCKED)
+Bloqueado em UTC: [YYYY-MM-DDTHH:MM:SSZ ou 'N/A']
+Bloqueado por: [Ambiente | Decisão Arquitetural | Dependência Externa | N/A]
+Motivo do Bloqueio: [Descrição objetiva do impedimento ou 'N/A']
+Sugestão para Resolução: [Critérios para desbloqueio ou 'N/A']
+Responsável pelo Desbloqueio: [Mantenedor (Ronan) ou 'N/A']
 
 OBJETIVO E CONTEXTO
 [Explique com clareza o problema técnico a ser resolvido, o contexto de negócio ou acadêmico e as motivações da mudança.]
@@ -218,3 +258,4 @@ Conclusão:
 ANEXO A — REGISTROS BRUTOS E LOGS DE EXECUÇÃO
 [Cole aqui saídas relevantes de build, compilação ou falhas para comprovação histórica.]
 ```
+
