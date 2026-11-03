@@ -1,0 +1,71 @@
+TÍTULO: Criar utilitário interativo de montagem USB e consolidar acordos em AGENTS.md
+ID: 00300-20261103-203107-remontar-usb-e-registrar-orientacoes
+Tipo: chore
+Status: DONE
+Prioridade: 00300 - Normal (solicitação explícita do mantenedor)
+Severidade: baixa
+Criado em UTC: 2026-11-03T20:33:31.050198+00:00
+Solicitante: mantenedor do repositório
+Responsável: Codex
+Dependências: Nenhuma
+Início UTC: 2026-11-03T20:33:31.050198+00:00
+Fim UTC: 2026-11-03T20:33:31.081432+00:00
+Repositório local: /home/devops/repos/ijkLang
+Remoto: git@github.com:ronan-lins/ijkLang.git
+Branch de trabalho: 20261103-203107-remontar-usb-e-registrar-orientacoes
+
+OBJETIVO E CONTEXTO
+Evitar redigitar comandos para desmontar/montar o pendrive exFAT em /mnt/usb,
+concedendo escrita a devops. Consolidar os acordos duradouros da conversa para
+agentes futuros sem substituir as diretrizes existentes nem guardar segredos.
+
+ESCOPO E LIMITES
+Criar doit.sh executável na raiz: mensagem inicial e confirmação por tecla y
+minúscula, cancelamento em qualquer outra tecla e sem terminal. Identificar por
+UUID, validar volume/local, usar sudo para umount/mount, sem senha no código.
+Complementar AGENTS.md. Não executar montagem real nem alterar runtime/biblioteca.
+Script específico do Ubuntu; CI/nativo e build Windows não se aplicam a esta
+mudança de operação local e documentação, sem alterações na linguagem ou VM.
+
+CRITÉRIOS DE ACEITE
+[x] doit.sh criado e executável, com comando de montagem rw/uid/gid/umask.
+[x] Somente y minúsculo confirma; outras entradas cancelam antes de sudo.
+[x] UUID/exFAT/USB e ponto de montagem são verificados; sem formatação/força.
+[x] Nenhuma senha ou chave privada incluída; orientações existentes preservadas.
+[x] bash -n e git diff --check passam; cancelamento exercitado em terminal.
+[x] Registros distinguem validação de sintaxe/cancelamento de remontagem real.
+
+RESULTADOS DA EXECUÇÃO — CODEX
+- Base origin/main: e943763. Branch exclusiva, publicada com condição de ref
+  inexistente, sem incorporar branch ativo de outro trabalho.
+- doit.sh possui modo 755 e usa o UUID 2A81-1677 em vez de presumir sdb1.
+- Mensagem inicial informa desmontagem/montagem rw para devops, sem apagar ou
+  formatar. read -n 1 aceita apenas y minúsculo, sem exigir Enter.
+- Requer terminal interativo. Confere volume exFAT/USB, diretório não simbólico,
+  origem atual de /mnt/usb e ausência de montagens em outro local. Se desmontagem
+  falhar, set -e encerra sem forçar; mount usa uid/gid obtidos por id e umask=022.
+- sudo solicita a senha interativamente. Validação final consulta findmnt e
+  testa permissão de escrita com a identidade devops, sem criar arquivo de prova.
+- AGENTS.md já existia: acrescentada seção 4 com acordos duradouros de console,
+  comunicação, Git, histórico de tarefas, validação efetiva, proteção de segredos,
+  sudo, volumes, teste de data/Chrony e referências locais sujeitas a verificação.
+- A transcrição, a senha e as chaves privadas não foram incorporadas.
+
+VERIFICAÇÕES E EVIDÊNCIAS
+- bash -n doit.sh: saída 0.
+- Execução em pseudo-terminal, resposta Y: saída 0, "Operação cancelada.".
+- ./doit.sh </dev/null: saída 0, cancelamento por ausência de terminal.
+- git diff --check: saída 0.
+- findmnt antes/depois: /dev/sdb1 em /mnt/usb, exfat, rw,relatime,
+  fmask=0022,dmask=0022,iocharset=utf8,errors=remount-ro. Volume não remontado.
+- Inspeção do caminho y e dos argumentos de umount/mount realizada; não foi
+  executado sudo nem remontagem real para testar a entrega. Nenhuma afirmação
+  de mudança de proprietário do volume é feita.
+- Não há testes C11/CI/nativo/Windows aplicáveis a script operacional Ubuntu e
+  instruções; não foram executadas as suítes da linguagem nesta alteração.
+
+CONCLUSÃO
+Arquivos prontos para execução/revisão pelo mantenedor. Script contém valores
+específicos deste computador; revisar UUID/usuário antes de usar em outro host.
+A documentação oficial da OpenAI confirma AGENTS.md como arquivo de instruções:
+https://learn.chatgpt.com/docs/agent-configuration/agents-md

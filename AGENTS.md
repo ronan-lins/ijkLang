@@ -93,3 +93,53 @@ Para assegurar consistência semântica e portabilidade pedagógica do ecossiste
 
 4. **Validação Cruzada de Aplicações**:
    * Aplicações de usuário (ex.: `spell`, `wordguess`, `prime`) devem ter suítes de teste que as compilem e executem em ambos os modos (`app.ci` e `app_native.ci`), garantindo saídas e códigos de retorno estritamente equivalentes em Windows e Linux.
+
+---
+
+## 4. Acordos de colaboração e operação deste ambiente
+
+- Responder em português, de forma sucinta, descrevendo o resultado, o que foi
+  alterado, a validação efetiva e as pendências. Este ambiente Ubuntu Server é
+  usado pelo mantenedor somente via console/teclado; fornecer comandos completos
+  de terminal e tornar scripts executáveis quando houver execução direta.
+- Preservar as diretrizes existentes deste arquivo. Registrar aqui acordos
+  duradouros; manter o histórico de execução nos arquivos de tarefa do backlog.
+  Não copiar a transcrição inteira do chat nem transformar uma autorização
+  pontual (por exemplo, excluir uma branch) em permissão permanente.
+- Seguir o fluxo Git/GNAK descrito acima, mantendo trabalhos independentes em
+  branches próprias originadas de origin/main. Preservar branches/PRs em revisão
+  por outros agentes. Não misturar correções sem relação na mesma entrega.
+- Toda tarefa deve ser autossuficiente: contexto, ambiente, versões, reprodução,
+  resultado esperado/observado, escopo, dependências, aceite, decisões, comandos,
+  códigos de saída, evidências, riscos e pendências no mesmo arquivo .txt.
+  Incorporar logs relevantes nesse arquivo; preservar evidências originais.
+  O timestamp é de criação, em UTC, e permanece estável ao mudar o estado.
+- Distinguir testes executados de inspeção de código. Validar CI e nativo e as
+  plataformas exigidas. Sem Windows disponível, registrar o impedimento conforme
+  PROCESS.md, mantendo PR Draft [BLOCKED]; não afirmar validação ou aprovação.
+- Manter os PRs integrados como histórico. Excluir branches somente quando
+  autorizado e após confirmar a integração; atualizar main por fast-forward e
+  preservar alterações locais. Merge não comprova aprovação formal de revisão.
+- Não registrar senhas, tokens, conteúdo de chaves privadas ou credenciais em
+  scripts, arquivos de instruções, backlog, logs ou commits. Usar autenticação
+  SSH já configurada e permissões adequadas (.ssh: 700; chave privada: 600;
+  chave pública: 644), sem exibir o conteúdo da chave privada.
+- Não ampliar sudo/sandbox nem conceder sudo sem senha como solução automática.
+  Usar sudo apenas nos comandos que precisarem dele; deixar o sudo solicitar a
+  senha no terminal quando necessário. Não iniciar o agente inteiro como root.
+- Para operações em discos, verificar identidade, sistema de arquivos e montagem
+  atuais. Os nomes /dev/sdX podem mudar; preferir UUID. Distinguir montagem rw
+  de permissão de escrita do usuário (em exFAT, uid/gid/umask). Não formatar,
+  apagar ou forçar desmontagem para resolver somente permissões.
+- `doit.sh` é uma conveniência específica deste Ubuntu: remonta o pendrive
+  exFAT UUID 2A81-1677 em /mnt/usb para devops. Exige exatamente a tecla y
+  minúscula; qualquer outra cancela. Não executá-lo automaticamente em build,
+  teste ou inicialização. Em outra máquina, confirmar/ajustar sua configuração.
+- Mudanças de data para testes são temporárias e exigem instrução explícita.
+  Verificar o Chrony e distinguir relógio do sistema de RTC; se solicitado manter
+  NTP parado, aguardar o pedido de reativação. Ao restaurar, verificar a fonte
+  NTP e o relógio; não declarar sincronização sem evidência.
+- Contexto local conhecido, sujeito a nova verificação: usuário devops;
+  repositório ~/repos/ijkLang; dados/modelos Ollama em /mnt/data/ollama/models
+  no NVMe; pendrive em /mnt/usb. Confirmar serviços SSH/Chrony, IPs e dispositivos
+  ao consultá-los, pois esses estados não são garantias permanentes.
