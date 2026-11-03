@@ -12,36 +12,140 @@ $TemporaryDirectory = Join-Path ([IO.Path]::GetTempPath()) ([Guid]::NewGuid().To
 New-Item -ItemType Directory -Path $TemporaryDirectory | Out-Null
 $Passed = 0
 $Outputs = @{}
+if (-not ([System.Management.Automation.PSTypeName]"Win32ProcessRunner").Type) {
+    Add-Type -TypeDefinition @"
+using System;
+using System.Text;
+using System.Runtime.InteropServices;
+
+public class Win32ProcessRunner {
+    [StructLayout(LayoutKind.Sequential)]
+    public struct SECURITY_ATTRIBUTES {
+        public int nLength;
+        public IntPtr lpSecurityDescriptor;
+        public bool bInheritHandle;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct STARTUPINFO {
+        public int cb;
+        public string lpReserved;
+        public string lpDesktop;
+        public string lpTitle;
+        public int dwX, dwY, dwXSize, dwYSize, dwXCountChars, dwYCountChars, dwFillAttribute;
+        public int dwFlags;
+        public short wShowWindow, cbReserved2;
+        public IntPtr lpReserved2;
+        public IntPtr hStdInput;
+        public IntPtr hStdOutput;
+        public IntPtr hStdError;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct PROCESS_INFORMATION {
+        public IntPtr hProcess;
+        public IntPtr hThread;
+        public int dwProcessId;
+        public int dwThreadId;
+    }
+
+    [DllImport("kernel32.dll", SetLastError=true)]
+    public static extern bool CreatePipe(out IntPtr hReadPipe, out IntPtr hWritePipe, ref SECURITY_ATTRIBUTES lpPipeAttributes, int nSize);
+
+    [DllImport("kernel32.dll", SetLastError=true)]
+    public static extern bool SetHandleInformation(IntPtr hObject, int dwMask, int dwFlags);
+
+    [DllImport("kernel32.dll", SetLastError=true, CharSet=CharSet.Unicode)]
+    public static extern bool CreateProcess(string lpApplicationName, string lpCommandLine, IntPtr lpProcessAttributes, IntPtr lpThreadAttributes, bool bInheritHandles, int dwCreationFlags, IntPtr lpEnvironment, string lpCurrentDirectory, ref STARTUPINFO lpStartupInfo, out PROCESS_INFORMATION lpProcessInformation);
+
+    [DllImport("kernel32.dll", SetLastError=true)]
+    public static extern bool WriteFile(IntPtr hFile, byte[] lpBuffer, int nNumberOfBytesToWrite, out int lpNumberOfBytesWritten, IntPtr lpOverlapped);
+
+    [DllImport("kernel32.dll", SetLastError=true)]
+    public static extern bool ReadFile(IntPtr hFile, byte[] lpBuffer, int nNumberOfBytesToRead, out int lpNumberOfBytesRead, IntPtr lpOverlapped);
+
+    [DllImport("kernel32.dll", SetLastError=true)]
+    public static extern bool CloseHandle(IntPtr hObject);
+
+    [DllImport("kernel32.dll", SetLastError=true)]
+    public static extern int WaitForSingleObject(IntPtr hHandle, int dwMilliseconds);
+
+    [DllImport("kernel32.dll", SetLastError=true)]
+    public static extern bool GetExitCodeProcess(IntPtr hProcess, out int lpExitCode);
+
+    public static string RunWithPipe(string exePath, string args, byte[] inputBytes, bool closeInput, int timeoutMs) {
+        SECURITY_ATTRIBUTES sa = new SECURITY_ATTRIBUTES();
+        sa.nLength = Marshal.SizeOf(sa);
+        sa.bInheritHandle = true;
+        sa.lpSecurityDescriptor = IntPtr.Zero;
+
+        IntPtr inRead, inWrite, outRead, outWrite;
+        CreatePipe(out inRead, out inWrite, ref sa, 0);
+        CreatePipe(out outRead, out outWrite, ref sa, 0);
+        SetHandleInformation(inWrite, 1, 0);
+        SetHandleInformation(outRead, 1, 0);
+
+        STARTUPINFO si = new STARTUPINFO();
+        si.cb = Marshal.SizeOf(si);
+        si.dwFlags = 0x00000100;
+        si.hStdInput = inRead;
+        si.hStdOutput = outWrite;
+        si.hStdError = outWrite;
+
+        PROCESS_INFORMATION pi;
+        string cmdLine = "\"" + exePath + "\" " + args;
+        bool ok = CreateProcess(null, cmdLine, IntPtr.Zero, IntPtr.Zero, true, 0, IntPtr.Zero, null, ref si, out pi);
+        CloseHandle(inRead);
+        CloseHandle(outWrite);
+
+        if (!ok) {
+            CloseHandle(inWrite);
+            CloseHandle(outRead);
+            throw new Exception("CreateProcess failed: " + Marshal.GetLastWin32Error());
+        }
+
+        if (inputBytes != null && inputBytes.Length > 0) {
+            int written;
+            WriteFile(inWrite, inputBytes, inputBytes.Length, out written, IntPtr.Zero);
+        }
+        if (closeInput) {
+            CloseHandle(inWrite);
+        }
+
+        int waitRes = WaitForSingleObject(pi.hProcess, timeoutMs);
+        if (!closeInput) {
+            CloseHandle(inWrite);
+        }
+
+        StringBuilder sb = new StringBuilder();
+        byte[] buffer = new byte[4096];
+        int read;
+        while (ReadFile(outRead, buffer, buffer.Length, out read, IntPtr.Zero) && read > 0) {
+            sb.Append(Encoding.Default.GetString(buffer, 0, read));
+        }
+        CloseHandle(outRead);
+
+        int exitCode;
+        GetExitCodeProcess(pi.hProcess, out exitCode);
+        CloseHandle(pi.hProcess);
+        CloseHandle(pi.hThread);
+
+        if (waitRes != 0) {
+            throw new Exception("Process timed out after " + timeoutMs + " ms");
+        }
+        if (exitCode != 0) {
+            throw new Exception("Process exited with code " + exitCode + ": " + sb.ToString());
+        }
+        return sb.ToString().Replace("\r\n", "\n");
+    }
+}
+"@
+}
+
 function Invoke-ConsoleProbe {
     param([string]$ProgramPath, [string]$InputText, [bool]$CloseInput = $true)
-    $StartInfo = New-Object System.Diagnostics.ProcessStartInfo
-    $StartInfo.FileName = $VmPath
-    $StartInfo.Arguments = "`"$ProgramPath`""
-    $StartInfo.WorkingDirectory = $ProjectRoot
-    $StartInfo.UseShellExecute = $false
-    $StartInfo.RedirectStandardInput = $true
-    $StartInfo.RedirectStandardOutput = $true
-    $StartInfo.RedirectStandardError = $true
-    $Process = [System.Diagnostics.Process]::Start($StartInfo)
-    try {
-        $Process.StandardInput.Write($InputText)
-        $Process.StandardInput.Flush()
-        if ($CloseInput) { $Process.StandardInput.Close() }
-        if (-not $Process.WaitForExit(5000)) {
-            $Process.Kill()
-            $Process.WaitForExit()
-            throw "Console bloqueou por mais de 5 segundos"
-        }
-        $OutputText = $Process.StandardOutput.ReadToEnd().Replace("`r`n", "`n")
-        $ErrorText = $Process.StandardError.ReadToEnd()
-        if ($Process.ExitCode -ne 0 -or $ErrorText) {
-            throw "VM falhou: exit=$($Process.ExitCode), stderr=$ErrorText"
-        }
-        return $OutputText
-    } finally {
-        if (-not $Process.HasExited) { $Process.Kill(); $Process.WaitForExit() }
-        $Process.Dispose()
-    }
+    $Bytes = [System.Text.Encoding]::GetEncoding("iso-8859-1").GetBytes($InputText)
+    return [Win32ProcessRunner]::RunWithPipe($VmPath, "`"$ProgramPath`"", $Bytes, $CloseInput, 5000)
 }
 try {
     foreach ($Mode in @("ci", "native")) {

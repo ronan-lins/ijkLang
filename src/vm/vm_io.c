@@ -69,11 +69,18 @@ static bool console_poll_character(IjklVirtualMachine* machine) {
             DWORD available_bytes = 0;
             if (!PeekNamedPipe(input_handle, NULL, 0, NULL, &available_bytes, NULL) ||
                 available_bytes == 0) return false;
-        } else if (file_type != FILE_TYPE_DISK) {
+            char byte_value = 0;
+            DWORD bytes_read = 0;
+            if (!ReadFile(input_handle, &byte_value, 1, &bytes_read, NULL) || bytes_read == 0) {
+                return false;
+            }
+            character = (unsigned char)byte_value;
+        } else if (file_type == FILE_TYPE_DISK) {
+            clearerr(stdin);
+            character = getchar();
+        } else {
             return false;
         }
-        clearerr(stdin);
-        character = getchar();
     }
 #else
     int input_descriptor = fileno(stdin);
@@ -119,6 +126,32 @@ static bool console_poll_character(IjklVirtualMachine* machine) {
     return true;
 }
 
+/* Lê um caractere de entrada consumindo o byte pendente da sondagem, sem dessincronizar buffers. */
+static int console_read_raw_character(IjklVirtualMachine* machine) {
+    if (!machine) return EOF;
+    if (machine->console_has_pending_character) {
+        machine->console_has_pending_character = false;
+        return machine->console_pending_character;
+    }
+#ifdef _WIN32
+    if (_isatty(_fileno(stdin))) {
+        return _getch();
+    } else {
+        HANDLE input_handle = (HANDLE)_get_osfhandle(_fileno(stdin));
+        DWORD file_type = GetFileType(input_handle);
+        if (file_type == FILE_TYPE_PIPE) {
+            char byte_value = 0;
+            DWORD bytes_read = 0;
+            if (ReadFile(input_handle, &byte_value, 1, &bytes_read, NULL) && bytes_read > 0) {
+                return (unsigned char)byte_value;
+            }
+            return EOF;
+        }
+    }
+#endif
+    return getchar();
+}
+
 /* Manipulador embutido do console de terminal para portas 0x0000 a 0x0006 */
 static bool console_port_read_handler(void* device_context,
                                       uint16_t port_address,
@@ -137,15 +170,16 @@ static bool console_port_read_handler(void* device_context,
         }
         return true;
     }
-    /* Devolve a antecipação ao fluxo para interoperar com leituras bloqueantes. */
-    if (console_machine && console_machine->console_has_pending_character) {
+    /* Devolve a antecipação ao fluxo para leituras formatadas via scanf. */
+    if (console_machine && console_machine->console_has_pending_character &&
+        (port_address == IJKL_VM_IO_PORT_CONSOLE_REAL || port_address == IJKL_VM_IO_PORT_CONSOLE_READ)) {
         ungetc(console_machine->console_pending_character, stdin);
         console_machine->console_has_pending_character = false;
     }
 
     switch (port_address) {
         case IJKL_VM_IO_PORT_CONSOLE_CHAR: {
-            int character = getchar();
+            int character = console_read_raw_character(console_machine);
             *output_value = (character != EOF) ? (int64_t)character : -1;
             return true;
         }
@@ -187,7 +221,7 @@ static bool console_port_read_handler(void* device_context,
             }
 
             int character = 0;
-            while ((character = getchar()) != EOF && character != '\n') {
+            while ((character = console_read_raw_character(machine)) != EOF && character != '\n') {
                 if (character == '\r') {
                     continue; /* Normaliza quebras de linha Windows \r\n */
                 }
