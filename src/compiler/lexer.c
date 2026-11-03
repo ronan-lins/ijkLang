@@ -676,7 +676,7 @@ char* ijkl_lexer_scan_raw_block(IjklLexer* lexer, size_t* out_length) {
             continue;
         }
 
-        /* Comentário de bloco '/*' */
+        /* Início de comentário de bloco. */
         if (current_character == '/' && lexer_peek_character_ahead(lexer, 1) == '*') {
             lexer_advance_character(lexer);
             lexer_advance_character(lexer);

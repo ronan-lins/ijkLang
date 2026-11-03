@@ -1,0 +1,338 @@
+TÍTULO: Implementar gerador de números pseudoaleatórios (ijkL.Math.Random) semeado pelo relógio
+ID: 00200-20261102-235000-gerador-numeros-aleatorios
+Tipo: feature
+Status: BLOCKED
+Prioridade: 00200 - Alta
+Severidade: moderada
+Criado em UTC: 2026-11-02T23:50:00.000000+00:00
+Solicitante: mantenedor do repositório
+Responsável: Codex
+Dependências: 00150-20261102-193000-api-data-hora-timestamps
+Início UTC: 2026-11-03T14:35:45.150301+00:00
+Fim UTC: Pendente
+Repositório local: /home/devops/repos/ijkLang
+Remoto: git@github.com:ronan-lins/ijkLang.git
+Branch de trabalho: 20261102-235000-gerador-numeros-aleatorios
+
+METADADOS DE BLOQUEIO (Preencher apenas se Status = BLOCKED)
+Bloqueado em UTC: 2026-11-03T14:52:24.652757+00:00
+Bloqueado por: Validação Multiplataforma
+Motivo do Bloqueio: implementação validada no Ubuntu; falta ambiente Windows/MSBuild.
+Sugestão para Resolução: executar build e suítes no Windows, anexar evidências e revisar o PR.
+Responsável pelo Desbloqueio: Mantenedor (Ronan)
+
+OBJETIVO E CONTEXTO
+Jogos, simulações estatísticas, testes de estresse e algoritmos randomizados necessitam
+de uma fonte de números pseudoaleatórios determinística e de alta performance. O ecossistema
+ijkLang atualmente não possui rotinas de números aleatórios na biblioteca padrão. Esta tarefa
+estabelece o módulo canônico ijkL.Math.Random (e alias ijkL.Matematica.Aleatorio), utilizando
+um gerador pseudoaleatório (PRNG) leve de 64 bits (como Xorshift ou LCG), capaz de ser semeado
+automaticamente com os segundos decorridos do dia obtidos via ijkL.Time.DateTime.
+
+RESULTADO ESPERADO E OBSERVADO
+Esperado: Disponibilização da unidade ijkL.Math.Random com métodos para inicialização de semente
+explícita ou automática pelo relógio civil, geração de inteiros uniformes (next), sorteio em
+faixa delimitada inclusiva (nextRange) e geração de números reais entre 0.0 e 1.0 (nextReal).
+Observado: Ausência de qualquer gerador pseudoaleatório no compilador ou na biblioteca padrão.
+Impacto: Bloqueia a implementação do jogo da adivinhação de palavras (wordguess) e futuros jogos.
+
+AMBIENTE E REPRODUÇÃO
+- Executável do compilador (bin/Debug/ijkl) e da VM (bin/Debug/ijkl-m).
+- Exemplo de uso pretendido:
+    import ijkL.Math.Random;
+    ijkL.Math.Random.seedWithTime();
+    int sorteio = ijkL.Math.Random.nextRange(1, 100);
+    real prob = ijkL.Math.Random.nextReal();
+
+ESCOPO E LIMITES
+Dentro do escopo:
+- Implementação e paridade entre modo padrão CI e modo nativo:
+  1. Implementação em CI (Modo Padrão):
+     - lib/ijkL/Math/Random.ijk (e alias em lib/ijkL/Matematica/Aleatorio.ijk):
+       - public seed(int custom_seed)
+       - public seedWithTime() (consome ijkL.Time.DateTime.now() e elapsedSecondsOfDay)
+       - public next(): int (intervalo [0, 2147483647])
+       - public nextRange(int minimum, int maximum): int (intervalo fechado [minimum, maximum])
+       - public nextReal(): real (intervalo [0.0, 1.0))
+     - Algoritmo PRNG determinístico leve e de alta dispersão (ex.: Knuth LCG 64 bits X_{n+1} = (aX_n + c) mod m ou Xorshift64) implementado inteiramente em instruções CI.
+  2. Despacho Nativo de Builtins (Modo --native-builtins):
+     - Compilador (src/compiler/codegen.c): reconhecer rotinas como alvos de builtins nativos (__builtin_random_seed, __builtin_random_seed_with_time, __builtin_random_next, __builtin_random_next_range, __builtin_random_next_real), emitindo 'call #__builtin_random_*'.
+     - VM (src/vm/vm_core.c): registrar e despachar builtins em execute_native_builtin() executando rotinas nativas em C que implementam EXATAMENTE o mesmo algoritmo PRNG, com as mesmas constantes matemáticas e representação de estado do CI.
+- Paridade Semântica e Testes Determinísticos:
+  - Teste de determinismo estrito bit a bit: para uma semente fixa (ex.: seed(123456789)), a sequência retornada por chamadas consecutivas a next(), nextRange(1, 100) e nextReal() no modo padrão (.ci) e no modo nativo (--native-builtins) DEVE ser 100% idêntica por pelo menos 100 sorteios consecutivos.
+  - seedWithTime(): em ambos os modos utiliza o relógio via ijkL.Time.DateTime para garantir variação temporal coerente.
+- Adicionar cobertura de testes para os modos padrão e nativo em tests/run_tests.ps1 e Makefile.
+Fora do escopo:
+- Geradores criptograficamente seguros (CSPRNG via /dev/urandom ou CryptGenRandom).
+
+CRITÉRIOS DE ACEITE
+[x] Unidade ijkL.Math.Random implementada em lib/ijkL/Math/Random.ijk (e alias ijkL.Matematica.Aleatorio) emitida em CI no modo padrão.
+[x] Implementação de builtins nativos em C (__builtin_random_*) ativada por --native-builtins no compilador e executada na VM com o mesmo algoritmo matemático do CI.
+[x] Paridade semântica 100%: para semente fixa, a sequência de valores gerada por next(), nextRange() e nextReal() é estritamente idêntica entre os modos CI e nativo.
+[x] seedWithTime() funciona em ambos os modos produzindo sequências distintas em momentos diferentes.
+[x] nextRange(min, max) retorna estritamente valores entre min e max inclusive em ambos os modos.
+[x] nextReal() retorna valores no intervalo [0.0, 1.0) em ambos os modos.
+[ ] Compilação limpa em Windows (MSBuild) e Linux (make) sem erros nem avisos (0 warnings).
+[ ] Suíte de testes automatizados existente 100% aprovada (sem regressões).
+[x] Teste automatizado de paridade validando bit a bit a sequência gerada nos dois modos em tests/.
+[ ] Atualizar este próprio arquivo com os comandos, códigos de saída e evidências, movendo para 04_done.
+
+RESULTADOS DA EXECUÇÃO — CODEX
+Atualizado em UTC: 2026-11-03T14:52:24.652757+00:00.
+Responsável: Codex.
+Branch: 20261102-235000-gerador-numeros-aleatorios.
+Base: origin/main em b5663d6; checkout limpo.
+Claim: 009518b. Branch reservada com criação remota condicionada à inexistência
+(--force-with-lease=<ref>:), evitando que um push simultâneo de branch idêntica
+fosse confundido com aquisição exclusiva do lock. Sem reescrita de branch existente.
+Status: implementação e validação Ubuntu realizadas; aguardando Windows.
+Fim UTC: Pendente; não concluída nos termos do aceite multiplataforma.
+
+Alterações e decisões:
+- Criada lib/ijkL/Math/Random.ijk com seed, seedWithTime, next, nextRange e nextReal.
+- LCG de 64 bits: s = (6364136223846793005*s + 1442695040888963407) mod 2^64.
+  Incremento ímpar e multiplicador congruente a 1 módulo 4 dão período de 2^64.
+- Dois membros globais privados de 32 bits positivos representam o estado.
+  CI calcula a atualização por convolução em quatro membros de 16 bits, com
+  intermediários assinados limitados. C usa uint64_t com wrap definido em C11.
+- Compilador mapeia exatamente as cinco assinaturas (incluindo nextRange$int_int)
+  e passa dois endereços ocultos de estado aos builtins nativos. Tabela de símbolos
+  e execute_native_builtin registram/despacham as cinco rotinas.
+- Ambos os modos usam a mesma memória da VM. Teste com next em CI e as outras
+  rotinas nativas confirma estado compartilhado, sem rand/srand do hospedeiro.
+- next usa os 31 bits altos. nextReal usa os 53 bits altos divididos por 2^53;
+  os bits IEEE 754 são conferidos, não apenas a saída decimal arredondada.
+- nextRange usa amostragem dos bits altos com rejeição, evitando viés de módulo.
+  Aceita todos os inteiros assinados de 64 bits, inclusive INT64_MIN/MAX, sem
+  subtração/multiplicação assinada fora da faixa. Inverte limites trocados;
+  limites iguais retornam esse valor sem consumir estado. Contrato documentado.
+- seed aceita zero e sementes negativas em complemento de dois; estado inicial 1.
+- seedWithTime usa DateTime.now e segundos do dia, liberando a instância temporária.
+  Mesma resolução nos dois modos; chamadas no mesmo segundo ou horário de dias
+  diferentes podem repetir sequência. Semente de relógio não garante unicidade.
+- Alias ijkL.Matematica.Aleatorio e membros em português são mapeados em
+  keywords/pt-BR.words pelo mecanismo de vocabulário existente, sem duplicar
+  a unidade física/estado em lib/ijkL/Matematica/Aleatorio.ijk. Identidade da
+  unidade também cadastrada no vocabulário inglês.
+- Manual da linguagem documenta algoritmo, memória, extremos, aliases e testes.
+
+Correção necessária na dependência DateTime:
+- Build inicial falhava em vm_core.c e vm_io.c: tm_gmtoff não é exposto com
+  _POSIX_C_SOURCE=200809L. A checagem anterior de __GLIBC__ não garantia a API.
+- Substituída a extensão por diferença entre os componentes de localtime_r e
+  gmtime_r, incluindo mudança de dia/ano e horário de verão, sem mktime ambíguo.
+  Falhas de conversão temporal são verificadas. Caminho Windows preservado.
+- Corrigidos os avisos preexistentes de comentário em lexer.c e comparação
+  signed/unsigned em vm_io.c, necessários para o aceite de build sem warnings.
+
+Testes e evidências efetivamente obtidos no Ubuntu:
+- make -B -k -j1 all: saída 0, zero erros/avisos.
+- make test: saída 0; 164 verificações aprovadas, zero falhas. A suíte do gerador
+  conta como uma verificação geral e contém 15 verificações específicas.
+- Testes específicos: dois modos, duas execuções de 460 valores de referência
+  por modo, 128 trios next/nextRange/nextReal, cinco sementes (0, 1, -1,
+  INT64_MIN/MAX), limites extremos/invertidos/iguais, dispersão básica,
+  aliases, relógio em UTC e America/New_York com chamadas separadas por 1,2 s,
+  além de execução mista CI/nativa. Sem alterar o relógio da máquina.
+- make test-integration: saída 0; 38 aprovados, zero falhas.
+- bash examples/apps/onm/tests/run_tests.sh .: saída 0; 11 aprovados, zero falhas.
+- Build isolado em /tmp com -O1 -g -fsanitize=undefined
+  -fno-sanitize-recover=undefined e link -fsanitize=undefined: saída 0.
+  Runner do gerador com compilador/VM instrumentados: 15 verificações aprovadas,
+  saída 0, sem diagnóstico UBSan (UndefinedBehaviorSanitizer).
+- tests/test_datetime.ijk compilado e executado em ambos os modos sob UTC,
+  America/New_York, Pacific/Kiritimati e Etc/GMT+12: 8 execuções aprovadas.
+- python3 tests/random/generate_vectors.py reproduz os arquivos vectors.ijk e
+  vectors.expected byte a byte. O oráculo usa inteiros arbitrários do Python;
+  não lê saídas da VM para construir o resultado esperado.
+- git diff --check: saída 0.
+
+Compatibilidade, riscos e próxima ação:
+- Validado Ubuntu 26.04.1 LTS x86_64, GCC 15.2.0, GNU Make 4.4.1, Python 3.
+- Windows/MSBuild/PowerShell não estão disponíveis aqui. O runner PowerShell
+  foi escrito e inspecionado, mas não foi executado; nenhuma validação Windows
+  é afirmada. O branch permanece independente do PR de teclado do outro agente.
+- No Windows: compilar ijkL.sln em Debug/Release com MSBuild; executar
+  tests/run_random_tests.ps1, tests/run_tests.ps1, tests/run_integration_tests.ps1
+  e testes ONM com a configuração selecionada. O runner específico Windows
+  possui 11 verificações (um fuso do SO); o Linux possui 15 (dois fusos).
+  Registrar ambiente, comandos/códigos de saída, evidências e avisos aqui.
+- Após cumprir os critérios restantes, mover este arquivo para 04_done e marcar
+  DONE com fim UTC. Desbloqueio sob responsabilidade do mantenedor.
+- Os testes numéricos usam out 0x0003 para imprimir inteiros/bits sem a
+  heurística preexistente de out 0x0001 que pode interpretar valores inteiros
+  na faixa de endereços da VM como strings. Esse comportamento de formatação
+  foi observado com segundos do dia, mas não foi alterado nesta tarefa.
+- O gerador é educacional e não criptográfico; não foi feita certificação
+  estatística. A rejeição pode consumir mais de um estado por chamada.
+- Nenhum binário/CI gerado, configuração de sistema ou alteração na main integra
+  a entrega. Referências aos commits podem ser obtidas por git log --follow.
+
+Conclusão:
+Implementação e validação Ubuntu prontas. BLOCKED exclusivamente pela validação
+Windows exigida nos critérios; publicar PR Draft [BLOCKED], sem merge.
+
+ANEXO A — EVIDÊNCIAS DE EXECUÇÃO
+
+===== BUILD INICIAL DA BASE =====
+mkdir -p build/compiler
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/main.c -o build/compiler/main.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/config.c -o build/compiler/config.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/lexer.c -o build/compiler/lexer.o
+src/compiler/lexer.c: In function ‘ijkl_lexer_scan_raw_block’:
+src/compiler/lexer.c:679:33: warning: ‘/*’ within comment [-Wcomment]
+  679 |         /* Comentário de bloco '/*' */
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/token.c -o build/compiler/token.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/vocabulary.c -o build/compiler/vocabulary.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/ast.c -o build/compiler/ast.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/parser.c -o build/compiler/parser.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/symtab.c -o build/compiler/symtab.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/semantic.c -o build/compiler/semantic.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/codegen.c -o build/compiler/codegen.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/module_loader.c -o build/compiler/module_loader.o
+mkdir -p build/common
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/common/memory.c -o build/common/memory.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/common/utf8.c -o build/common/utf8.o
+mkdir -p bin
+cc   build/compiler/main.o  build/compiler/config.o  build/compiler/lexer.o  build/compiler/token.o  build/compiler/vocabulary.o  build/compiler/ast.o  build/compiler/parser.o  build/compiler/symtab.o  build/compiler/semantic.o  build/compiler/codegen.o  build/compiler/module_loader.o  build/common/memory.o  build/common/utf8.o -o bin/ijkl
+mkdir -p build/vm
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/main.c -o build/vm/main.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/ci_instruction.c -o build/vm/ci_instruction.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/ci_loader.c -o build/vm/ci_loader.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/vm_core.c -o build/vm/vm_core.o
+src/vm/vm_core.c: In function ‘execute_native_builtin’:
+src/vm/vm_core.c:934:60: error: ‘struct tm’ has no member named ‘tm_gmtoff’; did you mean ‘__tm_gmtoff’?
+  934 |         timezone_offset_seconds = (int64_t)local_time_info.tm_gmtoff;
+      |                                                            ^~~~~~~~~
+      |                                                            __tm_gmtoff
+make: *** [Makefile:67: build/vm/vm_core.o] Error 1
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/vm_debugger.c -o build/vm/vm_debugger.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/vm_io.c -o build/vm/vm_io.o
+src/vm/vm_io.c: In function ‘system_clock_port_read_handler’:
+src/vm/vm_io.c:335:54: error: ‘struct tm’ has no member named ‘tm_gmtoff’; did you mean ‘__tm_gmtoff’?
+  335 |             *output_value = (int64_t)local_time_info.tm_gmtoff;
+      |                                                      ^~~~~~~~~
+      |                                                      __tm_gmtoff
+src/vm/vm_io.c: In function ‘file_system_port_write_handler’:
+src/vm/vm_io.c:686:41: warning: comparison of integer expressions of different signedness: ‘int64_t’ {aka ‘long int’} and ‘long long unsigned int’ [-Wsign-compare]
+  686 |             if (!content && input_value >= IJKL_VM_PAGE_NULL_END_ADDRESS &&
+      |                                         ^~
+make: *** [Makefile:67: build/vm/vm_io.o] Error 1
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/vm_memory.c -o build/vm/vm_memory.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/vm_plugins.c -o build/vm/vm_plugins.o
+make: Target 'all' not remade because of errors.
+
+===== BUILD FINAL =====
+mkdir -p build/compiler
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/main.c -o build/compiler/main.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/config.c -o build/compiler/config.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/lexer.c -o build/compiler/lexer.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/token.c -o build/compiler/token.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/vocabulary.c -o build/compiler/vocabulary.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/ast.c -o build/compiler/ast.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/parser.c -o build/compiler/parser.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/symtab.c -o build/compiler/symtab.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/semantic.c -o build/compiler/semantic.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/codegen.c -o build/compiler/codegen.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/compiler/module_loader.c -o build/compiler/module_loader.o
+mkdir -p build/common
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/common/memory.c -o build/common/memory.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/common/utf8.c -o build/common/utf8.o
+mkdir -p bin
+cc   build/compiler/main.o  build/compiler/config.o  build/compiler/lexer.o  build/compiler/token.o  build/compiler/vocabulary.o  build/compiler/ast.o  build/compiler/parser.o  build/compiler/symtab.o  build/compiler/semantic.o  build/compiler/codegen.o  build/compiler/module_loader.o  build/common/memory.o  build/common/utf8.o -o bin/ijkl
+mkdir -p build/vm
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/main.c -o build/vm/main.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/ci_instruction.c -o build/vm/ci_instruction.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/ci_loader.c -o build/vm/ci_loader.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/vm_core.c -o build/vm/vm_core.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/vm_debugger.c -o build/vm/vm_debugger.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/vm_io.c -o build/vm/vm_io.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/vm_memory.c -o build/vm/vm_memory.o
+cc -std=c11 -Wall -Wextra -pedantic -Iinclude -D_POSIX_C_SOURCE=200809L -O2 -c src/vm/vm_plugins.c -o build/vm/vm_plugins.o
+cc   build/vm/main.o  build/vm/ci_instruction.o  build/vm/ci_loader.o  build/vm/vm_core.o  build/vm/vm_debugger.o  build/vm/vm_io.o  build/vm/vm_memory.o  build/vm/vm_plugins.o  build/common/memory.o  build/common/utf8.o -o bin/ijkl-m -lm -ldl
+
+===== GERAL E TESTES RANDOM — TRECHO FINAL =====
+  [PASS] (pt-BR) [VM-Exec] quickstart_demo.ijk
+PASS ci: 460 oracle values (128 triples + boundary seeds/ranges), run 1
+PASS ci: 460 oracle values (128 triples + boundary seeds/ranges), run 2
+PASS ci: Portuguese aliases
+PASS ci: seedWithTime UTC, run 1
+PASS ci: seedWithTime UTC, run 2
+PASS ci: seedWithTime America/New_York, run 1
+PASS ci: seedWithTime America/New_York, run 2
+PASS native: 460 oracle values (128 triples + boundary seeds/ranges), run 1
+PASS native: 460 oracle values (128 triples + boundary seeds/ranges), run 2
+PASS native: Portuguese aliases
+PASS native: seedWithTime UTC, run 1
+PASS native: seedWithTime UTC, run 2
+PASS native: seedWithTime America/New_York, run 1
+PASS native: seedWithTime America/New_York, run 2
+PASS mixed CI/native: shared state, 460 oracle values
+Random: 15 checks passed; exact integer/IEEE 754 parity verified
+
+======================================================================
+Test Results Summary: 164 Passed, 0 Failed (Total: 164)
+======================================================================
+
+===== INTEGRAÇÃO — RESUMO =====
+  [PASS] Framework ijkL.IO (File, Folder, Path): File System Operations (exit_code = 42)
+  [PASS] Framework Extensions: Math, Text & Collections (exit_code = 42)
+======================================================================
+Integration Results: 38 Passed, 0 Failed, 38 Total
+======================================================================
+
+===== ONM — RESUMO =====
+  [PASS] Console stdout is 100% IDENTICAL between onm.ci and onm_native.ci
+  [PASS] Resulting onm.data is 100% IDENTICAL between onm.ci and onm_native.ci
+
+======================================================================
+ Results: 11 Passed, 0 Failed
+======================================================================
+
+===== UBSAN — TESTES ESPECÍFICOS =====
+PASS ci: 460 oracle values (128 triples + boundary seeds/ranges), run 1
+PASS ci: 460 oracle values (128 triples + boundary seeds/ranges), run 2
+PASS ci: Portuguese aliases
+PASS ci: seedWithTime UTC, run 1
+PASS ci: seedWithTime UTC, run 2
+PASS ci: seedWithTime America/New_York, run 1
+PASS ci: seedWithTime America/New_York, run 2
+PASS native: 460 oracle values (128 triples + boundary seeds/ranges), run 1
+PASS native: 460 oracle values (128 triples + boundary seeds/ranges), run 2
+PASS native: Portuguese aliases
+PASS native: seedWithTime UTC, run 1
+PASS native: seedWithTime UTC, run 2
+PASS native: seedWithTime America/New_York, run 1
+PASS native: seedWithTime America/New_York, run 2
+PASS mixed CI/native: shared state, 460 oracle values
+Random: 15 checks passed; exact integer/IEEE 754 parity verified
+
+===== DATETIME — REGRESSÃO =====
+ijkLang (ijkL) v0.2.0
+[Info] Active language: en-US (Entry point: 'main')
+[Info] Source file: tests/test_datetime.ijk
+[Info] Source loaded (5189 bytes).
+
+[Info] Intermediate code written to '/tmp/ijklang-datetime-check-pjcavikg/datetime-False.ci'.
+SUCESSO: DateTime e DataHora aprovados com paridade deterministica!
+mode_native=False, TZ=UTC, exit=0
+SUCESSO: DateTime e DataHora aprovados com paridade deterministica!
+mode_native=False, TZ=America/New_York, exit=0
+SUCESSO: DateTime e DataHora aprovados com paridade deterministica!
+mode_native=False, TZ=Pacific/Kiritimati, exit=0
+SUCESSO: DateTime e DataHora aprovados com paridade deterministica!
+mode_native=False, TZ=Etc/GMT+12, exit=0
+ijkLang (ijkL) v0.2.0
+[Info] Active language: en-US (Entry point: 'main')
+[Info] Source file: tests/test_datetime.ijk
+[Info] Source loaded (5189 bytes).
+
+[Info] Intermediate code written to '/tmp/ijklang-datetime-check-pjcavikg/datetime-True.ci'.
+SUCESSO: DateTime e DataHora aprovados com paridade deterministica!
+mode_native=True, TZ=UTC, exit=0
+SUCESSO: DateTime e DataHora aprovados com paridade deterministica!
+mode_native=True, TZ=America/New_York, exit=0
+SUCESSO: DateTime e DataHora aprovados com paridade deterministica!
+mode_native=True, TZ=Pacific/Kiritimati, exit=0
+SUCESSO: DateTime e DataHora aprovados com paridade deterministica!
+mode_native=True, TZ=Etc/GMT+12, exit=0

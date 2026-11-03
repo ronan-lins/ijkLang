@@ -330,16 +330,17 @@ static bool system_clock_port_read_handler(void* device_context,
 #else
             time_t now = time(NULL);
             struct tm local_time_info;
-            localtime_r(&now, &local_time_info);
-#if defined(__USE_MISC) || defined(_BSD_SOURCE) || defined(__GLIBC__)
-            *output_value = (int64_t)local_time_info.tm_gmtoff;
-#else
+            if (!localtime_r(&now, &local_time_info)) return false;
             struct tm utc_time_info;
-            gmtime_r(&now, &utc_time_info);
-            time_t local_seconds = mktime(&local_time_info);
-            time_t utc_seconds = mktime(&utc_time_info);
-            *output_value = (int64_t)difftime(local_seconds, utc_seconds);
-#endif
+            if (!gmtime_r(&now, &utc_time_info)) return false;
+            /* A diferença civil preserva o horário de verão sem mktime ambíguo. */
+            int day_difference = local_time_info.tm_yday - utc_time_info.tm_yday;
+            if (local_time_info.tm_year > utc_time_info.tm_year) day_difference = 1;
+            if (local_time_info.tm_year < utc_time_info.tm_year) day_difference = -1;
+            *output_value = (int64_t)day_difference * 86400 +
+                (local_time_info.tm_hour - utc_time_info.tm_hour) * 3600 +
+                (local_time_info.tm_min - utc_time_info.tm_min) * 60 +
+                local_time_info.tm_sec - utc_time_info.tm_sec;
 #endif
             return true;
         }
@@ -683,7 +684,7 @@ static bool file_system_port_write_handler(void* device_context,
             if (!content) {
                 content = ijkl_virtual_machine_get_register_string(machine, IJKL_VM_REG_R2);
             }
-            if (!content && input_value >= IJKL_VM_PAGE_NULL_END_ADDRESS &&
+            if (!content && input_value >= (int64_t)IJKL_VM_PAGE_NULL_END_ADDRESS &&
                 (uint64_t)input_value < machine->memory.total_allocated_capacity_bytes) {
                 content = (const char*)&machine->memory.raw_linear_memory_buffer[input_value];
             }

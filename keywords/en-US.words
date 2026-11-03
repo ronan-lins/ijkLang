@@ -87,6 +87,9 @@ ijkL.Memory         = ijkL.Memory
 ijkL.Math           = ijkL.Math
 ijkL.Time.DateTime  = ijkL.Time.DateTime
 
+ijkL.Math.Random = ijkL.Math.Random
+ijkL.Matematica.Aleatorio = ijkL.Math.Random
+
 [framework_members]
 ; Canonical framework member mappings
 now                 = now
@@ -171,3 +174,9 @@ powerReal           = powerReal
 signReal            = signReal
 
 
+
+seed = seed
+seedWithTime = seedWithTime
+next = next
+nextRange = nextRange
+nextReal = nextReal

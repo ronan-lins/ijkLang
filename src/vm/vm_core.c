@@ -468,10 +468,89 @@ static uint64_t build_datetime_instance(IjklVirtualMachine* machine,
  * Despacha rotinas embutidas (built-ins) do sistema implementadas nativamente em C
  * quando a compilação omite os corpos em Código Intermediário (e.g. flag --native-builtins).
  */
+/* LCG de 64 bits, com wrap unsigned definido pela norma C11. */
+static uint64_t random_advance_state(uint64_t* state) {
+    *state = *state * UINT64_C(6364136223846793005) + UINT64_C(1442695040888963407);
+    return *state;
+}
+
 static bool execute_native_builtin(IjklVirtualMachine* machine, const char* builtin_name) {
     if (!machine || !builtin_name) return false;
 
     uint64_t args_base = machine->current_frame_top;
+
+    if (strncmp(builtin_name, "__builtin_random_", 17) == 0) {
+        bool seed_explicitly = strcmp(builtin_name, "__builtin_random_seed") == 0;
+        bool seed_from_time = strcmp(builtin_name, "__builtin_random_seed_with_time") == 0;
+        bool generate_integer = strcmp(builtin_name, "__builtin_random_next") == 0;
+        bool generate_range = strcmp(builtin_name, "__builtin_random_next_range") == 0;
+        bool generate_real = strcmp(builtin_name, "__builtin_random_next_real") == 0;
+        if (!seed_explicitly && !seed_from_time && !generate_integer &&
+            !generate_range && !generate_real) return false;
+        size_t argument_count = seed_explicitly ? 1 : (generate_range ? 2 : 0);
+        int64_t low_address = 0, high_address = 0;
+        int64_t state_low = 0, state_high = 0;
+        if (!ijkl_vm_memory_read_integer(&machine->memory, args_base + argument_count * 8, &low_address) ||
+            !ijkl_vm_memory_read_integer(&machine->memory, args_base + (argument_count + 1) * 8, &high_address) ||
+            !ijkl_vm_memory_read_integer(&machine->memory, (uint64_t)low_address, &state_low) ||
+            !ijkl_vm_memory_read_integer(&machine->memory, (uint64_t)high_address, &state_high)) return false;
+        if (state_low < 0 || state_low > UINT32_MAX || state_high < 0 || state_high > UINT32_MAX) return false;
+        uint64_t state = ((uint64_t)state_high << 32) | (uint64_t)state_low;
+        int64_t integer_result = 0;
+        double real_result = 0.0;
+        if (seed_explicitly) {
+            int64_t custom_seed = 0;
+            if (!ijkl_vm_memory_read_integer(&machine->memory, args_base, &custom_seed)) return false;
+            state = (uint64_t)custom_seed;
+        } else if (seed_from_time) {
+            /* Usa a mesma DateTime.now do caminho CI e libera a instância temporária. */
+            if (!execute_native_builtin(machine, "__builtin_datetime_now")) return false;
+            uint64_t datetime_address = machine->registers[IJKL_VM_REG_R0].as.unsigned_value;
+            int64_t hour = 0, minute = 0, second = 0;
+            bool valid_time = ijkl_vm_memory_read_integer(&machine->memory, datetime_address + 24, &hour) &&
+                ijkl_vm_memory_read_integer(&machine->memory, datetime_address + 32, &minute) &&
+                ijkl_vm_memory_read_integer(&machine->memory, datetime_address + 40, &second);
+            ijkl_vm_memory_free_heap(&machine->memory, datetime_address);
+            if (!valid_time) return false;
+            state = (uint64_t)(hour * 3600 + minute * 60 + second);
+        } else if (generate_integer) {
+            integer_result = (int64_t)(random_advance_state(&state) >> 33);
+        } else if (generate_real) {
+            real_result = (double)(random_advance_state(&state) >> 11) / 9007199254740992.0;
+        } else {
+            int64_t minimum = 0, maximum = 0;
+            if (!ijkl_vm_memory_read_integer(&machine->memory, args_base, &minimum) ||
+                !ijkl_vm_memory_read_integer(&machine->memory, args_base + 8, &maximum)) return false;
+            if (minimum > maximum) {
+                int64_t original_minimum = minimum;
+                minimum = maximum;
+                maximum = original_minimum;
+            }
+            integer_result = minimum;
+            if (minimum != maximum) {
+                uint64_t distance = (uint64_t)maximum - (uint64_t)minimum;
+                unsigned int bit_count = 0;
+                for (uint64_t remaining = distance; remaining != 0; remaining >>= 1) ++bit_count;
+                uint64_t candidate;
+                do {
+                    candidate = random_advance_state(&state) >> (64 - bit_count);
+                } while (candidate > distance);
+                uint64_t result_bits = (uint64_t)minimum + candidate;
+                /* int64_t possui representação em complemento de dois; evita cast fora da faixa. */
+                memcpy(&integer_result, &result_bits, sizeof(integer_result));
+            }
+        }
+        if (!ijkl_vm_memory_write_integer(&machine->memory, (uint64_t)low_address,
+                (int64_t)(state & UINT32_MAX)) ||
+            !ijkl_vm_memory_write_integer(&machine->memory, (uint64_t)high_address,
+                (int64_t)(state >> 32))) return false;
+        machine->registers[IJKL_VM_REG_R0].type = generate_real ? VM_VALUE_TYPE_FLOAT : VM_VALUE_TYPE_INT;
+        if (generate_real) machine->registers[IJKL_VM_REG_R0].as.float_value = real_result;
+        else machine->registers[IJKL_VM_REG_R0].as.integer_value = integer_result;
+        machine->memory.current_stack_pointer = machine->current_frame_top;
+        return true;
+    }
+
 
     if (strcmp(builtin_name, "__builtin_str_len") == 0) {
         int64_t str_addr = 0;
@@ -929,16 +1008,17 @@ static bool execute_native_builtin(IjklVirtualMachine* machine, const char* buil
         }
         struct tm local_time_info;
         time_t time_now = (time_t)epoch_seconds;
-        localtime_r(&time_now, &local_time_info);
-#if defined(__USE_MISC) || defined(_BSD_SOURCE) || defined(__GLIBC__)
-        timezone_offset_seconds = (int64_t)local_time_info.tm_gmtoff;
-#else
-        struct tm utc_time_info;
-        gmtime_r(&time_now, &utc_time_info);
-        time_t local_seconds = mktime(&local_time_info);
-        time_t utc_seconds = mktime(&utc_time_info);
-        timezone_offset_seconds = (int64_t)difftime(local_seconds, utc_seconds);
-#endif
+        if (!localtime_r(&time_now, &local_time_info)) return false;
+            struct tm utc_time_info;
+            if (!gmtime_r(&time_now, &utc_time_info)) return false;
+            /* A diferença civil preserva o horário de verão sem mktime ambíguo. */
+            int day_difference = local_time_info.tm_yday - utc_time_info.tm_yday;
+            if (local_time_info.tm_year > utc_time_info.tm_year) day_difference = 1;
+            if (local_time_info.tm_year < utc_time_info.tm_year) day_difference = -1;
+            timezone_offset_seconds = (int64_t)day_difference * 86400 +
+                (local_time_info.tm_hour - utc_time_info.tm_hour) * 3600 +
+                (local_time_info.tm_min - utc_time_info.tm_min) * 60 +
+                local_time_info.tm_sec - utc_time_info.tm_sec;
 #endif
         uint64_t datetime_address = build_datetime_instance(machine, epoch_seconds, millisecond_fraction, timezone_offset_seconds);
         if (datetime_address == 0) return false;

@@ -1,0 +1,10 @@
+importe ijkL.Matematica.Aleatorio;
+programa AleatorioTeste {
+    privado principal(): inteiro {
+        ijkL.Matematica.Aleatorio.semente(123456789);
+        escrevaln(ijkL.Matematica.Aleatorio.proximo());
+        escrevaln(ijkL.Matematica.Aleatorio.proximoIntervalo(1, 100));
+        escrevaln(ijkL.Matematica.Aleatorio.proximoReal());
+        retorne 0;
+    }
+}

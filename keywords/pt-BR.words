@@ -94,6 +94,9 @@ ijkL.Matematica     = ijkL.Math
 ijkL.Time.DateTime  = ijkL.Time.DateTime
 ijkL.Tempo.DataHora = ijkL.Time.DateTime
 
+ijkL.Math.Random = ijkL.Math.Random
+ijkL.Matematica.Aleatorio = ijkL.Math.Random
+
 [framework_members]
 ; Mapeamento de membros e rotinas do framework padrao (alias = canonico)
 agora                   = now
@@ -179,3 +182,9 @@ potenciaReal        = powerReal
 sinalReal           = signReal
 
 
+
+semente = seed
+sementeComTempo = seedWithTime
+proximo = next
+proximoIntervalo = nextRange
+proximoReal = nextReal

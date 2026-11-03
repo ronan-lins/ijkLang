@@ -279,6 +279,19 @@ static void register_builtin_routines(IjklSymbolTable* symbol_table) {
     IjklTypeSpec* mem_cmp_params[] = { generic_pointer_type, generic_pointer_type, int_type };
     register_single_builtin_routine_with_types(symbol_table, "__builtin_mem_cmp", int_type, 3, mem_cmp_params);
 
+    IjklTypeSpec* real_type = ijkl_ast_type_spec_create(arena, TYPE_KIND_PRIMITIVE, 0, 0);
+    real_type->details.primitive_type = PRIMITIVE_REAL;
+
+    /* Os ponteiros finais são estado oculto compartilhado com o módulo em CI. */
+    IjklTypeSpec* random_seed_parameters[] = { int_type, generic_pointer_type, generic_pointer_type };
+    IjklTypeSpec* random_state_parameters[] = { generic_pointer_type, generic_pointer_type };
+    IjklTypeSpec* random_range_parameters[] = { int_type, int_type, generic_pointer_type, generic_pointer_type };
+    register_single_builtin_routine_with_types(symbol_table, "__builtin_random_seed", int_type, 3, random_seed_parameters);
+    register_single_builtin_routine_with_types(symbol_table, "__builtin_random_seed_with_time", int_type, 2, random_state_parameters);
+    register_single_builtin_routine_with_types(symbol_table, "__builtin_random_next", int_type, 2, random_state_parameters);
+    register_single_builtin_routine_with_types(symbol_table, "__builtin_random_next_range", int_type, 4, random_range_parameters);
+    register_single_builtin_routine_with_types(symbol_table, "__builtin_random_next_real", real_type, 2, random_state_parameters);
+
     /* Built-ins de Data e Hora (ijkL.Time.DateTime / ijkL.Tempo.DataHora) */
     register_single_builtin_routine_with_types(symbol_table, "__builtin_datetime_now", generic_pointer_type, 0, NULL);
     register_single_builtin_routine_with_types(symbol_table, "__builtin_datetime_utc_now", generic_pointer_type, 0, NULL);

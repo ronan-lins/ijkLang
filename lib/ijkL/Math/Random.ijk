@@ -1,0 +1,129 @@
+// PRNG: gerador pseudoaleatório; LCG: gerador congruencial linear.
+// O estado de 64 bits é armazenado em duas palavras positivas de 32 bits.
+import ijkL.Time.DateTime;
+
+unit ijkL.Math.Random {
+    int random_state_low = 1;
+    int random_state_high = 0;
+
+    public seed(int custom_seed) {
+        random_state_low = custom_seed mod 4294967296;
+        random_state_high = custom_seed div 4294967296;
+        if (random_state_low < 0) {
+            random_state_low = random_state_low + 4294967296;
+            random_state_high = random_state_high - 1;
+        }
+        if (random_state_high < 0) {
+            random_state_high = random_state_high + 4294967296;
+        }
+    }
+
+    public seedWithTime() {
+        DateTime current_time = ijkL.Time.DateTime.now();
+        seed(ijkL.Time.DateTime.elapsedSecondsOfDay(current_time));
+        free(current_time);
+    }
+
+    // LCG de período 2^64: s = 6364136223846793005*s + 1442695040888963407.
+    // A convolução em base 2^16 mantém todos os intermediários dentro de int64.
+    private advanceState() {
+        int first = random_state_low mod 65536;
+        int second = random_state_low div 65536;
+        int third = random_state_high mod 65536;
+        int fourth = random_state_high div 65536;
+        int product = first * 32557 + 33103;
+        int result_first = product mod 65536;
+        product = second * 32557 + first * 19605 + 63335 + product div 65536;
+        int result_second = product mod 65536;
+        product = third * 32557 + second * 19605 + first * 62509 + 31614 + product div 65536;
+        int result_third = product mod 65536;
+        product = fourth * 32557 + third * 19605 + second * 62509 + first * 22609 + 5125 + product div 65536;
+        random_state_low = result_first + result_second * 65536;
+        random_state_high = result_third + (product mod 65536) * 65536;
+    }
+
+    public next(): int {
+        advanceState();
+        return random_state_high div 2;
+    }
+
+    public nextReal(): real {
+        advanceState();
+        int significant_bits = random_state_high * 2097152 + random_state_low div 2048;
+        return (significant_bits + 0.0) / 9007199254740992.0;
+    }
+
+    public nextRange(int minimum, int maximum): int {
+        // Intervalos invertidos são normalizados; um único valor não avança o estado.
+        if (minimum > maximum) {
+            int original_minimum = minimum;
+            minimum = maximum;
+            maximum = original_minimum;
+        }
+        if (minimum == maximum) {
+            return minimum;
+        }
+        // Desloca a ordem assinada para dois membros de uma palavra sem sinal.
+        int minimum_low = minimum mod 4294967296;
+        int minimum_high = minimum div 4294967296 + 2147483648;
+        if (minimum_low < 0) {
+            minimum_low = minimum_low + 4294967296;
+            minimum_high = minimum_high - 1;
+        }
+        int maximum_low = maximum mod 4294967296;
+        int maximum_high = maximum div 4294967296 + 2147483648;
+        if (maximum_low < 0) {
+            maximum_low = maximum_low + 4294967296;
+            maximum_high = maximum_high - 1;
+        }
+        int distance_low = maximum_low - minimum_low;
+        int distance_high = maximum_high - minimum_high;
+        if (distance_low < 0) {
+            distance_low = distance_low + 4294967296;
+            distance_high = distance_high - 1;
+        }
+        int bit_count = 0;
+        int remaining = distance_low;
+        if (distance_high > 0) {
+            bit_count = 32;
+            remaining = distance_high;
+        }
+        while (remaining > 0) {
+            bit_count = bit_count + 1;
+            remaining = remaining div 2;
+        }
+        int shift_count = 32 - bit_count;
+        if (bit_count > 32) {
+            shift_count = 64 - bit_count;
+        }
+        int divisor = 1;
+        int index = 0;
+        while (index < shift_count) {
+            divisor = divisor * 2;
+            index = index + 1;
+        }
+        int low_scale = 4294967296 div divisor;
+        int candidate_low = 0;
+        int candidate_high = 0;
+        bool accepted = false;
+        // Rejeição evita o viés de aplicar módulo quando o intervalo não é potência de 2.
+        while (!accepted) {
+            advanceState();
+            if (bit_count <= 32) {
+                candidate_low = random_state_high div divisor;
+            } else {
+                candidate_high = random_state_high div divisor;
+                candidate_low = (random_state_high mod divisor) * low_scale + random_state_low div divisor;
+            }
+            accepted = candidate_high < distance_high ||
+                       (candidate_high == distance_high && candidate_low <= distance_low);
+        }
+        int result_low = minimum_low + candidate_low;
+        int result_high = minimum_high + candidate_high;
+        if (result_low >= 4294967296) {
+            result_low = result_low - 4294967296;
+            result_high = result_high + 1;
+        }
+        return (result_high - 2147483648) * 4294967296 + result_low;
+    }
+}

@@ -260,6 +260,14 @@ for file in "$PROJECT_ROOT"/examples/pt-BR/*.ijk; do
     [ -f "$file" ] && run_vm_execution_test "$file" "$PT_INI" "pt-BR"
 done
 
+# Vetores de referência e paridade do gerador pseudoaleatório.
+TOTAL_COUNT=$((TOTAL_COUNT + 1))
+if python3 "$PROJECT_ROOT/tests/run_random_tests.py" --compiler "$COMPILER_BIN" --vm "$VM_BIN"; then
+    PASSED_COUNT=$((PASSED_COUNT + 1))
+else
+    FAILED_COUNT=$((FAILED_COUNT + 1))
+fi
+
 printf "\n${COLOR_CYAN}======================================================================${COLOR_RESET}\n"
 if [ $FAILED_COUNT -eq 0 ]; then
     printf "${COLOR_GREEN}Test Results Summary: %d Passed, %d Failed (Total: %d)${COLOR_RESET}\n" "$PASSED_COUNT" "$FAILED_COUNT" "$TOTAL_COUNT"

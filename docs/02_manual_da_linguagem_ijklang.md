@@ -341,3 +341,52 @@ A interação básica com o usuário no terminal dá-se através de três comand
 - `escreva(expressao1, expressao2, ...)`: Emite os valores no console sem quebra de linha.
 - `escrevaln(expressao1, expressao2, ...)`: Emite os valores no console e posiciona o cursor na linha seguinte.xpressão no console sem quebra de linha.
 - `escrevaln(expressao)`: Emite o valor da expressão no console e posiciona o cursor na linha seguinte.
+
+
+## Gerador pseudoaleatório — `ijkL.Math.Random`
+
+A unidade oferece `seed(int)`, `seedWithTime()`, `next(): int`,
+`nextRange(int minimum, int maximum): int` e `nextReal(): real`. No vocabulário
+português, use `ijkL.Matematica.Aleatorio` com `semente`, `sementeComTempo`,
+`proximo`, `proximoIntervalo` e `proximoReal`. Os aliases resolvem para a mesma
+unidade física e compartilham um único estado; não há cópia da biblioteca.
+
+O algoritmo é um LCG (gerador congruencial linear) de 64 bits:
+`s = (6364136223846793005 * s + 1442695040888963407) mod 2^64`.
+O estado inicial é 1. `seed` interpreta qualquer inteiro de 64 bits como sua
+representação em complemento de dois, incluindo zero e valores negativos.
+O mesmo conjunto ordenado de chamadas após a mesma semente produz os mesmos
+resultados nos modos padrão e `--native-builtins`.
+
+O estado ocupa duas palavras de 32 bits positivas na memória global da VM.
+Em CI, uma convolução em base 2^16 evita overflow de aritmética assinada.
+Os thunks nativos passam os endereços dessas duas palavras ao despacho C,
+que realiza wrap unsigned definido pela norma C11 e atualiza o mesmo estado.
+A memória de estado é reinicializada com o programa, sem usar `rand`/`srand`
+ou estado global do processo hospedeiro.
+
+- `next` avança uma vez e retorna os 31 bits mais altos: `[0, 2147483647]`.
+- `nextReal` avança uma vez e divide os 53 bits mais altos por `2^53`, produzindo
+  exatamente o mesmo double IEEE 754 em `[0.0, 1.0)` nos dois modos.
+- `nextRange` aceita toda a faixa de inteiros assinados de 64 bits e inclui os
+  dois limites. Limites invertidos são trocados; limites iguais retornam o
+  único valor sem avançar o estado. Usa os bits altos necessários e rejeita
+  candidatos fora da faixa, evitando viés de redução por módulo. Uma chamada
+  pode avançar o estado mais de uma vez; a rejeição é idêntica nos dois modos.
+- `seedWithTime` usa a hora local de `DateTime.now()` e a fórmula de
+  `elapsedSecondsOfDay`, liberando a instância temporária. A resolução é de um
+  segundo: chamadas no mesmo segundo ou no mesmo horário de dias diferentes
+  podem repetir sequências. Para reprodução, use semente explícita.
+
+Este gerador destina-se a exemplos, jogos e simulações; não é criptográfico.
+A variação de semente pelo relógio não implica unicidade de sequências.
+
+Testes: `make test-random` ou `python3 tests/run_random_tests.py` no Ubuntu.
+No Windows: `powershell -ExecutionPolicy Bypass -File tests/run_random_tests.ps1`.
+O runner Unix requer Python 3, somente biblioteca padrão. As suítes gerais
+incluem esses runners. O arquivo `tests/random/vectors.expected` contém 460
+valores calculados por um oráculo independente em Python, incluindo os bits
+IEEE 754 dos reais; pode ser reproduzido por
+`python3 tests/random/generate_vectors.py`. Os runners verificam também a
+emissão dos cinco despachos, limites extremos, determinismo, aliases, sementes
+do relógio e uma execução mista CI/nativa para comprovar estado compartilhado.

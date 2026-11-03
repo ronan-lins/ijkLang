@@ -1299,6 +1299,14 @@ static const IjklAstNode* find_entry_routine_node(const IjklAstNode* program_nod
 static const char* get_builtin_alias_name(const char* module_path, const char* mangled_name) {
     if (!module_path || !mangled_name) return NULL;
 
+    if (strcmp(module_path, "ijkL.Math.Random") == 0) {
+        if (strcmp(mangled_name, "seed$int") == 0) return "__builtin_random_seed";
+        if (strcmp(mangled_name, "seedWithTime$void") == 0) return "__builtin_random_seed_with_time";
+        if (strcmp(mangled_name, "next$void") == 0) return "__builtin_random_next";
+        if (strcmp(mangled_name, "nextRange$int_int") == 0) return "__builtin_random_next_range";
+        if (strcmp(mangled_name, "nextReal$void") == 0) return "__builtin_random_next_real";
+    }
+
     bool is_text = (strcmp(module_path, "ijkL.Text") == 0 ||
                     strcmp(module_path, "ijkL.Texto") == 0 ||
                     strcmp(module_path, "ijkL.Texte") == 0);
@@ -1463,10 +1471,26 @@ static void generate_routine_declaration(IjklCodeGenerator* generator,
             parameter_index++;
             param_cursor = param_cursor->next_sibling;
         }
+        /* Os dois membros de estado pertencem ao módulo e são compartilhados
+         * com o caminho CI, inclusive quando ambas as variantes são chamadas. */
+        size_t hidden_state_instructions = 0;
+        if (generator->current_module_path &&
+            strcmp(generator->current_module_path, "ijkL.Math.Random") == 0 &&
+            strncmp(builtin_alias, "__builtin_random_", 17) == 0) {
+            const char* state_members[] = {"random_state_low", "random_state_high"};
+            for (size_t state_index = 0; state_index < 2; ++state_index) {
+                IjklSymbol* state_symbol = ijkl_symbol_table_lookup_lexical(
+                    generator->symbol_table, state_members[state_index]);
+                size_t state_address = state_symbol ? 0x1000 + state_symbol->memory_offset_in_bytes : 0;
+                fprintf(generator->output_stream, "    r0 := %zu;\n", state_address);
+                fprintf(generator->output_stream, "    push r0;\n");
+                hidden_state_instructions += 2;
+            }
+        }
         fprintf(generator->output_stream, "    call #%s;\n", builtin_alias);
         fprintf(generator->output_stream, "    free_frame;\n");
         fprintf(generator->output_stream, "    return r0;\n");
-        generator->total_emitted_instructions_count += (parameter_index * 2) + 4;
+        generator->total_emitted_instructions_count += (parameter_index * 2) + hidden_state_instructions + 4;
 
         generator->symbol_table->current_active_scope = previous_scope;
         return;

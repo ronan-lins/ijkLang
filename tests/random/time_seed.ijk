@@ -1,0 +1,22 @@
+import ijkL.Math.Random;
+import ijkL.Time.DateTime;
+program RandomTimeSeed {
+    private printInteger(int value) {
+        asm {
+            r1 := [ra, 0];
+            out 0x0003, r1;
+            out 0x0000, '\n';
+        }
+    }
+    private main(): int {
+        DateTime before = ijkL.Time.DateTime.now();
+        ijkL.Math.Random.seedWithTime();
+        DateTime after = ijkL.Time.DateTime.now();
+        printInteger(ijkL.Time.DateTime.elapsedSecondsOfDay(before));
+        printInteger(ijkL.Time.DateTime.elapsedSecondsOfDay(after));
+        printInteger(ijkL.Math.Random.next());
+        free(before);
+        free(after);
+        return 0;
+    }
+}

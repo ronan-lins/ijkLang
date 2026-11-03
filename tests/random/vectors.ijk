@@ -1,0 +1,111 @@
+// Vetores de oráculo independente: python3 tests/random/generate_vectors.py.
+import ijkL.Math.Random;
+program RandomVectors {
+    // A porta numérica imprime os bits IEEE 754, sem arredondar a seis casas.
+    private printRealBits(real value) {
+        asm {
+            r1 := [ra, 0];
+            out 0x0003, r1;
+            out 0x0000, '\n';
+        }
+    }
+    private printInteger(int value) {
+        asm {
+            r1 := [ra, 0];
+            out 0x0003, r1;
+            out 0x0000, '\n';
+        }
+    }
+    private main(): int {
+        printInteger(ijkL.Math.Random.next());
+        ijkL.Math.Random.seed(123456789);
+        int index = 0;
+        while (index < 128) {
+            printInteger(ijkL.Math.Random.next());
+            printInteger(ijkL.Math.Random.nextRange(1, 100));
+            printRealBits(ijkL.Math.Random.nextReal());
+            index = index + 1;
+        }
+        ijkL.Math.Random.seed(0);
+        printInteger(ijkL.Math.Random.nextRange(0, 0));
+        printInteger(ijkL.Math.Random.nextRange(-7, -7));
+        printInteger(ijkL.Math.Random.nextRange(5, -5));
+        printInteger(ijkL.Math.Random.nextRange(0, 2147483647));
+        printInteger(ijkL.Math.Random.nextRange(0, 4294967296));
+        printInteger(ijkL.Math.Random.nextRange((-9223372036854775807 - 1), 9223372036854775807));
+        printInteger(ijkL.Math.Random.nextRange((-9223372036854775807 - 1), -9223372036854775807));
+        printInteger(ijkL.Math.Random.nextRange(9223372036854775806, 9223372036854775807));
+        printInteger(ijkL.Math.Random.nextRange(-4294967296, 4294967296));
+        printInteger(ijkL.Math.Random.nextRange(-1, 9223372036854775807));
+        printInteger(ijkL.Math.Random.nextRange((-9223372036854775807 - 1), 0));
+        printInteger(ijkL.Math.Random.nextRange(0, 9223372036854775807));
+        printInteger(ijkL.Math.Random.nextRange((-9223372036854775807 - 1), -9223372032559808512));
+        printInteger(ijkL.Math.Random.next());
+        printRealBits(ijkL.Math.Random.nextReal());
+        ijkL.Math.Random.seed(1);
+        printInteger(ijkL.Math.Random.nextRange(0, 0));
+        printInteger(ijkL.Math.Random.nextRange(-7, -7));
+        printInteger(ijkL.Math.Random.nextRange(5, -5));
+        printInteger(ijkL.Math.Random.nextRange(0, 2147483647));
+        printInteger(ijkL.Math.Random.nextRange(0, 4294967296));
+        printInteger(ijkL.Math.Random.nextRange((-9223372036854775807 - 1), 9223372036854775807));
+        printInteger(ijkL.Math.Random.nextRange((-9223372036854775807 - 1), -9223372036854775807));
+        printInteger(ijkL.Math.Random.nextRange(9223372036854775806, 9223372036854775807));
+        printInteger(ijkL.Math.Random.nextRange(-4294967296, 4294967296));
+        printInteger(ijkL.Math.Random.nextRange(-1, 9223372036854775807));
+        printInteger(ijkL.Math.Random.nextRange((-9223372036854775807 - 1), 0));
+        printInteger(ijkL.Math.Random.nextRange(0, 9223372036854775807));
+        printInteger(ijkL.Math.Random.nextRange((-9223372036854775807 - 1), -9223372032559808512));
+        printInteger(ijkL.Math.Random.next());
+        printRealBits(ijkL.Math.Random.nextReal());
+        ijkL.Math.Random.seed(-1);
+        printInteger(ijkL.Math.Random.nextRange(0, 0));
+        printInteger(ijkL.Math.Random.nextRange(-7, -7));
+        printInteger(ijkL.Math.Random.nextRange(5, -5));
+        printInteger(ijkL.Math.Random.nextRange(0, 2147483647));
+        printInteger(ijkL.Math.Random.nextRange(0, 4294967296));
+        printInteger(ijkL.Math.Random.nextRange((-9223372036854775807 - 1), 9223372036854775807));
+        printInteger(ijkL.Math.Random.nextRange((-9223372036854775807 - 1), -9223372036854775807));
+        printInteger(ijkL.Math.Random.nextRange(9223372036854775806, 9223372036854775807));
+        printInteger(ijkL.Math.Random.nextRange(-4294967296, 4294967296));
+        printInteger(ijkL.Math.Random.nextRange(-1, 9223372036854775807));
+        printInteger(ijkL.Math.Random.nextRange((-9223372036854775807 - 1), 0));
+        printInteger(ijkL.Math.Random.nextRange(0, 9223372036854775807));
+        printInteger(ijkL.Math.Random.nextRange((-9223372036854775807 - 1), -9223372032559808512));
+        printInteger(ijkL.Math.Random.next());
+        printRealBits(ijkL.Math.Random.nextReal());
+        ijkL.Math.Random.seed((-9223372036854775807 - 1));
+        printInteger(ijkL.Math.Random.nextRange(0, 0));
+        printInteger(ijkL.Math.Random.nextRange(-7, -7));
+        printInteger(ijkL.Math.Random.nextRange(5, -5));
+        printInteger(ijkL.Math.Random.nextRange(0, 2147483647));
+        printInteger(ijkL.Math.Random.nextRange(0, 4294967296));
+        printInteger(ijkL.Math.Random.nextRange((-9223372036854775807 - 1), 9223372036854775807));
+        printInteger(ijkL.Math.Random.nextRange((-9223372036854775807 - 1), -9223372036854775807));
+        printInteger(ijkL.Math.Random.nextRange(9223372036854775806, 9223372036854775807));
+        printInteger(ijkL.Math.Random.nextRange(-4294967296, 4294967296));
+        printInteger(ijkL.Math.Random.nextRange(-1, 9223372036854775807));
+        printInteger(ijkL.Math.Random.nextRange((-9223372036854775807 - 1), 0));
+        printInteger(ijkL.Math.Random.nextRange(0, 9223372036854775807));
+        printInteger(ijkL.Math.Random.nextRange((-9223372036854775807 - 1), -9223372032559808512));
+        printInteger(ijkL.Math.Random.next());
+        printRealBits(ijkL.Math.Random.nextReal());
+        ijkL.Math.Random.seed(9223372036854775807);
+        printInteger(ijkL.Math.Random.nextRange(0, 0));
+        printInteger(ijkL.Math.Random.nextRange(-7, -7));
+        printInteger(ijkL.Math.Random.nextRange(5, -5));
+        printInteger(ijkL.Math.Random.nextRange(0, 2147483647));
+        printInteger(ijkL.Math.Random.nextRange(0, 4294967296));
+        printInteger(ijkL.Math.Random.nextRange((-9223372036854775807 - 1), 9223372036854775807));
+        printInteger(ijkL.Math.Random.nextRange((-9223372036854775807 - 1), -9223372036854775807));
+        printInteger(ijkL.Math.Random.nextRange(9223372036854775806, 9223372036854775807));
+        printInteger(ijkL.Math.Random.nextRange(-4294967296, 4294967296));
+        printInteger(ijkL.Math.Random.nextRange(-1, 9223372036854775807));
+        printInteger(ijkL.Math.Random.nextRange((-9223372036854775807 - 1), 0));
+        printInteger(ijkL.Math.Random.nextRange(0, 9223372036854775807));
+        printInteger(ijkL.Math.Random.nextRange((-9223372036854775807 - 1), -9223372032559808512));
+        printInteger(ijkL.Math.Random.next());
+        printRealBits(ijkL.Math.Random.nextReal());
+        return 0;
+    }
+}
