@@ -477,6 +477,20 @@ static uint64_t random_advance_state(uint64_t* state) {
 static bool execute_native_builtin(IjklVirtualMachine* machine, const char* builtin_name) {
     if (!machine || !builtin_name) return false;
 
+    if (strcmp(builtin_name, "__builtin_console_has_key") == 0 ||
+        strcmp(builtin_name, "__builtin_console_read_key_async") == 0) {
+        bool query_availability = strcmp(builtin_name, "__builtin_console_has_key") == 0;
+        int64_t result = 0;
+        if (!ijkl_vm_io_bus_read_port(&machine->io_bus,
+                query_availability ? IJKL_VM_IO_PORT_CONSOLE_KEY_AVAILABLE :
+                                     IJKL_VM_IO_PORT_CONSOLE_READ_KEY_ASYNC, &result)) return false;
+        /* A instrução in do caminho CI retorna uma palavra inteira. */
+        machine->registers[IJKL_VM_REG_R0].type = VM_VALUE_TYPE_INT;
+        machine->registers[IJKL_VM_REG_R0].as.integer_value = result;
+        machine->memory.current_stack_pointer = machine->current_frame_top;
+        return true;
+    }
+
     uint64_t args_base = machine->current_frame_top;
 
     if (strncmp(builtin_name, "__builtin_random_", 17) == 0) {

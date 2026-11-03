@@ -1,0 +1,8 @@
+importe ijkL.ES.Console;
+programa Teclado {
+    privado principal(): inteiro {
+        escrevaLinha(ijkL.ES.Console.temTecla());
+        escrevaLinha(ijkL.ES.Console.leiaTeclaAssincrona());
+        retorne 0;
+    }
+}

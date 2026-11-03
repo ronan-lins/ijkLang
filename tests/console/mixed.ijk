@@ -1,0 +1,10 @@
+import ijkL.IO.Console;
+program KeyboardMixed {
+    private main(): int {
+        writeln(ijkL.IO.Console.hasKey());
+        writeln(ijkL.IO.Console.readLine());
+        writeln(ijkL.IO.Console.hasKey());
+        writeln(ijkL.IO.Console.readKeyAsync());
+        return 0;
+    }
+}

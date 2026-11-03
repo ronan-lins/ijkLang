@@ -1,0 +1,13 @@
+import ijkL.IO.Console;
+program KeyboardProbe {
+    private main(): int {
+        writeln(ijkL.IO.Console.hasKey());
+        writeln(ijkL.IO.Console.hasKey());
+        writeln(ijkL.IO.Console.readKeyAsync());
+        writeln(ijkL.IO.Console.hasKey());
+        writeln(ijkL.IO.Console.readKeyAsync());
+        writeln(ijkL.IO.Console.hasKey());
+        writeln(ijkL.IO.Console.readKeyAsync());
+        return 0;
+    }
+}

@@ -268,6 +268,14 @@ else
     FAILED_COUNT=$((FAILED_COUNT + 1))
 fi
 
+# Inclui regressões de teclado e paridade CI/nativa, com timeout e pseudo-terminal.
+TOTAL_COUNT=$((TOTAL_COUNT + 1))
+if python3 "$PROJECT_ROOT/tests/run_console_tests.py" --compiler "$COMPILER_BIN" --vm "$VM_BIN"; then
+    PASSED_COUNT=$((PASSED_COUNT + 1))
+else
+    FAILED_COUNT=$((FAILED_COUNT + 1))
+fi
+
 printf "\n${COLOR_CYAN}======================================================================${COLOR_RESET}\n"
 if [ $FAILED_COUNT -eq 0 ]; then
     printf "${COLOR_GREEN}Test Results Summary: %d Passed, %d Failed (Total: %d)${COLOR_RESET}\n" "$PASSED_COUNT" "$FAILED_COUNT" "$TOTAL_COUNT"

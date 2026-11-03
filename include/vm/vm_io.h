@@ -18,6 +18,9 @@
  * - 0x0001: Console Terminal - Saída de Dados Formatados (String / Número).
  * - 0x0002: Console Terminal - Entrada / Saída de Ponto Flutuante (Real / Float).
  * - 0x0003: Console Terminal - Entrada de Linha e Números Inteiros (Stdin).
+ * - 0x0004: Console Terminal - Entrada de Linha como String.
+ * - 0x0005: Console Terminal - Disponibilidade de Byte sem Bloqueio.
+ * - 0x0006: Console Terminal - Leitura de Byte sem Bloqueio.
  * - 0x0010 - 0x0013: Semáforo Didático (plugins/dev_semaforo.dll).
  * - 0x0020 - 0x0027: Display de 7 Segmentos (plugins/dev_display7.dll).
  * - 0x0030 - 0x0037: Robô Simulado em Malha 2D (plugins/dev_robo.dll).
@@ -29,6 +32,8 @@
 #define IJKL_VM_IO_PORT_CONSOLE_REAL        0x0002
 #define IJKL_VM_IO_PORT_CONSOLE_READ        0x0003
 #define IJKL_VM_IO_PORT_CONSOLE_READ_LINE   0x0004
+#define IJKL_VM_IO_PORT_CONSOLE_KEY_AVAILABLE 0x0005
+#define IJKL_VM_IO_PORT_CONSOLE_READ_KEY_ASYNC 0x0006
 
 /* Portas de controle de relógio e data/hora do sistema operacional */
 #define IJKL_VM_IO_PORT_SYSTEM_TIME_SECONDS 0x0008
@@ -142,7 +147,7 @@ bool ijkl_vm_io_bus_write_port(IjklIoBus* io_bus,
                                int64_t input_value,
                                const char* optional_string_literal);
 
-/* Registra os dispositivos embutidos padrão do console terminal (0x0000 a 0x0004) */
+/* Registra os dispositivos embutidos padrão do console terminal (0x0000 a 0x0006) */
 bool ijkl_vm_io_bus_register_standard_console(IjklIoBus* io_bus, struct IjklVirtualMachine* machine);
 
 /* Registra o controlador de transferência de bloco DMA (0x0020 a 0x0023) */

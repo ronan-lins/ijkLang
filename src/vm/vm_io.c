@@ -10,6 +10,7 @@
 #include <windows.h>
 #include <io.h>
 #include <direct.h>
+#include <conio.h>
 #define IJKL_ACCESS(path, mode) _access(path, mode)
 #define IJKL_MKDIR(path) _mkdir(path)
 #define IJKL_RMDIR(path) _rmdir(path)
@@ -21,6 +22,9 @@
 #define IJKL_IS_DIRECTORY(mode) (((mode) & _S_IFMT) == _S_IFDIR)
 #else
 #include <unistd.h>
+#include <poll.h>
+#include <termios.h>
+#include <signal.h>
 #define IJKL_ACCESS(path, mode) access(path, mode)
 #define IJKL_MKDIR(path) mkdir(path, 0777)
 #define IJKL_RMDIR(path) rmdir(path)
@@ -45,15 +49,137 @@
  * ==============================================================================
  */
 
-/* Manipulador embutido do console de terminal para portas 0x0000 a 0x0003 */
+/*
+ * A sondagem guarda um byte por máquina sem consumi-lo logicamente. O terminal
+ * POSIX fica sem modo canônico/eco apenas durante a consulta e é restaurado
+ * antes de retornar, inclusive quando não há entrada. EOF não representa tecla.
+ */
+static bool console_poll_character(IjklVirtualMachine* machine) {
+    if (!machine) return false;
+    if (machine->console_has_pending_character) return true;
+    int character = EOF;
+#ifdef _WIN32
+    if (_isatty(_fileno(stdin))) {
+        if (!_kbhit()) return false;
+        character = _getch();
+    } else {
+        HANDLE input_handle = (HANDLE)_get_osfhandle(_fileno(stdin));
+        DWORD file_type = GetFileType(input_handle);
+        if (file_type == FILE_TYPE_PIPE) {
+            DWORD available_bytes = 0;
+            if (!PeekNamedPipe(input_handle, NULL, 0, NULL, &available_bytes, NULL) ||
+                available_bytes == 0) return false;
+            char byte_value = 0;
+            DWORD bytes_read = 0;
+            if (!ReadFile(input_handle, &byte_value, 1, &bytes_read, NULL) || bytes_read == 0) {
+                return false;
+            }
+            character = (unsigned char)byte_value;
+        } else if (file_type == FILE_TYPE_DISK) {
+            clearerr(stdin);
+            character = getchar();
+        } else {
+            return false;
+        }
+    }
+#else
+    int input_descriptor = fileno(stdin);
+    struct termios original_settings;
+    sigset_t original_signal_mask;
+    bool is_terminal = isatty(input_descriptor) != 0;
+    if (is_terminal) {
+        if (tcgetattr(input_descriptor, &original_settings) != 0) return false;
+        struct termios polling_settings = original_settings;
+        polling_settings.c_lflag &= (tcflag_t)~(ICANON | ECHO);
+        polling_settings.c_cc[VMIN] = 0;
+        polling_settings.c_cc[VTIME] = 0;
+        /* Adia sinais de término/suspensão até restaurar o terminal. */
+        sigset_t blocked_signals;
+        sigemptyset(&blocked_signals);
+        sigaddset(&blocked_signals, SIGINT);
+        sigaddset(&blocked_signals, SIGTERM);
+        sigaddset(&blocked_signals, SIGHUP);
+        sigaddset(&blocked_signals, SIGQUIT);
+        sigaddset(&blocked_signals, SIGTSTP);
+        if (sigprocmask(SIG_BLOCK, &blocked_signals, &original_signal_mask) != 0) return false;
+        if (tcsetattr(input_descriptor, TCSANOW, &polling_settings) != 0) {
+            sigprocmask(SIG_SETMASK, &original_signal_mask, NULL);
+            return false;
+        }
+    }
+    struct pollfd input_poll = {input_descriptor, POLLIN, 0};
+    if (poll(&input_poll, 1, 0) > 0 &&
+        (input_poll.revents & (POLLIN | POLLHUP)) != 0) {
+        clearerr(stdin);
+        character = getchar();
+    }
+    if (is_terminal) {
+        /* Nenhuma alteração persistente de modo de terminal pertence à VM. */
+        bool restored = tcsetattr(input_descriptor, TCSANOW, &original_settings) == 0;
+        sigprocmask(SIG_SETMASK, &original_signal_mask, NULL);
+        if (!restored) return false;
+    }
+#endif
+    if (character == EOF) return false;
+    machine->console_pending_character = character;
+    machine->console_has_pending_character = true;
+    return true;
+}
+
+/* Lê um caractere de entrada consumindo o byte pendente da sondagem, sem dessincronizar buffers. */
+static int console_read_raw_character(IjklVirtualMachine* machine) {
+    if (!machine) return EOF;
+    if (machine->console_has_pending_character) {
+        machine->console_has_pending_character = false;
+        return machine->console_pending_character;
+    }
+#ifdef _WIN32
+    if (_isatty(_fileno(stdin))) {
+        return _getch();
+    } else {
+        HANDLE input_handle = (HANDLE)_get_osfhandle(_fileno(stdin));
+        DWORD file_type = GetFileType(input_handle);
+        if (file_type == FILE_TYPE_PIPE) {
+            char byte_value = 0;
+            DWORD bytes_read = 0;
+            if (ReadFile(input_handle, &byte_value, 1, &bytes_read, NULL) && bytes_read > 0) {
+                return (unsigned char)byte_value;
+            }
+            return EOF;
+        }
+    }
+#endif
+    return getchar();
+}
+
+/* Manipulador embutido do console de terminal para portas 0x0000 a 0x0006 */
 static bool console_port_read_handler(void* device_context,
                                       uint16_t port_address,
                                       int64_t* output_value) {
     if (!output_value) return false;
+    IjklVirtualMachine* console_machine = (IjklVirtualMachine*)device_context;
+    if (port_address == IJKL_VM_IO_PORT_CONSOLE_KEY_AVAILABLE) {
+        *output_value = console_poll_character(console_machine) ? 1 : 0;
+        return true;
+    }
+    if (port_address == IJKL_VM_IO_PORT_CONSOLE_READ_KEY_ASYNC) {
+        *output_value = 0;
+        if (console_poll_character(console_machine)) {
+            *output_value = console_machine->console_pending_character;
+            console_machine->console_has_pending_character = false;
+        }
+        return true;
+    }
+    /* Devolve a antecipação ao fluxo para leituras formatadas via scanf. */
+    if (console_machine && console_machine->console_has_pending_character &&
+        (port_address == IJKL_VM_IO_PORT_CONSOLE_REAL || port_address == IJKL_VM_IO_PORT_CONSOLE_READ)) {
+        ungetc(console_machine->console_pending_character, stdin);
+        console_machine->console_has_pending_character = false;
+    }
 
     switch (port_address) {
         case IJKL_VM_IO_PORT_CONSOLE_CHAR: {
-            int character = getchar();
+            int character = console_read_raw_character(console_machine);
             *output_value = (character != EOF) ? (int64_t)character : -1;
             return true;
         }
@@ -95,7 +221,7 @@ static bool console_port_read_handler(void* device_context,
             }
 
             int character = 0;
-            while ((character = getchar()) != EOF && character != '\n') {
+            while ((character = console_read_raw_character(machine)) != EOF && character != '\n') {
                 if (character == '\r') {
                     continue; /* Normaliza quebras de linha Windows \r\n */
                 }
@@ -277,9 +403,11 @@ bool ijkl_vm_io_bus_write_port(IjklIoBus* io_bus,
 bool ijkl_vm_io_bus_register_standard_console(IjklIoBus* io_bus, struct IjklVirtualMachine* machine) {
     if (!io_bus) return false;
 
+    /* Evita bytes ocultos no buffer stdio após a sondagem do descritor/pipe. */
+    setvbuf(stdin, NULL, _IONBF, 0);
     return ijkl_vm_io_bus_register_device(io_bus,
                                           IJKL_VM_IO_PORT_CONSOLE_CHAR,
-                                          5, /* Portas 0x0000, 0x0001, 0x0002, 0x0003, 0x0004 */
+                                          7, /* Portas 0x0000 a 0x0006 */
                                           "Standard Console Terminal",
                                           console_port_read_handler,
                                           console_port_write_handler,

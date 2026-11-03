@@ -93,6 +93,8 @@ typedef struct IjklVirtualMachine {
     IjklVirtualMemory memory;
     uint64_t current_frame_top;
     IjklIoBus io_bus;
+    bool console_has_pending_character;
+    int console_pending_character;
     IjklDmaController dma_controller;
     IjklFileIoController file_io_controller;
 
