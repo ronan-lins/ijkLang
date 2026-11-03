@@ -1,5 +1,5 @@
 TÍTULO: Corrigir a compilação do ijkLang no Ubuntu com GNU Make
-ID: 20261102-154607-corrigir-compilacao-ubuntu
+ID: 00300-20261102-154607-corrigir-compilacao-ubuntu
 Tipo: bugfix
 Status: DONE (concluída)
 Prioridade: alta — bloqueia a compilação e a validação neste Ubuntu; proposta local.
