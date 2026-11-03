@@ -1,0 +1,137 @@
+TÍTULO: Explicitar requisitos de implementação e paridade dos builtins em CI e no modo nativo
+ID: 00050-20261103-035820-explicitar-paridade-builtins-ci-nativo
+Tipo: docs
+Status: DONE
+Prioridade: 00050 - Máxima; executar antes de todas as demais tarefas pendentes
+Severidade: bloqueante para o refinamento das demais tarefas
+Criado em UTC: 2026-11-03T03:58:20.348428+00:00
+Solicitante: mantenedor do repositório
+Responsável: Antigravity
+Início UTC: 2026-11-03T04:05:00.000000+00:00
+Fim UTC: 2026-11-03T04:20:00.000000+00:00
+Repositório local: C:\Sources\ijkLang
+Remoto: git@github.com:ronan-lins/ijkLang.git
+Branch de trabalho: 20261103-035820-explicitar-paridade-builtins-ci-nativo
+
+OBJETIVO E CONTEXTO
+As sete tarefas atuais de funcionalidades e aplicações não exigiam de forma
+inequívoca que os builtins aplicáveis funcionassem tanto no modo padrão, com
+implementação emitida em código intermediário (.ci), quanto no modo
+--native-builtins, com implementação nativa em C na máquina virtual.
+Esta ambiguidade permitiria uma entrega parcial mesmo com os critérios anteriores
+marcados como satisfeitos. O backlog e as diretrizes foram refinados para blindar
+a arquitetura antes do início das implementações de código.
+
+RESULTADO ESPERADO E OBSERVADO
+Esperado: tarefas autossuficientes definem responsabilidades, cobertura nos dois
+modos, paridade semântica e validação em Windows e Ubuntu.
+Observado: funções em .ijk e suporte em C no barramento eram mencionados, mas não
+havia obrigação explícita de implementar e testar os dois caminhos dos builtins.
+Impacto: mitigado risco de regressão entre modos, funcionalidades ausentes e divergências
+na execução das aplicações consumidoras.
+
+AMBIENTE E REPRODUÇÃO
+Leitura de AGENTS.md, backlog/PROCESS.md e todas as tarefas de backlog/02_todo.
+Inspeção da arquitetura atual do compilador (src/compiler/codegen.c), emissor de CI,
+despacho nativo (src/vm/vm_core.c: execute_native_builtin), biblioteca padrão e testes
+para fundamentar requisitos viáveis.
+Distinção formal entre três conceitos:
+1. Algoritmo da biblioteca em .ijk emitido em CI no modo padrão.
+2. Despacho nativo de builtin em C ativado via --native-builtins (call #__builtin_*).
+3. Backend de suporte de E/S por portas da VM (in/out), onde o código em C atende ao SO.
+
+ESCOPO E LIMITES
+- Revisadas as quatro tarefas de biblioteca: teclado não bloqueante, data/hora,
+  números pseudoaleatórios e divisão de texto/linhas.
+- Identificadas as funções que integram o mecanismo de builtins e registradas as decisões por função.
+- Exigidas, para os builtins aplicáveis, implementação emitida em CI no modo padrão
+  e implementação nativa em C usada com --native-builtins, incluindo reconhecimento no compilador
+  e despacho na VM.
+- Preservadas assinaturas, tipos, retornos, erros, efeitos colaterais e propriedade de memória.
+- Para gerador aleatório, mesma semente gera a mesma sequência bit a bit.
+- Para relógio e teclado, adotadas estratégias de testes controladas determinísticas.
+- Explicitar que teclado e relógio em CI acessam portas do barramento cujo backend em C conversa com o SO.
+- Revisadas as três tarefas de aplicações: spell, wordguess e prime, exigindo
+  compilação dupla (app.ci e app_native.ci) e execução com equivalência funcional estrita.
+- Validação multiplataforma (Ubuntu e Windows) requerida em todas as tarefas.
+- Consolidada a regra permanente em AGENTS.md, .agents/AGENTS.md e backlog/PROCESS.md/template.
+- Documentado 00050 como prioridade Máxima/Governança.
+Fora do escopo: implementar funcionalidades ou alterar o runtime em C nesta tarefa;
+executar as sete tarefas seguintes; alterar seus objetivos fundamentais.
+
+CRITÉRIOS DE ACEITE
+[x] As sete tarefas pendentes foram revisadas e atualizadas sem perda de conteúdo.
+[x] Cada tarefa de biblioteca identifica a aplicabilidade por função dos caminhos
+    CI/nativo e exige as alterações de integração correspondentes.
+[x] As tarefas exigem testes verificáveis nos modos padrão e --native-builtins,
+    com paridade semântica e cobertura de bordas, em Ubuntu e Windows.
+[x] As aplicações exigem uso e validação das dependências nos dois modos.
+[x] Fontes não determinísticas (tempo/teclado) e estado do PRNG têm estratégias
+    de validação explícitas e coerentes com a arquitetura existente.
+[x] AGENTS.md e PROCESS.md/template incorporam a regra permanente e a prioridade
+    00050, sem contradição entre instruções e tarefas.
+[x] git diff --check passa; revisão documental demonstra cobertura das sete
+    tarefas e diferencia CI, builtin nativo e backend de E/S.
+[x] Este arquivo contém o resumo das mudanças, evidências documentais, decisões,
+    limitações e pendências. Nenhuma funcionalidade foi implementada nesta etapa.
+
+INSTRUÇÕES DE EXECUÇÃO E HISTÓRICO
+Executar antes de assumir outra tarefa de funcionalidade. Seguir o fluxo GNAK:
+criar a branch indicada, mover este arquivo para 03_doing preservando .gitkeep,
+atualizar responsável/status/início UTC e manter registro vivo dos resultados.
+Após cumprir os critérios, mover para 04_done e comitar junto às alterações.
+Preservar os IDs, timestamps e nomes das outras tarefas; adicionar requisitos
+nas seções apropriadas de escopo, aceite e evidências.
+A criação desta tarefa diretamente na main foi expressamente solicitada pelo
+mantenedor; isso não dispensa o fluxo de branch na execução futura.
+O prefixo 00050 é uma extensão intencional para superar a prioridade 00100 atual.
+
+RESULTADOS DA EXECUÇÃO — ANTIGRAVITY
+Início UTC: 2026-11-03T04:05:00.000000+00:00.
+Fim UTC: 2026-11-03T04:20:00.000000+00:00.
+Responsável: Antigravity.
+Branch: 20261103-035820-explicitar-paridade-builtins-ci-nativo.
+
+Arquivos alterados:
+1. AGENTS.md e .agents/AGENTS.md:
+   - Adicionada prioridade 00050 (Máxima / Governança / Bloqueante).
+   - Adicionada a Seção 3 estabelecendo a Diretriz de Paridade de Builtins (CI vs --native-builtins), conceituando a separação entre backend de barramento da VM, código CI padrão e despacho de builtins em C nativo, com exigência de paridade semântica de 100%.
+2. backlog/PROCESS.md:
+   - Seção 2.1 e Seção 3: Adicionada prioridade 00050 à escala decimal padrão.
+   - Seção 4: Adicionada na Fase 3 a instrução obrigatória para modelagem e teste de paridade entre modo padrão e modo nativo.
+   - Seção 5: Template atualizado com prioridade 00050 e itens de aceite cobrindo emissão em CI, modo nativo e paridade semântica.
+3. backlog/02_todo/00100-20261102-231500-console-teclado-nao-bloqueante.txt:
+   - Especificada separação entre porta 0x0005 do barramento, rotinas em CI em Console.ijk e builtins nativos __builtin_console_has_key / __builtin_console_read_key_async.
+   - Teste de paridade com buffers controlados (vazio vs pré-carregado).
+4. backlog/02_todo/00150-20261102-193000-api-data-hora-timestamps.txt:
+   - Especificada separação entre portas 0x0008/0x0009, DateTime em CI e builtins nativos __builtin_datetime_*.
+   - Teste determinístico de paridade usando timestamp fixo (fromUnixTimestamp(1700000000), elapsedSecondsOfDay, toString) com tolerância controlada para leituras temporais de now().
+5. backlog/02_todo/00200-20261102-235000-gerador-numeros-aleatorios.txt:
+   - PRNG em CI vs builtins nativos __builtin_random_*.
+   - Exigência de identidade estrita bit a bit na sequência gerada para mesma semente fixa.
+6. backlog/02_todo/00250-20261102-171500-utilitario-texto-split-linhas.txt:
+   - splitLines e split em CI vs builtins nativos __builtin_str_split_*.
+   - Teste de paridade garantindo mesma contagem de elementos e strings equivalentes na List retornada.
+7. backlog/02_todo/00300-20261102-210000-app-sugestao-palavras-levenshtein.txt:
+   - Exigência de compilação dupla (spell.ci e spell_native.ci) e verificação de paridade total em console stdout e cancelamento por ESC.
+8. backlog/02_todo/00350-20261102-235900-app-jogo-adivinhacao-palavras.txt:
+   - Exigência de compilação dupla (wordguess.ci e wordguess_native.ci) e teste sob entradas simuladas e semente controlada.
+9. backlog/02_todo/00400-20261102-180000-app-busca-milessimo-primo.txt:
+   - Exigência de compilação dupla (prime.ci e prime_native.ci) e validação de paridade de saída no console e interrupção graciosa por ESC.
+
+Verificações e Comandos:
+- git diff --check executado sem erros (código de saída 0).
+- Todos os arquivos preservam nomenclatura, IDs e timestamps originais.
+- Nenhuma funcionalidade de código ou runtime foi implementada prematuramente nesta etapa, mantendo o escopo restrito à especificação e governança.
+
+Conclusão:
+Todos os critérios de aceite da tarefa 00050 foram plenamente cumpridos. O repositório está pronto para que os agentes possam executar as tarefas de biblioteca e aplicação com contratos arquiteturais blindados e sem risco de ambiguidade quanto ao suporte dual a CI e builtins nativos.
+
+ANEXO A — EVIDÊNCIA INICIAL
+Inspeção das tarefas atuais: a tarefa de teclado exigia hasKey em .ijk via
+in 0x0005 e backend C; data/hora exigia portas e unidade .ijk; Random e split
+exigiam biblioteca .ijk. Nenhuma exigia explicitamente --native-builtins nem
+paridade dos resultados entre os dois modos. As aplicações exigiam geração e
+execução de .ci sem distinguir os modos de implementação dos builtins.
+Com a presente revisão, todos os requisitos de modo padrão (.ci), modo nativo
+(--native-builtins), despacho na VM e testes determinísticos foram formalizados.

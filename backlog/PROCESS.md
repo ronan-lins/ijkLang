@@ -32,7 +32,7 @@ O arquivo de uma tarefa deve seguir estritamente o formato:
 backlog/<pasta>/[PRIORIDADE]-[DATA_HORA]-[SLUG_DESCRITIVO].txt
 ```
 
-* **`[PRIORIDADE]`**: 5 dígitos decimais com preenchimento de zeros à esquerda (`00100` a `00500`).
+* **`[PRIORIDADE]`**: 5 dígitos decimais com preenchimento de zeros à esquerda (`00050` a `00500`).
   * O menor número indica **maior prioridade/urgência**.
   * A ordenação alfabética natural do sistema de arquivos e comandos (`ls`, `dir`) coloca automaticamente as tarefas mais críticas no topo.
 * **`[DATA_HORA]`**: Data e hora de criação em UTC no formato `YYYYMMDD-HHMMSS` (15 caracteres numéricos separados por hífen).
@@ -57,13 +57,14 @@ Para manter espaçamento que permita inserir tarefas intermediárias sem renumer
 
 | Prefixo | Nível de Prioridade | Descrição / Diretriz |
 | :---: | :--- | :--- |
+| `00050` | **Máxima / Governança / Bloqueante** | Governança arquitetural, contratos de interface e diretrizes de paridade que bloqueiam o refinamento ou execução de outras tarefas. |
 | `00100` | **Crítica / Blocker** | Falha de compilação na branch principal, quebra de CI, regressão grave em produção ou vulnerabilidade crítica. |
 | `00200` | **Alta** | Defeito relevante de comportamento, requisito bloqueante para release ou suporte multiplataforma urgente. |
 | `00300` | **Normal / Média** | Desenvolvimento de nova funcionalidade planejada, refatorações padrão de módulos ou expansões de suíte de testes (prioridade padrão). |
 | `00400` | **Baixa** | Melhorias secundárias, ajustes de formatação, documentação acessória ou polimento visual de logs. |
 | `00500` | **Desejável / Futuro** | Ideias para versões futuras, protótipos exploratórios ou débitos técnicos de baixíssimo impacto. |
 
-*Intervalos intermediários (ex.: `00150`, `00250`) podem ser utilizados para posicionar uma tarefa entre dois níveis sem quebrar a ordem alfabética.*
+*Intervalos intermediários (ex.: `00150`, `00250`, `00350`) podem ser utilizados para posicionar uma tarefa entre dois níveis sem quebrar a ordem alfabética.*
 
 ---
 
@@ -100,10 +101,14 @@ Quando solicitado a verificar as tarefas do projeto, o agente deve:
 
 ### Fase 3: Execução, Testes e Registro Contínuo
 1. Implementar o código em estrita conformidade com as diretrizes de Clean Code em `AGENTS.md` (C11, nomes em inglês descritivo, namespace `ijkl_`, gerenciamento por Arena).
-2. Executar a compilação e as suítes de teste exigidas pelos critérios de aceite:
+2. **Diretriz de Paridade de Builtins (CI vs. `--native-builtins`)**:
+   * Para tarefas de **biblioteca**: sempre implementar o algoritmo emitido em Código Intermediário (`.ci`) no modo padrão e o despacho nativo em C quando compilado com `--native-builtins`. Assegurar paridade semântica 100% entre ambos os modos.
+   * Para tarefas de **aplicação**: sempre validar a compilação e execução tanto no modo padrão (`app.ci`) quanto no modo nativo (`app_native.ci`), confirmando equivalência estrita de comportamento e saída.
+   * Para **fontes não-determinísticas** (relógio, teclado, PRNG): usar cenários determinísticos em testes automatizados (semente fixa para PRNG, timestamp fixo para DateTime, streams vazias/controladas para teclado).
+3. Executar a compilação e as suítes de teste exigidas pelos critérios de aceite:
    * **Linux/Ubuntu:** `make -B -k -j1 all`, `make test`, `make test-integration`.
    * **Windows:** `MSBuild.exe ijkL.sln`, `tests/run_tests.ps1`, `tests/run_integration_tests.ps1`.
-3. **Registro Vivo no Arquivo:** Atualizar a seção `RESULTADOS DA EXECUÇÃO` dentro do próprio arquivo da tarefa em `03_doing/`. Registrar comandos, códigos de saída (`exit_code`), contagem de testes e limitações encontradas.
+4. **Registro Vivo no Arquivo:** Atualizar a seção `RESULTADOS DA EXECUÇÃO` dentro do próprio arquivo da tarefa em `03_doing/`. Registrar comandos, códigos de saída (`exit_code`), contagem de testes e limitações encontradas.
 
 ### Fase 4: Conclusão e Entrega
 1. Confirmar que 100% dos critérios de aceite da tarefa foram cumpridos.
@@ -128,7 +133,7 @@ TÍTULO: [Descrição imperativa clara do objetivo da tarefa]
 ID: [PRIORIDADE]-[DATA_HORA]-[SLUG_DESCRITIVO]
 Tipo: [feature | bugfix | refactor | docs | test | chore]
 Status: [PLAN | TODO | DOING | DONE]
-Prioridade: [00100 - Crítica | 00200 - Alta | 00300 - Normal | 00400 - Baixa | 00500 - Desejável]
+Prioridade: [00050 - Máxima/Governança | 00100 - Crítica | 00200 - Alta | 00300 - Normal | 00400 - Baixa | 00500 - Desejável]
 Severidade: [bloqueante | alta | moderada | baixa | nenhuma]
 Criado em UTC: YYYY-MM-DDTHH:MM:SS.000000+00:00
 Solicitante: [Nome ou papel do solicitante]
@@ -154,10 +159,11 @@ ESCOPO E LIMITES
 [O que está explicitamente dentro do escopo e o que NÃO deve ser alterado nesta tarefa (evitar escopo aberto).]
 
 CRITÉRIOS DE ACEITE
-[x] Critério de aceite 1 objetivo e testável
-[x] Critério de aceite 2 (ex.: compilar em ambas as plataformas sem warnings)
-[x] Executar testes automatizados com 100% de aprovação
-[x] Atualizar este próprio arquivo com as evidências de teste e fechar o status para DONE
+[ ] Implementação emitida em CI no modo padrão
+[ ] Implementação nativa em C invocada com --native-builtins
+[ ] Validação de paridade semântica (100% idêntica nos modos padrão e nativo)
+[ ] Testes automatizados executados com sucesso em Ubuntu e Windows em ambos os modos
+[ ] Atualizar este próprio arquivo com as evidências de teste e fechar o status para DONE
 
 RESULTADOS DA EXECUÇÃO — [NOME DO AGENTE]
 Início UTC: YYYY-MM-DDTHH:MM:SSZ.

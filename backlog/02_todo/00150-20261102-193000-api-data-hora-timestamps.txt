@@ -42,29 +42,40 @@ AMBIENTE E REPRODUÇÃO
 
 ESCOPO E LIMITES
 Dentro do escopo:
-- Adicionar no barramento da VM (include/vm/vm_io.h e src/vm/vm_io.c):
-  - IJKL_VM_IO_PORT_SYSTEM_TIME_SECONDS (0x0008): retorna timestamp Unix Epoch em segundos (time_t).
-  - IJKL_VM_IO_PORT_SYSTEM_TIME_MILLIS (0x0009): retorna fração de milissegundos atuais (0 a 999).
-- Criar a biblioteca em lib/ijkL/Time/DateTime.ijk (e mapear alias ijkL.Tempo.DataHora):
-  - struct DateTime { int year; int month; int day; int hour; int minute; int second; int millisecond; int timestamp; }
-  - public now(): DateTime
-  - public utcNow(): DateTime
-  - public fromUnixTimestamp(int timestamp_seconds): DateTime
-  - public elapsedSecondsOfDay(DateTime dt): int
-  - public toString(DateTime dt): string
-- Adicionar cobertura de testes na suíte tests/.
+- Distinção clara entre barramento de hardware, modo padrão CI e modo nativo:
+  1. Barramento da VM (include/vm/vm_io.h e src/vm/vm_io.c):
+     - IJKL_VM_IO_PORT_SYSTEM_TIME_SECONDS (0x0008): timestamp Unix Epoch em segundos (time_t).
+     - IJKL_VM_IO_PORT_SYSTEM_TIME_MILLIS (0x0009): fração de milissegundos atuais (0 a 999).
+     - Backend em C multiplataforma via time() / timespec_get() / clock_gettime().
+  2. Implementação em CI (Modo Padrão):
+     - lib/ijkL/Time/DateTime.ijk (e alias em lib/ijkL/Tempo/DataHora.ijk):
+       - struct DateTime { int year; int month; int day; int hour; int minute; int second; int millisecond; int timestamp; }
+       - public now(): DateTime (lê portas 0x0008 e 0x0009 e decompõe em CI)
+       - public utcNow(): DateTime
+       - public fromUnixTimestamp(int timestamp_seconds): DateTime (cálculo de calendário gregoriano em CI)
+       - public elapsedSecondsOfDay(DateTime dt): int
+       - public toString(DateTime dt): string (formatação 'YYYY-MM-DD HH:MM:SS')
+  3. Despacho Nativo de Builtins (Modo --native-builtins):
+     - Compilador (src/compiler/codegen.c): reconhecer rotinas como alvos de builtins nativos (__builtin_datetime_now, __builtin_datetime_utc_now, __builtin_datetime_from_unix_timestamp, __builtin_datetime_elapsed_seconds_of_day, __builtin_datetime_to_string), emitindo 'call #__builtin_datetime_*'.
+     - VM (src/vm/vm_core.c): registrar e despachar builtins em execute_native_builtin() executando rotinas nativas em C que instanciam a mesma struct DateTime e strings na memória da VM.
+- Paridade Semântica e Testes Determinísticos:
+  - Como o tempo avança continuamente, os testes estritos de paridade não devem comparar chamadas a now() em instantes distintos.
+  - Estratégia determinística obrigatória:
+    a) Teste de Paridade com Timestamp Fixo: invocar fromUnixTimestamp(1700000000) nos modos padrão (.ci) e nativo (--native-builtins). Todos os campos da struct (year, month, day, hour, minute, second), o resultado de elapsedSecondsOfDay e a string de toString devem ser 100% idênticos entre os modos.
+    b) Teste de Sanidade de now() / utcNow(): validar coerência temporal em ambos os modos com tolerância para variação de relógio do SO.
+- Adicionar cobertura de testes para ambos os modos em tests/run_tests.ps1 e Makefile.
 Fora do escopo:
 - Cálculos complexos de fusos horários astronômicos ou calendários não-gregorianos.
 
 CRITÉRIOS DE ACEITE
-[ ] Portas 0x0008 e 0x0009 registradas no barramento da VM retornando valores corretos do SO.
-[ ] Unidade ijkL.Time.DateTime implementada em lib/ijkL/Time/DateTime.ijk.
-[ ] now() retorna ano, mês, dia, hora, minuto, segundo compatíveis com o horário local real.
-[ ] elapsedSecondsOfDay() retorna exatamente (hora * 3600 + minuto * 60 + segundo).
-[ ] toString() formata no padrão ISO 'YYYY-MM-DD HH:MM:SS'.
-[ ] Compilação limpa no Windows (MSBuild) e Linux (make) sem erros ou avisos.
-[ ] Suíte de testes automatizados existente 100% aprovada.
-[ ] Novos testes de unidade validando os métodos da API de data e hora.
+[ ] Portas 0x0008 e 0x0009 registradas no barramento da VM retornando valores corretos do SO em Windows e Linux.
+[ ] Unidade ijkL.Time.DateTime implementada em lib/ijkL/Time/DateTime.ijk (e alias ijkL.Tempo.DataHora) emitida em CI no modo padrão.
+[ ] Implementação nativa de builtins em C (__builtin_datetime_*) ativada por --native-builtins no compilador e executada na VM.
+[ ] Paridade semântica 100%: mesma representação da struct DateTime na memória da VM, mesmos campos e mesma formatação.
+[ ] Teste determinístico de paridade comprovando resultados idênticos para fromUnixTimestamp, elapsedSecondsOfDay e toString entre CI e modo nativo.
+[ ] Testes de sanidade de now() e utcNow() aprovados em ambos os modos.
+[ ] Compilação limpa no Windows (MSBuild) e Linux (make) sem erros nem avisos (0 warnings).
+[ ] Suíte de testes automatizados existente 100% aprovada (sem regressões).
 [ ] Atualizar este próprio arquivo com os comandos, códigos de saída e evidências, movendo para 04_done.
 
 RESULTADOS DA EXECUÇÃO — [NOME DO AGENTE]

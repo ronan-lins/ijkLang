@@ -35,9 +35,13 @@ AMBIENTE E REPRODUÇÃO
 - Dicionários em examples/apps/spell/data/:
   - compact.dict: ~2.000 a 3.000 palavras comuns em licença aberta (domínio público / MIT).
   - stress.dict: ~50.000 a 100.000 palavras para benchmark intensivo da VM.
-- Execução:
-    bin/Debug/ijkl examples/apps/spell/spell.ijk -o examples/apps/spell/spell.ci
-    bin/Debug/ijkl-m examples/apps/spell/spell.ci
+- Compilação e execução nos dois modos de builtins:
+  a) Modo Padrão (CI):
+     bin/Debug/ijkl examples/apps/spell/spell.ijk -o examples/apps/spell/spell.ci
+     bin/Debug/ijkl-m examples/apps/spell/spell.ci
+  b) Modo Nativo (--native-builtins):
+     bin/Debug/ijkl --native-builtins examples/apps/spell/spell.ijk -o examples/apps/spell/spell_native.ci
+     bin/Debug/ijkl-m examples/apps/spell/spell_native.ci
 
 ESCOPO E LIMITES
 Dentro do escopo:
@@ -49,17 +53,19 @@ Dentro do escopo:
 - Exibição de progresso percentual atualizado dinamicamente no terminal durante a busca.
 - Interrupção por tecla ESC (código 27) via ijkL.IO.Console.hasKey() sem travamento.
 - Seleção das 5 palavras com menor distância e ordenação alfabética em caso de empate.
-- Scripts de teste automatizado examples/apps/spell/tests/run_tests.ps1 e run_tests.sh.
+- Validação de paridade estrita entre spell.ci e spell_native.ci:
+  - Para entradas gravadas idênticas, a saída em console, cálculo de distâncias, ordenação das sugestões e comportamento de interrupção por ESC devem ser 100% idênticos entre os dois modos.
+- Scripts de teste automatizado examples/apps/spell/tests/run_tests.ps1 e run_tests.sh cobrindo a execução dos dois modos.
 Fora do escopo:
 - Correção fonética (Soundex/Metaphone) ou árvores BK-Tree complexas.
 
 CRITÉRIOS DE ACEITE
-[ ] spell.ijk compila sem erros com bin/Debug/ijkl gerando spell.ci.
-[ ] spell.ci executa na VM bin/Debug/ijkl-m em ambas as plataformas (Windows e Linux).
-[ ] O cálculo de Levenshtein para palavras conhecidas retorna distâncias exatas (ex: "casa" -> "caso" = 1).
-[ ] As 5 palavras sugeridas são ordenadas alfabeticamente.
-[ ] Cancelamento com tecla ESC interrompe a busca e encerra com código 0.
-[ ] Scripts de teste automatizados em tests/ passam com 100% de sucesso.
+[ ] spell.ijk compila sem erros gerando spell.ci no modo padrão.
+[ ] spell.ijk compila com --native-builtins gerando spell_native.ci no modo nativo.
+[ ] Ambos os binários (spell.ci e spell_native.ci) executam na VM (bin/Debug/ijkl-m) no Windows e Linux.
+[ ] Paridade de saída 100%: para mesma entrada e dicionário, as distâncias calculadas e as 5 palavras sugeridas ordenadas alfabeticamente são estritamente idênticas nos dois modos.
+[ ] Cancelamento com tecla ESC interrompe a busca e encerra com código 0 em ambos os modos.
+[ ] Scripts de teste automatizados em tests/ validam ambas as compilações (spell.ci e spell_native.ci) com 100% de sucesso.
 [ ] Documento de especificação examples/apps/spell/spell.spec.md criado.
 [ ] Atualizar este próprio arquivo com os comandos, códigos de saída e evidências, movendo para 04_done.
 
